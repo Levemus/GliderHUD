@@ -1,0 +1,110 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/compass_activity_container"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#000000"
+    tools:context=".CompassActivity" >
+
+    <ImageView
+        android:id="@+id/compass_bar"
+        android:layout_width="wrap_content"
+        android:layout_height="70dp"
+        android:contentDescription="@string/bar_cd"
+        android:src="@drawable/compass_bar"
+        android:layout_alignBottom="@+id/compass_underline"
+        android:layout_alignRight="@+id/speedTitle" />
+
+    <ImageView
+        android:id="@+id/compass_underline"
+        android:layout_width="match_parent"
+        android:layout_height="13dp"
+        android:layout_marginTop="104dp"
+        android:contentDescription="@string/underline_cd"
+        android:src="@drawable/orange_pointer" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:id="@+id/altiDisplay"
+        android:text="0.0"
+        android:textSize="48dp"
+        android:layout_below="@+id/altitudeTitle"
+        android:layout_alignParentLeft="true" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:id="@+id/speedDisplay"
+        android:layout_alignTop="@+id/altiDisplay"
+        android:layout_alignParentRight="true"
+        android:text="0.0"
+        android:textSize="48dp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="Altitude (m)"
+        android:id="@+id/altitudeTitle"
+        android:layout_alignTop="@+id/compass_underline"
+        android:layout_alignParentLeft="true" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="Speed (kph)"
+        android:id="@+id/speedTitle"
+        android:layout_alignTop="@+id/compass_underline"
+        android:layout_alignRight="@+id/speedDisplay" />
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="26dp"
+        android:id="@+id/bearing_pointer"
+        android:src="@drawable/greenptrbar"
+        android:layout_alignTop="@+id/compass_bar"
+        android:layout_alignParentRight="true" />
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="26dp"
+        android:id="@+id/wind_pointer"
+        android:src="@drawable/blueptrbar"
+        android:layout_alignTop="@+id/compass_bar"
+        android:layout_alignParentRight="true" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:id="@+id/mfdTitle"
+        android:layout_toLeftOf="@+id/speedTitle"
+        android:layout_below="@+id/speedTitle"
+        android:layout_toRightOf="@+id/altitudeTitle"
+        android:gravity="center_horizontal" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:id="@+id/mfdDisplay"
+        android:textSize="32dp"
+        android:layout_below="@+id/mfdTitle"
+        android:layout_toRightOf="@+id/altitudeTitle"
+        android:layout_alignRight="@+id/mfdTitle"
+        android:layout_alignBottom="@+id/altiDisplay"
+        android:gravity="center_horizontal" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:id="@+id/windSpeed"
+        android:layout_centerHorizontal="true"
+        android:textSize="30dp" />
+
+</RelativeLayout><!-- From: file:/Users/markcarter/Work/Levemus/Apps/GliderHud/app/src/main/res/layout/activity_compass.xml -->
