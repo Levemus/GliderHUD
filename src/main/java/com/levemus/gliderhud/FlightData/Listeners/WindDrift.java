@@ -98,7 +98,7 @@ public class WindDrift extends FlightDataBroadcaster implements IFlightDataListe
 
     private class ProcessWindRunnable implements Runnable {
 
-        private int WINDDRIFT_CALC_INTERVAL_MS = 60000;
+        private int WINDDRIFT_CALC_INTERVAL_MS = 30000;
         private double DEGREES_FULL_CIRCLE = 360;
         private int MAX_NUM_WIND_VELOCITIES = 20;
         private double WIND_WEIGHTING_FACTOR = 0.9;
@@ -160,7 +160,7 @@ public class WindDrift extends FlightDataBroadcaster implements IFlightDataListe
                     if (type == FlightDataType.WINDSPEED)
                         return mWind.Magnitude();
                     if (type == FlightDataType.WINDDIRECTION)
-                        return mWind.Magnitude();
+                        return mWind.Direction();
                 }
                 catch(Exception e) {}
                 throw new java.lang.UnsupportedOperationException();

@@ -77,10 +77,7 @@ abstract public class DirectionDisplay implements IFlightDisplay {
 
         public double determineOffset(double angle)
         {
-            double newAngle = 135.0f + deltaAngle(angle);
-            while(newAngle < 0)
-                newAngle+= 360;
-            return(newAngle % 360);
+            return(deltaAngle((angle + 93) % 360));
         }
 
         public double deltaAngle(double angleA)

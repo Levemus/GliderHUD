@@ -69,8 +69,8 @@ public class CompassDisplay extends FlightDisplayListener {
     public void display()
     {
         mHeadingDisplay.display();
-        //mBearingDisplay.display();
-        //mWindDisplay.display();
+        mBearingDisplay.display();
+        mWindDisplay.display();
     }
 
     @Override
@@ -95,13 +95,12 @@ public class CompassDisplay extends FlightDisplayListener {
         private WindDrift mWindDrift = new WindDrift();
         private double mWindSpeed = -1;
 
-
         private double mOffsetAngle = 0;
 
         private double DEGREES_FULL_CIRCLE = 360;
         private double DEGREES_HALF_CIRCLE = DEGREES_FULL_CIRCLE / 2;
 
-        private int UPDATE_INTERVAl_MS = 30000;
+        private int UPDATE_INTERVAl_MS = 10000;
 
         EnumSet<IFlightData.FlightDataType> mSubscriptionFlags = EnumSet.of(
                 IFlightData.FlightDataType.WINDDIRECTION,
@@ -111,6 +110,7 @@ public class CompassDisplay extends FlightDisplayListener {
         public void init(Activity activity) {
             mWindDirectionDisplay = new DirectionDisplayImage((ImageView) activity.findViewById(com.levemus.gliderhud.R.id.wind_pointer));
             mWindSpeedDisplay = new DirectionDisplayText((TextView) activity.findViewById(com.levemus.gliderhud.R.id.windSpeed));
+            mWindDrift.init(activity);
         }
 
         @Override
@@ -126,8 +126,8 @@ public class CompassDisplay extends FlightDisplayListener {
         public void display() {
             if(mWindSpeed <= 0 )
                 return;
-            //mWindDirectionDisplay.display();
-            //mWindSpeedDisplay.display();
+            mWindDirectionDisplay.display();
+            mWindSpeedDisplay.display();
         }
 
         @Override
@@ -167,7 +167,7 @@ public class CompassDisplay extends FlightDisplayListener {
 
         @Override
         public void display() {
-            //mBearingDisplay.display();
+            mBearingDisplay.display();
         }
 
         @Override

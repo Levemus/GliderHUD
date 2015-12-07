@@ -35,7 +35,7 @@ public class TestFlightDataBroadcaster extends FlightDataBroadcaster implements 
     private double climbRate = 0.5; // m/s
     private double turnRate = 5.0; // degree / sec
     private double airspeed = 30.0; // kph
-    private Vector mWindVelocity =  new Vector(10,-20);
+    private Vector mWindVelocity =  new Vector(10,0);
 
     private double currentAltitude = startAltitude;
     private Vector mCurrentVelocity =  new Vector(-1*airspeed,0);
