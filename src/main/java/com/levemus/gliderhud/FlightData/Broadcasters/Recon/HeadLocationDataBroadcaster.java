@@ -1,5 +1,16 @@
 package com.levemus.gliderhud.FlightData.Broadcasters.Recon;
 
+/*
+ Both the author and publisher makes no representations or warranties
+ about the suitability of this software, either expressed or implied, including
+ but not limited to the implied warranties of merchantability, fitness
+ for a particular purpose or noninfringement. Both the author and publisher
+ shall not be liable for any damages suffered as a result of using,
+ modifying or distributing the software or its derivatives.
+
+ (c) 2015 Levemus Software, Inc.
+ */
+
 import android.app.Activity;
 
 import com.levemus.gliderhud.FlightData.Broadcasters.FlightDataBroadcaster;
@@ -11,16 +22,13 @@ import com.reconinstruments.os.hardware.sensors.HeadLocationListener;
 import java.util.EnumSet;
 
 /**
- * Created by markcarter on 15-12-06.
+ * Created by mark@levemus on 15-12-06.
  */
 public class HeadLocationDataBroadcaster extends FlightDataBroadcaster implements HeadLocationListener {
 
     // logcat class id
     private final String TAG = this.getClass().getSimpleName();
     private HUDHeadingManager mHUDHeadingManager = null;
-
-    private EnumSet<IFlightData.FlightDataType> mSupportedTypes = EnumSet.of(
-                IFlightData.FlightDataType.YAW);
 
     @Override
     public void init(Activity activity)
@@ -40,10 +48,9 @@ public class HeadLocationDataBroadcaster extends FlightDataBroadcaster implement
         }
 
     @Override
-    public EnumSet<IFlightData.FlightDataType> getSupportedTypes()
-        {
-            return mSupportedTypes;
-        }
+    public EnumSet<IFlightData.FlightDataType> supportedTypes() {
+        return new HeadLocationFlightData().supportedTypes();
+    }
 
     @Override
     public void onHeadLocation(float yaw, float pitch, float roll) {
@@ -51,28 +58,34 @@ public class HeadLocationDataBroadcaster extends FlightDataBroadcaster implement
             return;
         }
 
-        NotifyListeners(new HeadFlightData(yaw),
-                EnumSet.of(IFlightData.FlightDataType.YAW));
+        notifyListeners(new HeadLocationFlightData(yaw));
+    }
+}
+
+class HeadLocationFlightData implements IFlightData {
+
+    private double mYaw;
+
+    public HeadLocationFlightData() {} // to get around lack of statics in interfaces while accessing supported types
+
+    public HeadLocationFlightData(double yaw)
+    {
+        mYaw = yaw;
     }
 
-    private class HeadFlightData implements IFlightData {
-
-        private double mYaw;
-
-        public HeadFlightData (double yaw)
-        {
-            mYaw = yaw;
+    @Override
+    public double getData(FlightDataType type) throws java.lang.UnsupportedOperationException
+    {
+        try {
+            if (type == FlightDataType.YAW)
+                return mYaw;
         }
+        catch(Exception e) {}
+        throw new java.lang.UnsupportedOperationException();
+    }
 
-        @Override
-        public double getData(FlightDataType type) throws java.lang.UnsupportedOperationException
-        {
-            try {
-                if (type == FlightDataType.YAW)
-                    return mYaw;
-            }
-            catch(Exception e) {}
-            throw new java.lang.UnsupportedOperationException();
-        }
+    @Override
+    public EnumSet<FlightDataType> supportedTypes() {
+        return EnumSet.of(IFlightData.FlightDataType.YAW);
     }
 }

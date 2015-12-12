@@ -23,9 +23,6 @@ import android.content.Context;
 
 import com.levemus.gliderhud.FlightData.Broadcasters.FlightDataBroadcaster;
 import com.levemus.gliderhud.FlightData.IFlightData;
-import com.reconinstruments.os.HUDOS;
-import com.reconinstruments.os.hardware.sensors.HUDHeadingManager;
-import com.reconinstruments.os.hardware.sensors.HeadLocationListener;
 
 /**
  * Created by flyinorange on 15-11-23.
@@ -43,11 +40,6 @@ public class InternalGPSFlightDataBroadcaster extends FlightDataBroadcaster impl
 
     private EnumSet<IFlightData.FlightDataType> mSupportedTypes = EnumSet.of(
             IFlightData.FlightDataType.VARIO);
-
-    private EnumSet<IFlightData.FlightDataType> mSubscriptionTypes = EnumSet.of(
-            IFlightData.FlightDataType.ALTITUDE,
-            IFlightData.FlightDataType.GROUNDSPEED,
-            IFlightData.FlightDataType.BEARING);
 
     @Override
     public void init(Activity activity)
@@ -71,14 +63,14 @@ public class InternalGPSFlightDataBroadcaster extends FlightDataBroadcaster impl
     }
 
     @Override
-    public EnumSet<IFlightData.FlightDataType> getSupportedTypes()
+    public EnumSet<IFlightData.FlightDataType> supportedTypes()
     {
         return mSupportedTypes;
     }
 
     @Override
     public void onLocationChanged(android.location.Location location) {
-        NotifyListeners(new GPSFlightData(location), mSubscriptionTypes);
+        notifyListeners(new GPSFlightData(location));
     }
 
     @Override
@@ -117,6 +109,14 @@ public class InternalGPSFlightDataBroadcaster extends FlightDataBroadcaster impl
             }
             catch(Exception e) {}
             throw new java.lang.UnsupportedOperationException();
+        }
+
+        @Override
+        public EnumSet<FlightDataType> supportedTypes() {
+            return EnumSet.of(
+                    IFlightData.FlightDataType.ALTITUDE,
+                    IFlightData.FlightDataType.GROUNDSPEED,
+                    IFlightData.FlightDataType.BEARING);
         }
     }
 }

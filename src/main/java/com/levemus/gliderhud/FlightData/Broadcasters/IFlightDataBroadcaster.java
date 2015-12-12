@@ -30,8 +30,8 @@ import java.util.EnumSet;
  * Created by mark@levemus on 15-11-23.
  */
 public interface IFlightDataBroadcaster {
-    public EnumSet<IFlightData.FlightDataType> getSupportedTypes();
-    public EnumSet<IFlightData.FlightDataType> AddListener(IFlightDataListener listener, long notificationInterval, EnumSet<IFlightData.FlightDataType> subscription);
+    public EnumSet<IFlightData.FlightDataType> supportedTypes();
+    public EnumSet<IFlightData.FlightDataType> addListener(IFlightDataListener listener, long notificationInterval, EnumSet<IFlightData.FlightDataType> subscription);
     public void init(Activity activity);
     public void pause();
     public void resume();

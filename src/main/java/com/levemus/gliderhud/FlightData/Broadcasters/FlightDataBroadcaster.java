@@ -41,8 +41,9 @@ public abstract class FlightDataBroadcaster implements IFlightDataBroadcaster {
 
     private ArrayList<ListenerInterval> mListeners = new ArrayList<ListenerInterval>();
 
-    protected void NotifyListeners(IFlightData data, EnumSet<IFlightData.FlightDataType> types)
+    protected void notifyListeners(IFlightData data)
     {
+        EnumSet<IFlightData.FlightDataType> types = data.supportedTypes();
         long currentTime = new Date().getTime();
         if(mListeners != null) {
             for(ListenerInterval listenerInterval : mListeners) {
@@ -57,16 +58,16 @@ public abstract class FlightDataBroadcaster implements IFlightDataBroadcaster {
         }
     }
 
-    public EnumSet<IFlightData.FlightDataType> AddListener(IFlightDataListener listener, long notificationInterval, EnumSet<IFlightData.FlightDataType> subscription)
+    public EnumSet<IFlightData.FlightDataType> addListener(IFlightDataListener listener, long notificationInterval, EnumSet<IFlightData.FlightDataType> subscription)
     {
         EnumSet<IFlightData.FlightDataType> intersection = EnumSet.copyOf(subscription);
-        intersection.retainAll(getSupportedTypes());
+        intersection.retainAll(supportedTypes());
         if(!intersection.isEmpty())
             mListeners.add(new ListenerInterval(listener, notificationInterval, subscription));
         return intersection;
     }
 
-    public EnumSet<IFlightData.FlightDataType> getSupportedTypes()
+    public EnumSet<IFlightData.FlightDataType> supportedTypes()
     {
         return EnumSet.noneOf(IFlightData.FlightDataType.class);
     }

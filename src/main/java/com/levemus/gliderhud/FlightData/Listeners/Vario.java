@@ -14,9 +14,7 @@ import android.app.Activity;
 
 import com.levemus.gliderhud.FlightData.Broadcasters.IFlightDataBroadcaster;
 import com.levemus.gliderhud.FlightData.IFlightData;
-import com.levemus.gliderhud.FlightData.Listeners.IFlightDataListener;
 import com.levemus.gliderhud.FlightData.Broadcasters.FlightDataBroadcaster;
-import com.levemus.gliderhud.Types.Vector;
 
 import java.util.EnumSet;
 
@@ -29,8 +27,8 @@ public class Vario extends FlightDataBroadcaster implements IFlightDataListener 
 
     // IFlightDataBroadcaster
     @Override
-    public EnumSet<IFlightData.FlightDataType> getSupportedTypes() {
-        return mSupportedTypes;
+    public EnumSet<IFlightData.FlightDataType> supportedTypes() {
+        return new VarioFlightData().supportedTypes();
     }
 
     @Override
@@ -49,7 +47,7 @@ public class Vario extends FlightDataBroadcaster implements IFlightDataListener 
             double altitude = data.getData(IFlightData.FlightDataType.ALTITUDE);
         }
         catch(java.lang.UnsupportedOperationException e){}
-        NotifyListeners(new VarioFlightData(0), mSupportedTypes); // TODO: need to populate vario data - exponential moving avg?
+        notifyListeners(new VarioFlightData(0)); // TODO: need to populate vario data - exponential moving avg?
     }
 
     EnumSet<IFlightData.FlightDataType> mSubscriptionFlags = EnumSet.of(
@@ -57,31 +55,34 @@ public class Vario extends FlightDataBroadcaster implements IFlightDataListener 
 
     @Override
     public void registerWith(IFlightDataBroadcaster broadcaster) {
-        broadcaster.AddListener(this, VARIO_UPDATE_INTERVAL_MS, mSubscriptionFlags);
+        broadcaster.addListener(this, VARIO_UPDATE_INTERVAL_MS, mSubscriptionFlags);
     }
-
-    private EnumSet<IFlightData.FlightDataType> mSupportedTypes = EnumSet.of(
-            IFlightData.FlightDataType.VARIO);
+}
 
 
-    private class VarioFlightData implements IFlightData
+class VarioFlightData implements IFlightData{
+    private double mVario;
+
+    public VarioFlightData() {} // to get around lack of statics in interfaces while accessing supported types
+    public VarioFlightData(double vario)
     {
-        private double mVario;
-        public VarioFlightData(double vario)
-        {
-            mVario = vario;
-        }
-
-        @Override
-        public double getData(FlightDataType type) throws java.lang.UnsupportedOperationException
-        {
-            try {
-                if (type == FlightDataType.VARIO)
-                    return mVario;
-            }
-            catch(Exception e) {}
-            throw new java.lang.UnsupportedOperationException();
-        }
+        mVario = vario;
     }
 
+    @Override
+    public double getData(FlightDataType type) throws java.lang.UnsupportedOperationException
+    {
+        try {
+            if (type == FlightDataType.VARIO)
+                return mVario;
+        }
+        catch(Exception e) {}
+        throw new java.lang.UnsupportedOperationException();
+    }
+
+    @Override
+    public EnumSet<FlightDataType> supportedTypes() {
+        return EnumSet.of(
+                IFlightData.FlightDataType.VARIO);
+    }
 }
