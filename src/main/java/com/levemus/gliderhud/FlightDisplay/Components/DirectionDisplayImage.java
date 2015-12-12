@@ -19,7 +19,7 @@ import com.levemus.gliderhud.FlightData.Broadcasters.IFlightDataBroadcaster;
 import com.levemus.gliderhud.Types.Point;
 
 /**
- * Created by markcarter on 15-11-30.
+ * Created by mark@levemus on 15-11-30.
  */
 public class DirectionDisplayImage extends DirectionDisplay {
 

@@ -58,7 +58,7 @@ public class CompassDisplay extends FlightDisplayListener {
     @Override
     public void registerWith(IFlightDataBroadcaster broadcaster) {
         if(!mSubscriptionFlags.isEmpty()) {
-            EnumSet<IFlightData.FlightDataType> result = broadcaster.AddListener(this, UPDATE_INTERVAl_MS, mSubscriptionFlags);
+            EnumSet<IFlightData.FlightDataType> result = broadcaster.addListener(this, UPDATE_INTERVAl_MS, mSubscriptionFlags);
             mSubscriptionFlags.retainAll(EnumSet.complementOf(result));
         }
         mWindDisplay.registerWith(broadcaster);
@@ -117,7 +117,7 @@ public class CompassDisplay extends FlightDisplayListener {
         public void registerWith(IFlightDataBroadcaster broadcaster) {
             mWindDrift.registerWith(broadcaster);
             if(!mSubscriptionFlags.isEmpty()) {
-                EnumSet<IFlightData.FlightDataType> result = mWindDrift.AddListener(this, UPDATE_INTERVAl_MS, mSubscriptionFlags);
+                EnumSet<IFlightData.FlightDataType> result = mWindDrift.addListener(this, UPDATE_INTERVAl_MS, mSubscriptionFlags);
                 mSubscriptionFlags.retainAll(EnumSet.complementOf(result));
             }
         }
@@ -173,7 +173,7 @@ public class CompassDisplay extends FlightDisplayListener {
         @Override
         public void registerWith(IFlightDataBroadcaster broadcaster) {
             if(!mSubscriptionFlags.isEmpty()) {
-                EnumSet<IFlightData.FlightDataType> result = broadcaster.AddListener(this, UPDATE_INTERVAl_MS, mSubscriptionFlags);
+                EnumSet<IFlightData.FlightDataType> result = broadcaster.addListener(this, UPDATE_INTERVAl_MS, mSubscriptionFlags);
                 mSubscriptionFlags.retainAll(EnumSet.complementOf(result));
             }
         }

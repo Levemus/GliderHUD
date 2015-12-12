@@ -16,7 +16,7 @@ import android.widget.TextView;
 import com.levemus.gliderhud.FlightData.Broadcasters.IFlightDataBroadcaster;
 
 /**
- * Created by markcarter on 15-12-01.
+ * Created by mark@levemus on 15-12-01.
  */
 public class DirectionDisplayText extends DirectionDisplay{
     private final String TAG = this.getClass().getSimpleName();

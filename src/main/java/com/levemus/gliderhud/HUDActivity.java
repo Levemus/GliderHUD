@@ -10,7 +10,7 @@ package com.levemus.gliderhud;
 
  (c) 2015 Levemus Software, Inc.
  */
-
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.os.Bundle;
 import android.util.Log;
@@ -20,17 +20,18 @@ import com.levemus.gliderhud.FlightData.Broadcasters.Recon.HeadLocationDataBroad
 import com.levemus.gliderhud.FlightData.Broadcasters.Test.TestFlightDataBroadcaster;
 import com.levemus.gliderhud.FlightDisplay.FlightDisplayListener;
 import com.levemus.gliderhud.FlightDisplay.Recon.ReconFlightDisplay;
-
+import com.levemus.gliderhud.FlightData.Broadcasters.Bluetooth.BluetoothBroadcaster;
 /**
  * Created by mark@levemus on 15-11-23.
  */
+@SuppressLint("NewApi")
 public class HUDActivity extends Activity {
 	private final String TAG = this.getClass().getSimpleName();
-	private ReconFlightDisplay mListenerDisplay = null;
 
 	private IFlightDataBroadcaster[] mBroadcasterList = {
 			new HeadLocationDataBroadcaster(),
-			new TestFlightDataBroadcaster() //GPSFlightDataProvider
+			new BluetoothBroadcaster(),
+			//new TestFlightDataBroadcaster() //GPSFlightDataProvider
 	};
 
 	private FlightDisplayListener[] mDisplayList = {

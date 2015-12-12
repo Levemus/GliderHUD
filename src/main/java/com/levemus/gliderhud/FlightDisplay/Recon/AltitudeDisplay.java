@@ -45,7 +45,7 @@ public class AltitudeDisplay extends FlightDisplayListener {
     public void registerWith(IFlightDataBroadcaster broadcaster)
     {
         if(!mSubscriptionFlags.isEmpty()) {
-            EnumSet<IFlightData.FlightDataType> result = broadcaster.AddListener(this, UPDATE_INTERVAl_MS, mSubscriptionFlags);
+            EnumSet<IFlightData.FlightDataType> result = broadcaster.addListener(this, UPDATE_INTERVAl_MS, mSubscriptionFlags);
             mSubscriptionFlags.retainAll(EnumSet.complementOf(result));
         }
     }

@@ -15,7 +15,7 @@ import com.levemus.gliderhud.FlightDisplay.IFlightDisplay;
 import com.levemus.gliderhud.Types.Point;
 
 /**
- * Created by markcarter on 15-12-01.
+ * Created by mark@levemus on 15-12-01.
  */
 abstract public class DirectionDisplay implements IFlightDisplay {
 

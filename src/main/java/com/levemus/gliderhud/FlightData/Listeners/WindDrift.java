@@ -20,7 +20,6 @@ import android.os.Handler;
 
 import com.levemus.gliderhud.FlightData.IFlightData;
 import com.levemus.gliderhud.FlightData.Broadcasters.IFlightDataBroadcaster;
-import com.levemus.gliderhud.FlightData.Listeners.IFlightDataListener;
 import com.levemus.gliderhud.Utils.TaubinNewtonFitCircle;
 import com.levemus.gliderhud.Types.Vector;
 import com.levemus.gliderhud.FlightData.Broadcasters.FlightDataBroadcaster;
@@ -53,14 +52,11 @@ public class WindDrift extends FlightDataBroadcaster implements IFlightDataListe
     @Override
     public void resume() {}
 
-    private EnumSet<IFlightData.FlightDataType> mSupportedTypes = EnumSet.of(
-            IFlightData.FlightDataType.WINDDIRECTION,
-            IFlightData.FlightDataType.WINDSPEED);
-
     @Override
-    public EnumSet<IFlightData.FlightDataType> getSupportedTypes() {
-        return mSupportedTypes;
+    public EnumSet<IFlightData.FlightDataType> supportedTypes() {
+        return new WindFlightData().supportedTypes();
     }
+
 
     // IFlightDataListener
     @Override
@@ -91,7 +87,7 @@ public class WindDrift extends FlightDataBroadcaster implements IFlightDataListe
     public void registerWith(IFlightDataBroadcaster broadcaster)
     {
         if(!mSubscriptionFlags.isEmpty()) {
-            EnumSet<IFlightData.FlightDataType> result = broadcaster.AddListener(this, WINDDRIFT_SAMPLE_INTERVAL_MS, mSubscriptionFlags);
+            EnumSet<IFlightData.FlightDataType> result = broadcaster.addListener(this, WINDDRIFT_SAMPLE_INTERVAL_MS, mSubscriptionFlags);
             mSubscriptionFlags.retainAll(EnumSet.complementOf(result));
         }
     }
@@ -134,8 +130,7 @@ public class WindDrift extends FlightDataBroadcaster implements IFlightDataListe
                 mWindVelocities.add(wind);
                 if (mWindVelocities.size() > MAX_NUM_WIND_VELOCITIES)
                     mWindVelocities.remove(0);
-                NotifyListeners(new WindFlightData(WeightedAverage(mWindVelocities, WIND_WEIGHTING_FACTOR)),
-                        mSupportedTypes);
+                notifyListeners(new WindFlightData(WeightedAverage(mWindVelocities, WIND_WEIGHTING_FACTOR)));
             }
         }
 
@@ -144,27 +139,36 @@ public class WindDrift extends FlightDataBroadcaster implements IFlightDataListe
             mWindHandler.postDelayed(this, WINDDRIFT_CALC_INTERVAL_MS);
             ProcessWind();
         }
+    }
+}
 
-        private class WindFlightData implements IFlightData
-        {
-            private Vector mWind;
-            public WindFlightData(Vector wind)
-            {
-                mWind = wind;
-            }
+class WindFlightData implements IFlightData
+{
+    private Vector mWind;
+    public WindFlightData() {} // to get around lack of statics in interfaces while accessing supported types
 
-            @Override
-            public double getData(FlightDataType type) throws java.lang.UnsupportedOperationException
-            {
-                try {
-                    if (type == FlightDataType.WINDSPEED)
-                        return mWind.Magnitude();
-                    if (type == FlightDataType.WINDDIRECTION)
-                        return mWind.Direction();
-                }
-                catch(Exception e) {}
-                throw new java.lang.UnsupportedOperationException();
-            }
+    public WindFlightData(Vector wind)
+    {
+        mWind = wind;
+    }
+
+    @Override
+    public double getData(FlightDataType type) throws java.lang.UnsupportedOperationException
+    {
+        try {
+            if (type == FlightDataType.WINDSPEED)
+                return mWind.Magnitude();
+            if (type == FlightDataType.WINDDIRECTION)
+                return mWind.Direction();
         }
+        catch(Exception e) {}
+        throw new java.lang.UnsupportedOperationException();
+    }
+
+    @Override
+    public EnumSet<FlightDataType> supportedTypes() {
+        return EnumSet.of(
+                IFlightData.FlightDataType.WINDDIRECTION,
+                IFlightData.FlightDataType.WINDSPEED);
     }
 }

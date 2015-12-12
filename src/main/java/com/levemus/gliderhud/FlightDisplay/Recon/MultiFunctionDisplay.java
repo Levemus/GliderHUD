@@ -52,7 +52,7 @@ public class MultiFunctionDisplay extends FlightDisplayListener {
     @Override
     public void registerWith(IFlightDataBroadcaster broadcaster) {
         if(!mSubscriptionFlags.isEmpty()) {
-            EnumSet<IFlightData.FlightDataType> result = broadcaster.AddListener(this, UPDATE_INTERVAl_MS, mSubscriptionFlags);
+            EnumSet<IFlightData.FlightDataType> result = broadcaster.addListener(this, UPDATE_INTERVAl_MS, mSubscriptionFlags);
             mSubscriptionFlags.retainAll(EnumSet.complementOf(result));
         }
     }
@@ -64,8 +64,13 @@ public class MultiFunctionDisplay extends FlightDisplayListener {
     public void onData(IFlightData data) {
         try {
             mGlideRatio = data.getData(IFlightData.FlightDataType.GLIDE);
+        } catch(java.lang.UnsupportedOperationException e){}
+        try {
             mVario = data.getData(IFlightData.FlightDataType.VARIO);
-            determineMode();
+            mMFDTitle.setText("Climb (m/s)");
+            mMFDDisplay.setText(Double.toString(mVario));
+        } catch(java.lang.UnsupportedOperationException e){}
+        determineMode();
             /*
             switch(mMode)
             {
@@ -82,9 +87,7 @@ public class MultiFunctionDisplay extends FlightDisplayListener {
                     mMFDDisplay.setText("");
             }
             */
-            display();
-        }
-        catch(java.lang.UnsupportedOperationException e){}
+        display();
     }
 
     private void determineMode() {
