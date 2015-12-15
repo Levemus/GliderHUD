@@ -73,6 +73,6 @@ public abstract class FlightDataBroadcaster implements IFlightDataBroadcaster {
     }
 
     public void init(Activity activity) {};
-    public void pause() {};
-    public void resume() {};
+    public void pause(Activity activity) {};
+    public void resume(Activity activity) {};
 }

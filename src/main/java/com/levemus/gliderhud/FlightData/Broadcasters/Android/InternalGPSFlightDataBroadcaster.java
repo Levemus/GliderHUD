@@ -95,7 +95,7 @@ public class InternalGPSFlightDataBroadcaster extends FlightDataBroadcaster impl
         }
 
         @Override
-        public double getData(FlightDataType type) throws java.lang.UnsupportedOperationException
+        public double get(FlightDataType type) throws java.lang.UnsupportedOperationException
         {
             try {
                 if (type == FlightDataType.ALTITUDE)

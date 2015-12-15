@@ -33,7 +33,7 @@ public interface IFlightDataBroadcaster {
     public EnumSet<IFlightData.FlightDataType> supportedTypes();
     public EnumSet<IFlightData.FlightDataType> addListener(IFlightDataListener listener, long notificationInterval, EnumSet<IFlightData.FlightDataType> subscription);
     public void init(Activity activity);
-    public void pause();
-    public void resume();
+    public void pause(Activity activity);
+    public void resume(Activity activity);
 
 }

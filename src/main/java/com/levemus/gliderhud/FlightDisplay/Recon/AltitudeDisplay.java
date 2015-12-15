@@ -56,7 +56,7 @@ public class AltitudeDisplay extends FlightDisplayListener {
     @Override
     public void onData(IFlightData data) {
         try {
-            mAltitude = data.getData(IFlightData.FlightDataType.ALTITUDE);
+            mAltitude = data.get(IFlightData.FlightDataType.ALTITUDE);
             mAltiDisplay.setText(Integer.toString((int)(Math.max(mAltitude, MIN_ALTITUDE))));
         }
         catch(java.lang.UnsupportedOperationException e){}

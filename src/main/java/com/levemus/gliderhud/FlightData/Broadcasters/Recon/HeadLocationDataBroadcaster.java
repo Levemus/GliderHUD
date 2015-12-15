@@ -34,16 +34,15 @@ public class HeadLocationDataBroadcaster extends FlightDataBroadcaster implement
     public void init(Activity activity)
     {
         mHUDHeadingManager = (HUDHeadingManager) HUDOS.getHUDService(HUDOS.HUD_HEADING_SERVICE);
-        mHUDHeadingManager.register(this);
     }
 
     @Override
-    public void pause() {
+    public void pause(Activity activity) {
             mHUDHeadingManager.unregister(this);
         }
 
     @Override
-    public void resume() {
+    public void resume(Activity activity) {
             mHUDHeadingManager.register(this);
         }
 
@@ -74,7 +73,7 @@ class HeadLocationFlightData implements IFlightData {
     }
 
     @Override
-    public double getData(FlightDataType type) throws java.lang.UnsupportedOperationException
+    public double get(FlightDataType type) throws java.lang.UnsupportedOperationException
     {
         try {
             if (type == FlightDataType.YAW)

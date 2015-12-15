@@ -47,10 +47,10 @@ public class WindDrift extends FlightDataBroadcaster implements IFlightDataListe
     }
 
     @Override
-    public void pause() {}
+    public void pause(Activity activity) {}
 
     @Override
-    public void resume() {}
+    public void resume(Activity activity) {}
 
     @Override
     public EnumSet<IFlightData.FlightDataType> supportedTypes() {
@@ -64,10 +64,10 @@ public class WindDrift extends FlightDataBroadcaster implements IFlightDataListe
     {
         Vector velocity = new Vector();
         try {
-            if (data.getData(IFlightData.FlightDataType.GROUNDSPEED) == 0)
+            if (data.get(IFlightData.FlightDataType.GROUNDSPEED) == 0)
                 return;
-            velocity.SetDirectionAndMagnitude(data.getData(
-                    IFlightData.FlightDataType.BEARING), data.getData(IFlightData.FlightDataType.GROUNDSPEED));
+            velocity.SetDirectionAndMagnitude(data.get(
+                    IFlightData.FlightDataType.BEARING), data.get(IFlightData.FlightDataType.GROUNDSPEED));
 
             synchronized (mGroundVelocities) {
                 mGroundVelocities.add(velocity);
@@ -153,7 +153,7 @@ class WindFlightData implements IFlightData
     }
 
     @Override
-    public double getData(FlightDataType type) throws java.lang.UnsupportedOperationException
+    public double get(FlightDataType type) throws java.lang.UnsupportedOperationException
     {
         try {
             if (type == FlightDataType.WINDSPEED)

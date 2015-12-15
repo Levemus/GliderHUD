@@ -23,86 +23,50 @@ import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothProfile;
 import android.bluetooth.BluetoothGattService;
+import android.bluetooth.BluetoothGattDescriptor;
 import com.levemus.gliderhud.FlightData.IFlightData;
-import android.os.Message;
-import android.os.Handler;
 
 import java.util.EnumSet;
-import java.util.List;
 import java.util.UUID;
-import java.util.HashMap;
+
 import android.util.Log;
 
 import com.levemus.gliderhud.FlightData.Broadcasters.FlightDataBroadcaster;
+
+import android.content.Context;
+import android.os.Handler;
+import android.os.Message;
 
 import android.annotation.SuppressLint;
 
 /**
  * Created by mark@levemus on 15-12-08.
  */
-@SuppressLint("NewApi")
-public class BluetoothBroadcaster extends FlightDataBroadcaster {
 
+@SuppressLint("NewApi")
+public class BluetoothBroadcaster extends FlightDataBroadcaster
+{
     private final String TAG = this.getClass().getSimpleName();
 
     private BluetoothGatt mBluetoothGatt;
     private BluetoothManager mBluetoothManager;
     private BluetoothAdapter mBluetoothAdapter;
 
-    private BluetoothScanner mScanner;
-    Activity mActivity = null;
+    private String mAddress = "20:C3:8F:EB:04:9E"; // I only care about my vario - TODO: re-add a scanner
 
-    IBluetoothDevice[] mSupportedDevices = new IBluetoothDevice[] {
-            new XCTracer() // quick and dirty - only care about my vario
-    };
-
-    @Override
-    public EnumSet<IFlightData.FlightDataType> supportedTypes() {
-        return new XCTracer().SupportedTypes(); // TODO: union FlightData Types associated with mSupportedDevices
-    }
-
-    HashMap<String, IBluetoothDevice> mConnectedDevices = new HashMap<>();
+    Activity mActivity;
 
     @Override
     public void init(Activity activity) {
         mActivity = activity;
-        mScanner = new BluetoothScanner(activity);
     }
 
     @Override
-    public void pause() {
-        if (mBluetoothGatt != null)
-        {
-            mBluetoothGatt.close();
-            mBluetoothGatt = null;
-        }
-        if(mBluetoothAdapter != null){ mScanner.StopScan(); }
-    }
-
-    @Override
-    public void resume() {
-        mScanner.StartScan(mDeviceScanResult);
-    }
-
-    private Handler mDeviceScanResult = new Handler()
-    {
-        public void handleMessage(Message msg)
-        {
-            BluetoothDevice device = (BluetoothDevice) msg.obj;
-            if(device != null && device.getAddress() != null) {
-                if (!mConnectedDevices.containsKey(device.getAddress())) {
-                    mConnectedDevices.put(device.getAddress(), null);
-                    Log.i(TAG, "Address: " + device.getAddress());
-                    connect(device.getAddress());
-                }
-            }
-            super.handleMessage(msg);
-        }
-    };
-
-    private void connect(String address)
-    {
-        mBluetoothManager = (BluetoothManager) mActivity.getSystemService(mActivity.getApplicationContext().BLUETOOTH_SERVICE);
+    public void resume(Activity activity) {
+        Log.d(TAG, "resume()");
+        mActivity = activity;
+        // Attempt BLE Connection
+        mBluetoothManager = (BluetoothManager) mActivity.getSystemService(Context.BLUETOOTH_SERVICE);
         if (mBluetoothManager != null)
         {
             mBluetoothAdapter = mBluetoothManager.getAdapter();
@@ -112,10 +76,29 @@ public class BluetoothBroadcaster extends FlightDataBroadcaster {
             }
         }
         else { Log.e(TAG, "Unable to retrieve BluetoothManager"); }
-        BluetoothDevice device = mBluetoothAdapter.getRemoteDevice(address);
+        BluetoothDevice device = mBluetoothAdapter.getRemoteDevice(mAddress);
         mBluetoothGatt = device.connectGatt(mActivity, false, mGattCallback);
     }
 
+    @Override
+    public void pause(Activity activity) {
+        Log.d(TAG, "pause()");
+        mActivity = activity;
+        if (mBluetoothGatt != null)
+        {
+            mBluetoothGatt.close();
+            mBluetoothGatt = null;
+        }
+    }
+
+    @Override
+    public EnumSet<IFlightData.FlightDataType> supportedTypes() {
+        return new LXWP0FlightData().supportedTypes();
+    }
+
+    protected static final UUID CHARACTERISTIC_UPDATE_NOTIFICATION_DESCRIPTOR_UUID = UUID.fromString("00002902-0000-1000-8000-00805f9b34fb");
+
+    // Various callback methods defined by the BLE API.
     private final BluetoothGattCallback mGattCallback = new BluetoothGattCallback()
     {
         @Override
@@ -124,153 +107,69 @@ public class BluetoothBroadcaster extends FlightDataBroadcaster {
             if (newState == BluetoothProfile.STATE_CONNECTED)
             {
                 Log.i(TAG, "Connected to GATT server.");
-                if(gatt.getDevice().getAddress() != "") {
-                    notifyGattEventHandler(new IBluetoothDevice.GattEvent(gatt.getDevice().getAddress(),
-                            IBluetoothDevice.GattEvent.Type.CONNECTED));
-                }
-                Log.i(TAG, "Attempting to start service discovery:" + mBluetoothGatt.discoverServices());
+                if(mBluetoothGatt != null)
+                    Log.i(TAG, "Attempting to start service discovery:" + mBluetoothGatt.discoverServices());
             }
             else if (newState == BluetoothProfile.STATE_DISCONNECTED)
             {
                 Log.i(TAG, "Disconnected from GATT server.");
-                if(gatt.getDevice().getAddress() != "") {
-                    notifyGattEventHandler(new IBluetoothDevice.GattEvent(gatt.getDevice().getAddress(),
-                            IBluetoothDevice.GattEvent.Type.DISCONNECTED));
-                }
+                if(mBluetoothGatt != null)
+                    resume(mActivity);
             }
         }
 
+
         @Override
+        // New services discovered
         public void onServicesDiscovered(BluetoothGatt gatt, int status)
         {
             if (status == BluetoothGatt.GATT_SUCCESS)
             {
                 Log.i(TAG, "Services discovered.");
-                boolean found = false;
-                List<BluetoothGattService>	services = gatt.getServices();
-                String address = gatt.getDevice().getAddress();
-                for(BluetoothGattService service : services)
-                {
-                    UUID serviceID = service.getUuid();
-                    for (IBluetoothDevice listener : mSupportedDevices) {
-                        for (UUID uuid : listener.SupportedServices()) {
-                            if (serviceID.compareTo(uuid) == 0) {
-                                if(mConnectedDevices.get(address) == null) {
-                                    mConnectedDevices.put(address, listener);
-                                    notifyGattEventHandler(new IBluetoothDevice.GattEvent(gatt.getDevice().getAddress(),
-                                            IBluetoothDevice.GattEvent.Type.CONNECTED));
-                                }
-                                notifyGattEventHandler(new IBluetoothDevice.GattEvent(address, IBluetoothDevice.GattEvent.Type.DISCOVERED));
-                                List<BluetoothGattCharacteristic> characterics = service.getCharacteristics();
-                                for (BluetoothGattCharacteristic characteristic : characterics) {
-                                    int properties = characteristic.getProperties();
-                                    if ((properties & BluetoothGattCharacteristic.PROPERTY_NOTIFY) != 0) {
-                                        gatt.setCharacteristicNotification(characteristic, true);
-                                    }
-                                }
-                                found = true;
-                            }
+                for(BluetoothGattService service : gatt.getServices()) {
+                    for (BluetoothGattCharacteristic characteristic : service.getCharacteristics()) {
+
+                        int properties = characteristic.getProperties();
+                        if ((properties & BluetoothGattCharacteristic.PROPERTY_NOTIFY) != 0) {
+                            gatt.setCharacteristicNotification(characteristic, true);
+                            BluetoothGattDescriptor descriptor = characteristic
+                                    .getDescriptor(CHARACTERISTIC_UPDATE_NOTIFICATION_DESCRIPTOR_UUID);
+                            descriptor.setValue(BluetoothGattDescriptor.ENABLE_INDICATION_VALUE);
+                            gatt.writeDescriptor(descriptor);
                         }
                     }
                 }
-                if(found == false) {
-                    gatt.disconnect();
-                    mConnectedDevices.remove(address);
-                }
-                else {
-                    mScanner.StopScan();
-                }
             }
+            else { Log.w(TAG, "onServicesDiscovered received: " + status); }
         }
 
-        @Override
-        public void onCharacteristicChanged(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic)
-        {
-            IBluetoothDevice listener = mConnectedDevices.get(gatt.getDevice().getAddress());
 
-            if(listener != null) {
-                final IFlightData flightData = listener.postData(characteristic.getValue());
-                if(flightData != null) {
-                    mActivity.runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            notifyListeners(flightData);
-                        }
-                    });
-                }
-            }
+        @Override
+        // Result of a characteristic read operation
+        public void onCharacteristicChanged(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic) {
+            Message dataMsg = new Message();
+            dataMsg.obj = characteristic.getValue();
+            messageHandler.sendMessage(dataMsg);
         }
     };
 
-    private void notifyGattEventHandler(final IBluetoothDevice.GattEvent event) {
-        if (event.mAddress != null) {
-            if (mConnectedDevices.containsKey(event.mAddress)) {
-                IBluetoothDevice listener = mConnectedDevices.get(event.mAddress);
 
-                if (listener != null) {
-                    listener.handleEvent(event);
-                }
-            }
-        }
-    }
-
-    private class BluetoothScanner
+    LXWP0FlightData flightDataMsg = new LXWP0FlightData();
+    private Handler messageHandler = new Handler()
     {
-        private Handler mScanStopHandler = new Handler();
-        private static final long SCAN_PERIOD = 60000;
-
-        private Handler mScanResultDeviceHandler = null;
-        private BluetoothManager mBluetoothManager;
-        private BluetoothAdapter mBluetoothAdapter;
-
-        private Activity mActivity;
-
-        public BluetoothScanner(Activity activity)
+        public void handleMessage(Message msg)
         {
-            mActivity = activity;
-            mBluetoothManager = (BluetoothManager) mActivity.getSystemService(mActivity.getApplicationContext().BLUETOOTH_SERVICE);
-            if (mBluetoothManager != null) {
-                mBluetoothAdapter = mBluetoothManager.getAdapter();
-            }
-        }
-
-        private BluetoothAdapter.LeScanCallback mLeScanCallback = new BluetoothAdapter.LeScanCallback()
-        {
-            @Override
-            public void onLeScan(final BluetoothDevice device, int rssi, byte[] scanRecord)
-            {
-                    if(mScanResultDeviceHandler != null) {
-                        Message strMsg = new Message();
-                        strMsg.obj = device;
-                        mScanResultDeviceHandler.sendMessage(strMsg);
-                    }
+            super.handleMessage(msg);
+            try {
+                String decoded = new String((byte[]) msg.obj, "UTF-8");
+                if(flightDataMsg.build(decoded)) {
+                    final LXWP0FlightData notifyMsg = flightDataMsg;
+                    flightDataMsg = new LXWP0FlightData();
+                    notifyListeners(notifyMsg);
                 }
-        };
-
-        public void StopScan() {
-            Log.d(TAG, "stopLeScan()");
-            mBluetoothAdapter.stopLeScan(mLeScanCallback);
+            }catch(Exception e){}
         }
-
-        public void StartScan(Handler scanResultHandler)
-        {
-            if(mBluetoothAdapter != null) {
-                mScanResultDeviceHandler = scanResultHandler;
-                boolean scanStarted = mBluetoothAdapter.startLeScan(mLeScanCallback);
-                Log.d(TAG, "startLeScan(), scanStarted: " + scanStarted);
-
-                if (!scanStarted) {
-                    Log.d(TAG, "Scan FAILED to Start.");
-                    return;
-                }
-
-                mScanStopHandler.postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        StopScan();
-                    }
-                }, SCAN_PERIOD);
-            }
-        }
-    }
+    };
 }
+
+

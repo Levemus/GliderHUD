@@ -17,6 +17,7 @@ import android.util.Log;
 
 import com.levemus.gliderhud.FlightData.Broadcasters.IFlightDataBroadcaster;
 import com.levemus.gliderhud.FlightData.Broadcasters.Recon.HeadLocationDataBroadcaster;
+import com.levemus.gliderhud.FlightData.Broadcasters.Android.InternalGPSFlightDataBroadcaster;
 import com.levemus.gliderhud.FlightData.Broadcasters.Test.TestFlightDataBroadcaster;
 import com.levemus.gliderhud.FlightDisplay.FlightDisplayListener;
 import com.levemus.gliderhud.FlightDisplay.Recon.ReconFlightDisplay;
@@ -31,7 +32,7 @@ public class HUDActivity extends Activity {
 	private IFlightDataBroadcaster[] mBroadcasterList = {
 			new HeadLocationDataBroadcaster(),
 			new BluetoothBroadcaster(),
-			//new TestFlightDataBroadcaster() //GPSFlightDataProvider
+			new InternalGPSFlightDataBroadcaster() //TestFlightDataBroadcaster()
 	};
 
 	private FlightDisplayListener[] mDisplayList = {
@@ -60,7 +61,7 @@ public class HUDActivity extends Activity {
 		Log.i(TAG, "onResume");
 		super.onResume();
 		for(IFlightDataBroadcaster broadcaster : mBroadcasterList) {
-			broadcaster.resume();
+			broadcaster.resume(this);
 		}
 	}
 
@@ -69,7 +70,7 @@ public class HUDActivity extends Activity {
 		Log.d(TAG, "onPause");
 		super.onPause();
 		for(IFlightDataBroadcaster broadcaster : mBroadcasterList) {
-			broadcaster.pause();
+			broadcaster.pause(this);
 		}
 	}
 

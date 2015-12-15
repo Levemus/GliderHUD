@@ -77,7 +77,7 @@ public class CompassDisplay extends FlightDisplayListener {
     public void onData(IFlightData data) {
         try {
             mHeadingDisplay.setCurrentDirection(
-                    DirectionDisplay.smoothDirection(data.getData(IFlightData.FlightDataType.YAW),
+                    DirectionDisplay.smoothDirection(data.get(IFlightData.FlightDataType.YAW),
                             mHeadingDisplay.getCurrentDirection()));
             mBearingDisplay.setBaseAngle(mHeadingDisplay.getCurrentDirection());
             mWindDisplay.setBaseAngle(mHeadingDisplay.getCurrentDirection());
@@ -133,8 +133,8 @@ public class CompassDisplay extends FlightDisplayListener {
         @Override
         public void onData(IFlightData data) {
             try {
-                mWindSpeed = data.getData(IFlightData.FlightDataType.WINDSPEED);
-                double mWindDirection = (data.getData(IFlightData.FlightDataType.WINDDIRECTION) + DEGREES_HALF_CIRCLE) % DEGREES_FULL_CIRCLE;
+                mWindSpeed = data.get(IFlightData.FlightDataType.WINDSPEED);
+                double mWindDirection = (data.get(IFlightData.FlightDataType.WINDDIRECTION) + DEGREES_HALF_CIRCLE) % DEGREES_FULL_CIRCLE;
                 mWindDirectionDisplay.setCurrentDirection(mWindDirection);
                 mWindSpeedDisplay.setCurrentDirection(mWindDirection);
                 mWindSpeedDisplay.setText(Double.toString(Math.round(mWindSpeed)));
@@ -181,7 +181,7 @@ public class CompassDisplay extends FlightDisplayListener {
         @Override
         public void onData(IFlightData data) {
             try {
-                mBearingDisplay.setCurrentDirection(data.getData(IFlightData.FlightDataType.BEARING));
+                mBearingDisplay.setCurrentDirection(data.get(IFlightData.FlightDataType.BEARING));
                 display();
             } catch(java.lang.UnsupportedOperationException e){}
         }

@@ -18,10 +18,10 @@ import java.util.EnumSet;
 
 public interface IFlightData {
 
-    public double getData(FlightDataType type) throws java.lang.UnsupportedOperationException;
+    public double get(FlightDataType type) throws java.lang.UnsupportedOperationException;
     public EnumSet<FlightDataType> supportedTypes();
     public enum FlightDataType {
-        ALTITUDE, GROUNDSPEED, BEARING, YAW, VARIO, GLIDE, WINDSPEED, WINDDIRECTION;
+        ALTITUDE, GROUNDSPEED, BEARING, YAW, VARIO, VARIORAW, GLIDE, WINDSPEED, WINDDIRECTION;
         public static final EnumSet<FlightDataType> ALL_OPTS = EnumSet.allOf(FlightDataType.class);
     }
 }
