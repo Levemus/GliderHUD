@@ -18,64 +18,41 @@ import com.levemus.gliderhud.FlightData.IFlightData;
 
 import java.util.ArrayList;
 import java.util.EnumSet;
+import java.util.HashMap;
 
 /**
  * Created by mark@levemus on 15-12-13.
  */
-class LXWP0FlightData implements IFlightData {
+class LXWP0FlightData extends BluetoothFlightData {
 
-    private int FRAME_ELEMENT_COUNT = 12;
-
-    private ArrayList<String> mBuffers = new ArrayList<String>();
-    private static String mFrameStart = "$LXWP0";
-    private static String mFrameEnd = "\r\n";
+    private final String TAG = this.getClass().getSimpleName();
 
     public LXWP0FlightData() {}
 
-    public boolean build(String buffer)
-    {
-        if(mBuffers.size() == 0 && !buffer.startsWith(mFrameStart)) {
-            return false;
-        }
-        if(mBuffers.size() != 0 && buffer.startsWith(mFrameStart)) {
-            return false;
-        }
-        mBuffers.add(new String(buffer));
-        if(buffer.endsWith(mFrameEnd))
-            return true;
-        return false;
-    }
+    @Override
+    protected String frameStart() {return "$LXWP0";}
 
     @Override
-    public double get(FlightDataType type) throws java.lang.UnsupportedOperationException
-    {
-        StringBuilder builder = new StringBuilder();
+    protected String frameEnd() {return "\r\n";}
 
-        for (String string : mBuffers) {
-            builder.append(string);
-        }
+    @Override
+    protected int elementCount() {return 12;}
 
-        String[] tokenizedFrame = builder.toString().split(",");
+    @Override
+    protected int elementOffset(FlightDataType type) {
+        if(type == FlightDataType.VARIORAW)
+            return 4;
+        if (type == FlightDataType.ALTITUDE)
+            return 3;
 
-        if(tokenizedFrame.length < FRAME_ELEMENT_COUNT)
-            throw new java.lang.UnsupportedOperationException();
-
-        try {
-            if (type == FlightDataType.VARIORAW)
-                return Double.parseDouble(tokenizedFrame[4]);
-
-            if (type == FlightDataType.ALTITUDE)
-                return Double.parseDouble(tokenizedFrame[3]);
-        }
-        catch(Exception e) {}
-        throw new java.lang.UnsupportedOperationException();
+        return -1;
     }
 
     @Override
     public EnumSet<FlightDataType> supportedTypes() {
         return EnumSet.of(
-                IFlightData.FlightDataType.ALTITUDE,
-                IFlightData.FlightDataType.VARIORAW);
+                FlightDataType.ALTITUDE,
+                FlightDataType.VARIORAW);
     }
 }
 

@@ -143,7 +143,6 @@ public class BluetoothBroadcaster extends FlightDataBroadcaster
             else { Log.w(TAG, "onServicesDiscovered received: " + status); }
         }
 
-
         @Override
         // Result of a characteristic read operation
         public void onCharacteristicChanged(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic) {
@@ -154,7 +153,7 @@ public class BluetoothBroadcaster extends FlightDataBroadcaster
     };
 
 
-    LXWP0FlightData flightDataMsg = new LXWP0FlightData();
+    BluetoothFlightData flightDataMsg = new LXWP0FlightData();
     private Handler messageHandler = new Handler()
     {
         public void handleMessage(Message msg)
@@ -163,7 +162,7 @@ public class BluetoothBroadcaster extends FlightDataBroadcaster
             try {
                 String decoded = new String((byte[]) msg.obj, "UTF-8");
                 if(flightDataMsg.build(decoded)) {
-                    final LXWP0FlightData notifyMsg = flightDataMsg;
+                    final BluetoothFlightData notifyMsg = flightDataMsg;
                     flightDataMsg = new LXWP0FlightData();
                     notifyListeners(notifyMsg);
                 }

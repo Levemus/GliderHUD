@@ -29,14 +29,15 @@ import com.levemus.gliderhud.FlightData.IFlightData;
  */
 public class InternalGPSFlightDataBroadcaster extends FlightDataBroadcaster implements LocationListener {
 
-    // logcat class id
     private final String TAG = this.getClass().getSimpleName();
 
-    // The minimum distance to change Updates in meters
-    private static final long MIN_DISTANCE_CHANGE_FOR_UPDATES = 0; // 1 meters
-    private static final long MIN_TIME_BW_UPDATES = 500 * 1 * 1; // 0.5 seconds
+    private static final long MIN_DISTANCE_CHANGE_FOR_UPDATES = 0; // meters
+    private static final long MIN_TIME_BW_UPDATES = 200 * 1 * 1; // milliseconds
 
     private LocationManager mLocationManager;
+
+    private long mTimeOfLastUpdate = 0;
+    private double mLastAltitude = 0;
 
     private EnumSet<IFlightData.FlightDataType> mSupportedTypes = EnumSet.of(
             IFlightData.FlightDataType.VARIO);
@@ -65,12 +66,14 @@ public class InternalGPSFlightDataBroadcaster extends FlightDataBroadcaster impl
     @Override
     public EnumSet<IFlightData.FlightDataType> supportedTypes()
     {
-        return mSupportedTypes;
+        return new GPSFlightData().supportedTypes();
     }
 
     @Override
     public void onLocationChanged(android.location.Location location) {
-        notifyListeners(new GPSFlightData(location));
+        notifyListeners(new GPSFlightData(location, mLastAltitude, mTimeOfLastUpdate));
+        mTimeOfLastUpdate = location.getTime();
+        mLastAltitude = location.getAltitude();
     }
 
     @Override
@@ -89,8 +92,14 @@ public class InternalGPSFlightDataBroadcaster extends FlightDataBroadcaster impl
 
         private Location mLocation = null;
 
-        public GPSFlightData (Location location)
-        {
+        private long mTimeOfLastUpdate = 0;
+        private double mLastAltitude = 0;
+
+        public GPSFlightData() {} // to get around lack of statics in interfaces while accessing supported types
+
+        public GPSFlightData (Location location, double lastAltitude, long timeOfLastUpdate ) {
+            mLastAltitude = lastAltitude;
+            mTimeOfLastUpdate = timeOfLastUpdate;
             mLocation = location;
         }
 
@@ -106,6 +115,13 @@ public class InternalGPSFlightDataBroadcaster extends FlightDataBroadcaster impl
 
                 if (type == FlightDataType.BEARING)
                     return mLocation.getBearing();
+
+                if (type == FlightDataType.VARIORAW) {
+                    if(mTimeOfLastUpdate == 0 || mLocation.getTime() == mTimeOfLastUpdate)
+                        new java.lang.UnsupportedOperationException(); // TODO: Need a better exception to indicate bad data
+                    return(mLocation.getAltitude() - mLastAltitude) / (mLocation.getTime() - mTimeOfLastUpdate) * 1000;
+                }
+
             }
             catch(Exception e) {}
             throw new java.lang.UnsupportedOperationException();
@@ -116,7 +132,8 @@ public class InternalGPSFlightDataBroadcaster extends FlightDataBroadcaster impl
             return EnumSet.of(
                     IFlightData.FlightDataType.ALTITUDE,
                     IFlightData.FlightDataType.GROUNDSPEED,
-                    IFlightData.FlightDataType.BEARING);
+                    IFlightData.FlightDataType.BEARING,
+                    IFlightData.FlightDataType.VARIORAW);
         }
     }
 }

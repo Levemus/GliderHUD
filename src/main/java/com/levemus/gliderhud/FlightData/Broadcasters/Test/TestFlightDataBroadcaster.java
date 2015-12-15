@@ -138,7 +138,7 @@ class TestFlightData implements IFlightData {
             if (type == FlightDataType.GLIDE)
                 return (mClimbRate != 0 ? GroundSpeed() / mClimbRate : 0);
 
-            if (type == FlightDataType.VARIO)
+            if (type == FlightDataType.VARIORAW)
                 return mClimbRate;
         }
         catch(Exception e) {}
@@ -152,7 +152,7 @@ class TestFlightData implements IFlightData {
                 IFlightData.FlightDataType.GROUNDSPEED,
                 IFlightData.FlightDataType.BEARING,
                 IFlightData.FlightDataType.GLIDE,
-                IFlightData.FlightDataType.VARIO);
+                IFlightData.FlightDataType.VARIORAW);
     }
 }
 
