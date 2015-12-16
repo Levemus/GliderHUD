@@ -77,7 +77,7 @@ public class CompassDisplay extends FlightDisplayListener {
     }
 
     @Override
-    public void onData(IFlightData data) {
+    public void onData(IFlightDataBroadcaster broadcaster, IFlightData data) {
         try {
             mHeadingDisplay.setCurrentDirection(
                     DirectionDisplay.smoothDirection(data.get(FlightDataType.YAW),
@@ -134,7 +134,7 @@ public class CompassDisplay extends FlightDisplayListener {
         }
 
         @Override
-        public void onData(IFlightData data) {
+        public void onData(IFlightDataBroadcaster broadcaster, IFlightData data) {
             try {
                 mWindSpeed = data.get(FlightDataType.WINDSPEED);
                 double mWindDirection = (data.get(FlightDataType.WINDDIRECTION) + DEGREES_HALF_CIRCLE) % DEGREES_FULL_CIRCLE;
@@ -182,7 +182,7 @@ public class CompassDisplay extends FlightDisplayListener {
         }
 
         @Override
-        public void onData(IFlightData data) {
+        public void onData(IFlightDataBroadcaster broadcaster, IFlightData data) {
             try {
                 mBearingDisplay.setCurrentDirection(data.get(FlightDataType.BEARING));
                 display();

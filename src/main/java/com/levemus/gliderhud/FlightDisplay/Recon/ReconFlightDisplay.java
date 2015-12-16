@@ -58,5 +58,5 @@ public class ReconFlightDisplay extends FlightDisplayListener {
     public void display() {}
 
     @Override
-    public void onData(IFlightData data) {}
+    public void onData(IFlightDataBroadcaster broadcaster, IFlightData data) {}
 }

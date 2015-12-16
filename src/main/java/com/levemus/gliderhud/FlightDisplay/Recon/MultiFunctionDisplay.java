@@ -69,7 +69,7 @@ public class MultiFunctionDisplay extends FlightDisplayListener {
     public void display() {}
 
     @Override
-    public void onData(IFlightData data) {
+    public void onData(IFlightDataBroadcaster broadcaster, IFlightData data) {
         try {
             mVarioAvg = data.get(FlightDataType.VARIO);
             mMFDTitle.setText("Climb (m/s)");

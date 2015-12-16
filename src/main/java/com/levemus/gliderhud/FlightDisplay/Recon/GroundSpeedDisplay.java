@@ -54,7 +54,7 @@ public class GroundSpeedDisplay extends FlightDisplayListener {
     public void display() {}
 
     @Override
-    public void onData(IFlightData data) {
+    public void onData(IFlightDataBroadcaster broadcaster, IFlightData data) {
         try {
             mGroundSpeed = data.get(FlightDataType.GROUNDSPEED);
             mGroundSpeedDisplay.setText(Integer.toString((int)(Math.max(mGroundSpeed, MIN_SPEED))));
