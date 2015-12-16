@@ -15,12 +15,14 @@ import android.app.Activity;
 
 import com.levemus.gliderhud.FlightData.Broadcasters.FlightDataBroadcaster;
 import com.levemus.gliderhud.FlightData.IFlightData;
+import com.levemus.gliderhud.FlightData.FlightDataType;
 import com.reconinstruments.os.HUDOS;
 import com.reconinstruments.os.hardware.sensors.HUDHeadingManager;
 import com.reconinstruments.os.hardware.sensors.HeadLocationListener;
 
-import java.util.EnumSet;
-
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.UUID;
 /**
  * Created by mark@levemus on 15-12-06.
  */
@@ -47,7 +49,7 @@ public class HeadLocationDataBroadcaster extends FlightDataBroadcaster implement
         }
 
     @Override
-    public EnumSet<IFlightData.FlightDataType> supportedTypes() {
+    public HashSet<UUID> supportedTypes() {
         return new HeadLocationFlightData().supportedTypes();
     }
 
@@ -73,7 +75,7 @@ class HeadLocationFlightData implements IFlightData {
     }
 
     @Override
-    public double get(FlightDataType type) throws java.lang.UnsupportedOperationException
+    public double get(UUID type) throws java.lang.UnsupportedOperationException
     {
         try {
             if (type == FlightDataType.YAW)
@@ -84,7 +86,8 @@ class HeadLocationFlightData implements IFlightData {
     }
 
     @Override
-    public EnumSet<FlightDataType> supportedTypes() {
-        return EnumSet.of(IFlightData.FlightDataType.YAW);
+    public HashSet<UUID> supportedTypes() {
+        return new HashSet(Arrays.asList(
+                FlightDataType.YAW));
     }
 }

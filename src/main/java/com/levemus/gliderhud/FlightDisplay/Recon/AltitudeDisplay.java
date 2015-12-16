@@ -16,9 +16,12 @@ import android.widget.TextView;
 
 import com.levemus.gliderhud.FlightData.Broadcasters.IFlightDataBroadcaster;
 import com.levemus.gliderhud.FlightData.IFlightData;
+import com.levemus.gliderhud.FlightData.FlightDataType;
 import com.levemus.gliderhud.FlightDisplay.FlightDisplayListener;
 
-import java.util.EnumSet;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.UUID;
 
 /**
  * Created by mark@levemus on 15-12-01.
@@ -31,8 +34,8 @@ public class AltitudeDisplay extends FlightDisplayListener {
     private static final double MIN_ALTITUDE = 0.0;
     private int UPDATE_INTERVAl_MS = 500;
 
-    EnumSet<IFlightData.FlightDataType> mSubscriptionFlags = EnumSet.of(
-            IFlightData.FlightDataType.ALTITUDE);
+    HashSet<UUID> mSubscriptionFlags = new HashSet(Arrays.asList(
+            FlightDataType.ALTITUDE));
 
     @Override
     public void init(Activity activity)
@@ -45,8 +48,8 @@ public class AltitudeDisplay extends FlightDisplayListener {
     public void registerWith(IFlightDataBroadcaster broadcaster)
     {
         if(!mSubscriptionFlags.isEmpty()) {
-            EnumSet<IFlightData.FlightDataType> result = broadcaster.addListener(this, UPDATE_INTERVAl_MS, mSubscriptionFlags);
-            mSubscriptionFlags.retainAll(EnumSet.complementOf(result));
+            HashSet<UUID> result = broadcaster.addListener(this, UPDATE_INTERVAl_MS, mSubscriptionFlags);
+            mSubscriptionFlags.removeAll(result);
         }
     }
 
@@ -56,7 +59,7 @@ public class AltitudeDisplay extends FlightDisplayListener {
     @Override
     public void onData(IFlightData data) {
         try {
-            mAltitude = data.get(IFlightData.FlightDataType.ALTITUDE);
+            mAltitude = data.get(FlightDataType.ALTITUDE);
             mAltiDisplay.setText(Integer.toString((int)(Math.max(mAltitude, MIN_ALTITUDE))));
         }
         catch(java.lang.UnsupportedOperationException e){}

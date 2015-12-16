@@ -16,12 +16,16 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.util.Log;
-import java.util.EnumSet;
+
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.UUID;
 
 import android.app.Activity;
 import android.content.Context;
 
 import com.levemus.gliderhud.FlightData.Broadcasters.FlightDataBroadcaster;
+import com.levemus.gliderhud.FlightData.FlightDataType;
 import com.levemus.gliderhud.FlightData.IFlightData;
 
 /**
@@ -39,8 +43,8 @@ public class InternalGPSFlightDataBroadcaster extends FlightDataBroadcaster impl
     private long mTimeOfLastUpdate = 0;
     private double mLastAltitude = 0;
 
-    private EnumSet<IFlightData.FlightDataType> mSupportedTypes = EnumSet.of(
-            IFlightData.FlightDataType.VARIO);
+    HashSet<UUID> mSubscriptionFlags = new HashSet(Arrays.asList(
+            FlightDataType.VARIO));
 
     @Override
     public void init(Activity activity)
@@ -64,7 +68,7 @@ public class InternalGPSFlightDataBroadcaster extends FlightDataBroadcaster impl
     }
 
     @Override
-    public EnumSet<IFlightData.FlightDataType> supportedTypes()
+    public HashSet<UUID> supportedTypes()
     {
         return new GPSFlightData().supportedTypes();
     }
@@ -104,7 +108,7 @@ public class InternalGPSFlightDataBroadcaster extends FlightDataBroadcaster impl
         }
 
         @Override
-        public double get(FlightDataType type) throws java.lang.UnsupportedOperationException
+        public double get(UUID type) throws java.lang.UnsupportedOperationException
         {
             try {
                 if (type == FlightDataType.ALTITUDE)
@@ -128,12 +132,12 @@ public class InternalGPSFlightDataBroadcaster extends FlightDataBroadcaster impl
         }
 
         @Override
-        public EnumSet<FlightDataType> supportedTypes() {
-            return EnumSet.of(
-                    IFlightData.FlightDataType.ALTITUDE,
-                    IFlightData.FlightDataType.GROUNDSPEED,
-                    IFlightData.FlightDataType.BEARING,
-                    IFlightData.FlightDataType.VARIORAW);
+        public HashSet<UUID> supportedTypes() {
+            return new HashSet(Arrays.asList(
+                    FlightDataType.ALTITUDE,
+                    FlightDataType.GROUNDSPEED,
+                    FlightDataType.BEARING,
+                    FlightDataType.VARIORAW));
         }
     }
 }

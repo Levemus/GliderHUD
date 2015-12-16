@@ -17,7 +17,8 @@ package com.levemus.gliderhud.FlightData.Broadcasters.Bluetooth;
 import com.levemus.gliderhud.FlightData.IFlightData;
 
 import java.util.ArrayList;
-import java.util.EnumSet;
+import java.util.HashSet;
+import java.util.UUID;
 
 /**
  * Created by mark@levemus on 15-12-15.
@@ -42,16 +43,15 @@ public abstract class BluetoothFlightData implements IFlightData {
         return false;
     }
 
-    protected String frameStart() {return "$START";}
-    protected String frameEnd() {return "\r\n";}
+    protected abstract String frameStart();
+    protected abstract String frameEnd();
 
-    protected int elementCount() {return 1;}
-    protected int elementOffset(FlightDataType type) {return -1;}
+    protected abstract int elementCount();
+    protected abstract int elementOffset(UUID type);
 
-    protected String seperator() {return ",";}
+    protected abstract String seperator();
 
-    @Override
-    public double get(FlightDataType type) throws java.lang.UnsupportedOperationException
+    public double get(UUID type) throws java.lang.UnsupportedOperationException
     {
         StringBuilder builder = new StringBuilder();
 
@@ -75,5 +75,5 @@ public abstract class BluetoothFlightData implements IFlightData {
     }
 
     @Override
-    public abstract EnumSet<FlightDataType> supportedTypes();
+    public abstract HashSet<UUID> supportedTypes();
 }

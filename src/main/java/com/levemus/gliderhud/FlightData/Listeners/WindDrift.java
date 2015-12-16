@@ -13,16 +13,20 @@ package com.levemus.gliderhud.FlightData.Listeners;
 
 
 import java.util.ArrayList;
-import java.util.EnumSet;
+import java.util.Arrays;
+import java.util.HashSet;
 
 import android.app.Activity;
 import android.os.Handler;
 
 import com.levemus.gliderhud.FlightData.IFlightData;
+import com.levemus.gliderhud.FlightData.FlightDataType;
 import com.levemus.gliderhud.FlightData.Broadcasters.IFlightDataBroadcaster;
 import com.levemus.gliderhud.Utils.TaubinNewtonFitCircle;
 import com.levemus.gliderhud.Types.Vector;
 import com.levemus.gliderhud.FlightData.Broadcasters.FlightDataBroadcaster;
+
+import java.util.UUID;
 
 /**
  * Created by mark@levemus on 15-11-23.
@@ -53,7 +57,7 @@ public class WindDrift extends FlightDataBroadcaster implements IFlightDataListe
     public void resume(Activity activity) {}
 
     @Override
-    public EnumSet<IFlightData.FlightDataType> supportedTypes() {
+    public HashSet<UUID> supportedTypes() {
         return new WindFlightData().supportedTypes();
     }
 
@@ -64,10 +68,10 @@ public class WindDrift extends FlightDataBroadcaster implements IFlightDataListe
     {
         Vector velocity = new Vector();
         try {
-            if (data.get(IFlightData.FlightDataType.GROUNDSPEED) == 0)
+            if (data.get(FlightDataType.GROUNDSPEED) == 0)
                 return;
             velocity.SetDirectionAndMagnitude(data.get(
-                    IFlightData.FlightDataType.BEARING), data.get(IFlightData.FlightDataType.GROUNDSPEED));
+                    FlightDataType.BEARING), data.get(FlightDataType.GROUNDSPEED));
 
             synchronized (mGroundVelocities) {
                 mGroundVelocities.add(velocity);
@@ -79,16 +83,16 @@ public class WindDrift extends FlightDataBroadcaster implements IFlightDataListe
         catch(java.lang.UnsupportedOperationException e){}
     }
 
-    EnumSet<IFlightData.FlightDataType> mSubscriptionFlags = EnumSet.of(
-            IFlightData.FlightDataType.GROUNDSPEED,
-            IFlightData.FlightDataType.BEARING);
+    HashSet<UUID> mSubscriptionFlags = new HashSet(Arrays.asList(
+            FlightDataType.GROUNDSPEED,
+            FlightDataType.BEARING));
 
     @Override
     public void registerWith(IFlightDataBroadcaster broadcaster)
     {
         if(!mSubscriptionFlags.isEmpty()) {
-            EnumSet<IFlightData.FlightDataType> result = broadcaster.addListener(this, WINDDRIFT_SAMPLE_INTERVAL_MS, mSubscriptionFlags);
-            mSubscriptionFlags.retainAll(EnumSet.complementOf(result));
+            HashSet<UUID> result = broadcaster.addListener(this, WINDDRIFT_SAMPLE_INTERVAL_MS, mSubscriptionFlags);
+            mSubscriptionFlags.removeAll(result);
         }
     }
 
@@ -153,7 +157,7 @@ class WindFlightData implements IFlightData
     }
 
     @Override
-    public double get(FlightDataType type) throws java.lang.UnsupportedOperationException
+    public double get(UUID type) throws java.lang.UnsupportedOperationException
     {
         try {
             if (type == FlightDataType.WINDSPEED)
@@ -166,9 +170,9 @@ class WindFlightData implements IFlightData
     }
 
     @Override
-    public EnumSet<FlightDataType> supportedTypes() {
-        return EnumSet.of(
-                IFlightData.FlightDataType.WINDDIRECTION,
-                IFlightData.FlightDataType.WINDSPEED);
+    public HashSet<UUID> supportedTypes() {
+        return new HashSet(Arrays.asList(
+                FlightDataType.WINDDIRECTION,
+                FlightDataType.WINDSPEED));
     }
 }

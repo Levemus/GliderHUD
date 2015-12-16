@@ -12,8 +12,8 @@ package com.levemus.gliderhud.FlightData.Broadcasters;
 import android.app.Activity;
 
 import com.levemus.gliderhud.FlightData.Listeners.IFlightDataListener;
-import com.levemus.gliderhud.FlightData.IFlightData;
-import java.util.EnumSet;
+import java.util.HashSet;
+import java.util.UUID;
 
 /*
  Both the author and publisher makes no representations or warranties
@@ -30,8 +30,8 @@ import java.util.EnumSet;
  * Created by mark@levemus on 15-11-23.
  */
 public interface IFlightDataBroadcaster {
-    public EnumSet<IFlightData.FlightDataType> supportedTypes();
-    public EnumSet<IFlightData.FlightDataType> addListener(IFlightDataListener listener, long notificationInterval, EnumSet<IFlightData.FlightDataType> subscription);
+    public HashSet<UUID> supportedTypes();
+    public HashSet<UUID> addListener(IFlightDataListener listener, long notificationInterval, HashSet<UUID> subscription);
     public void init(Activity activity);
     public void pause(Activity activity);
     public void resume(Activity activity);

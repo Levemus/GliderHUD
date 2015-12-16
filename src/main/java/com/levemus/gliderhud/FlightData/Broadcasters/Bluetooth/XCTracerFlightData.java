@@ -17,74 +17,54 @@ package com.levemus.gliderhud.FlightData.Broadcasters.Bluetooth;
 import com.levemus.gliderhud.FlightData.IFlightData;
 
 import java.util.ArrayList;
-import java.util.EnumSet;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.UUID;
+
+import com.levemus.gliderhud.FlightData.FlightDataType;
 
 /**
  * Created by mark@levemus on 15-12-13.
  */
-class XCTracerFlightData implements IFlightData {
+class XCTracerFlightData extends BluetoothFlightData {
 
-    private int FRAME_ELEMENT_COUNT = 19;
-
-    private ArrayList<String> mBuffers = new ArrayList<String>();
-    private static String mFrameStart = "$XCTRC";
-    private static String mFrameEnd = "\r\n";
+    private final String TAG = this.getClass().getSimpleName();
 
     public XCTracerFlightData() {}
 
-    public boolean build(String buffer)
-    {
-        if(mBuffers.size() == 0 && !buffer.startsWith(mFrameStart)) {
-            return false;
-        }
-        if(mBuffers.size() != 0 && buffer.startsWith(mFrameStart)) {
-            return false;
-        }
-        mBuffers.add(new String(buffer));
-        if(buffer.endsWith(mFrameEnd))
-            return true;
-        return false;
+    @Override
+    protected String frameStart() {return "$XCTRC";}
+
+    @Override
+    protected String frameEnd() {return "\r\n";}
+
+    @Override
+    protected int elementCount() {return 19;}
+
+    @Override
+    protected String seperator() {return ",";}
+
+    @Override
+    protected int elementOffset(UUID type) {
+        if(type == FlightDataType.VARIORAW)
+            return 13;
+        if (type == FlightDataType.ALTITUDE)
+            return 10;
+        if(type == FlightDataType.BEARING)
+            return 12;
+        if (type == FlightDataType.GROUNDSPEED)
+            return 11;
+
+        return -1;
     }
 
     @Override
-    public double get(FlightDataType type) throws UnsupportedOperationException
-    {
-        StringBuilder builder = new StringBuilder();
-
-        for (String string : mBuffers) {
-            builder.append(string);
-        }
-
-        String[] tokenizedFrame = builder.toString().split(",");
-
-        if(tokenizedFrame.length < FRAME_ELEMENT_COUNT)
-            throw new UnsupportedOperationException();
-
-        try {
-            if (type == FlightDataType.VARIORAW)
-                return Double.parseDouble(tokenizedFrame[13]);
-
-            if (type == FlightDataType.ALTITUDE)
-                return Double.parseDouble(tokenizedFrame[10]);
-
-            if (type == FlightDataType.BEARING)
-                return Double.parseDouble(tokenizedFrame[12]);
-
-            if (type == FlightDataType.GROUNDSPEED)
-                return Double.parseDouble(tokenizedFrame[11]);
-
-        }
-        catch(Exception e) {}
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public EnumSet<FlightDataType> supportedTypes() {
-        return EnumSet.of(
+    public HashSet<UUID> supportedTypes() {
+        return new HashSet(Arrays.asList(
                 FlightDataType.ALTITUDE,
                 FlightDataType.VARIORAW,
                 FlightDataType.BEARING,
-                FlightDataType.GROUNDSPEED);
+                FlightDataType.GROUNDSPEED));
     }
 }
 

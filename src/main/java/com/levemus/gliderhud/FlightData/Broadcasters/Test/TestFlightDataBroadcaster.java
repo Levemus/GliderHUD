@@ -13,10 +13,14 @@ package com.levemus.gliderhud.FlightData.Broadcasters.Test;
 
 import android.app.Activity;
 import android.os.Handler;
+
+import java.util.Arrays;
 import java.util.Date;
-import java.util.EnumSet;
+import java.util.HashSet;
+import java.util.UUID;
 
 import com.levemus.gliderhud.FlightData.Broadcasters.FlightDataBroadcaster;
+import com.levemus.gliderhud.FlightData.FlightDataType;
 import com.levemus.gliderhud.FlightData.IFlightData;
 import com.levemus.gliderhud.Types.Vector;
 
@@ -72,7 +76,7 @@ public class TestFlightDataBroadcaster extends FlightDataBroadcaster {
     }
 
     @Override
-    public EnumSet<IFlightData.FlightDataType> supportedTypes() {
+    public HashSet<UUID> supportedTypes() {
         return new TestFlightData().supportedTypes();
     }
 
@@ -123,7 +127,7 @@ class TestFlightData implements IFlightData {
     }
 
     @Override
-    public double get(FlightDataType type) throws java.lang.UnsupportedOperationException
+    public double get(UUID type) throws java.lang.UnsupportedOperationException
     {
         try {
             if (type == FlightDataType.ALTITUDE)
@@ -135,9 +139,6 @@ class TestFlightData implements IFlightData {
             if (type == FlightDataType.BEARING)
                 return new Vector(mCurrentVelocity).Add(mWindVelocity).Direction();
 
-            if (type == FlightDataType.GLIDE)
-                return (mClimbRate != 0 ? GroundSpeed() / mClimbRate : 0);
-
             if (type == FlightDataType.VARIORAW)
                 return mClimbRate;
         }
@@ -146,13 +147,12 @@ class TestFlightData implements IFlightData {
     }
 
     @Override
-    public EnumSet<FlightDataType> supportedTypes() {
-        return EnumSet.of(
-                IFlightData.FlightDataType.ALTITUDE,
-                IFlightData.FlightDataType.GROUNDSPEED,
-                IFlightData.FlightDataType.BEARING,
-                IFlightData.FlightDataType.GLIDE,
-                IFlightData.FlightDataType.VARIORAW);
+    public HashSet<UUID> supportedTypes() {
+        return new HashSet(Arrays.asList(
+                FlightDataType.ALTITUDE,
+                FlightDataType.GROUNDSPEED,
+                FlightDataType.BEARING,
+                FlightDataType.VARIORAW));
     }
 }
 

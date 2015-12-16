@@ -14,10 +14,12 @@ package com.levemus.gliderhud.FlightData.Broadcasters;
 import android.app.Activity;
 
 import java.util.Date;
-import java.util.EnumSet;
+import java.util.HashSet;
 import java.util.ArrayList;
+import java.util.UUID;
 
 import com.levemus.gliderhud.FlightData.IFlightData;
+import com.levemus.gliderhud.FlightData.FlightDataType;
 import com.levemus.gliderhud.FlightData.Listeners.IFlightDataListener;
 
 /**
@@ -27,15 +29,15 @@ public abstract class FlightDataBroadcaster implements IFlightDataBroadcaster {
 
     private class ListenerInterval {
         public IFlightDataListener mListener = null;
-        EnumSet<IFlightData.FlightDataType> mSubscription = IFlightData.FlightDataType.ALL_OPTS;
+        HashSet<UUID> mSubscription = FlightDataType.ALL;
         public long mTimeOfLastUpdate = 0;
         public long mInterval = 0;
 
-        public ListenerInterval(IFlightDataListener datalistener, long notificationInterval, EnumSet<IFlightData.FlightDataType> subscription)
+        public ListenerInterval(IFlightDataListener datalistener, long notificationInterval, HashSet<UUID> subscription)
         {
             mListener = datalistener;
             mInterval = notificationInterval;
-            mSubscription = EnumSet.copyOf(subscription);
+            mSubscription = new HashSet(FlightDataType.ALL);
         }
     }
 
@@ -43,12 +45,12 @@ public abstract class FlightDataBroadcaster implements IFlightDataBroadcaster {
 
     protected void notifyListeners(IFlightData data)
     {
-        EnumSet<IFlightData.FlightDataType> types = data.supportedTypes();
+        HashSet<UUID> types = data.supportedTypes();
         long currentTime = new Date().getTime();
         if(mListeners != null) {
             for(ListenerInterval listenerInterval : mListeners) {
                 long elapsed = currentTime - listenerInterval.mTimeOfLastUpdate;
-                EnumSet<IFlightData.FlightDataType> intersection = EnumSet.copyOf(types);
+                HashSet<UUID> intersection = new HashSet(types);
                 intersection.retainAll(listenerInterval.mSubscription);
                 if(listenerInterval.mInterval < elapsed && !intersection.isEmpty()) {
                     listenerInterval.mListener.onData(data);
@@ -58,19 +60,16 @@ public abstract class FlightDataBroadcaster implements IFlightDataBroadcaster {
         }
     }
 
-    public EnumSet<IFlightData.FlightDataType> addListener(IFlightDataListener listener, long notificationInterval, EnumSet<IFlightData.FlightDataType> subscription)
+    public HashSet<UUID> addListener(IFlightDataListener listener, long notificationInterval, HashSet<UUID> subscription)
     {
-        EnumSet<IFlightData.FlightDataType> intersection = EnumSet.copyOf(subscription);
+        HashSet<UUID> intersection = new HashSet(subscription);
         intersection.retainAll(supportedTypes());
         if(!intersection.isEmpty())
             mListeners.add(new ListenerInterval(listener, notificationInterval, subscription));
         return intersection;
     }
 
-    public EnumSet<IFlightData.FlightDataType> supportedTypes()
-    {
-        return EnumSet.noneOf(IFlightData.FlightDataType.class);
-    }
+    public abstract HashSet<UUID> supportedTypes();
 
     public void init(Activity activity) {};
     public void pause(Activity activity) {};

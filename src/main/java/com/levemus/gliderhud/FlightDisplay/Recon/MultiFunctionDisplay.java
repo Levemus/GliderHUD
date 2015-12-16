@@ -16,10 +16,13 @@ import android.widget.TextView;
 
 import com.levemus.gliderhud.FlightData.Broadcasters.IFlightDataBroadcaster;
 import com.levemus.gliderhud.FlightData.IFlightData;
+import com.levemus.gliderhud.FlightData.FlightDataType;
 import com.levemus.gliderhud.FlightDisplay.FlightDisplayListener;
 import com.levemus.gliderhud.FlightData.Listeners.Vario;
 
-import java.util.EnumSet;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.UUID;
 
 /**
  * Created by mark@levemus on 15-12-01.
@@ -32,7 +35,6 @@ public class MultiFunctionDisplay extends FlightDisplayListener {
         GLIDE,
     };
 
-    private double mGlideRatio = 0;
     private double mVarioAvg = 0;
     private MFD_MODE mMode = MFD_MODE.NONE;
     private TextView mMFDDisplay = null;
@@ -41,9 +43,8 @@ public class MultiFunctionDisplay extends FlightDisplayListener {
     private Vario mVario;
     private int UPDATE_INTERVAl_MS = 500;
 
-    EnumSet<IFlightData.FlightDataType> mSubscriptionFlags = EnumSet.of(
-            IFlightData.FlightDataType.GLIDE,
-            IFlightData.FlightDataType.VARIO);
+    HashSet<UUID> mSubscriptionFlags = new HashSet(Arrays.asList(
+            FlightDataType.VARIO));
 
     @Override
     public void init(Activity activity) {
@@ -57,10 +58,10 @@ public class MultiFunctionDisplay extends FlightDisplayListener {
     public void registerWith(IFlightDataBroadcaster broadcaster) {
         mVario.registerWith(broadcaster);
         if(!mSubscriptionFlags.isEmpty()) {
-            EnumSet<IFlightData.FlightDataType> result = mVario.addListener(this, UPDATE_INTERVAl_MS, mSubscriptionFlags);
-            mSubscriptionFlags.retainAll(EnumSet.complementOf(result));
+            HashSet<UUID> result = mVario.addListener(this, UPDATE_INTERVAl_MS, mSubscriptionFlags);
+            mSubscriptionFlags.removeAll(result);
             result = broadcaster.addListener(this, UPDATE_INTERVAl_MS, mSubscriptionFlags);
-            mSubscriptionFlags.retainAll(EnumSet.complementOf(result));
+            mSubscriptionFlags.removeAll(result);
         }
     }
 
@@ -70,10 +71,7 @@ public class MultiFunctionDisplay extends FlightDisplayListener {
     @Override
     public void onData(IFlightData data) {
         try {
-            mGlideRatio = data.get(IFlightData.FlightDataType.GLIDE);
-        } catch(java.lang.UnsupportedOperationException e){}
-        try {
-            mVarioAvg = data.get(IFlightData.FlightDataType.VARIO);
+            mVarioAvg = data.get(FlightDataType.VARIO);
             mMFDTitle.setText("Climb (m/s)");
             mMFDDisplay.setText(Double.toString(mVarioAvg));
         } catch(java.lang.UnsupportedOperationException e){}
@@ -98,7 +96,7 @@ public class MultiFunctionDisplay extends FlightDisplayListener {
     }
 
     private void determineMode() {
-        if(mVarioAvg > 0 || mGlideRatio >= 0) {
+        if(mVarioAvg > 0) {
             mMode = MFD_MODE.VARIO;
         }
         else {

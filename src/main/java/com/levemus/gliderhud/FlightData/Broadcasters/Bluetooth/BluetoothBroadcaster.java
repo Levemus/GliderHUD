@@ -26,12 +26,13 @@ import android.bluetooth.BluetoothGattService;
 import android.bluetooth.BluetoothGattDescriptor;
 import com.levemus.gliderhud.FlightData.IFlightData;
 
-import java.util.EnumSet;
+import java.util.HashSet;
 import java.util.UUID;
 
 import android.util.Log;
 
 import com.levemus.gliderhud.FlightData.Broadcasters.FlightDataBroadcaster;
+import com.levemus.gliderhud.FlightData.FlightDataType;
 
 import android.content.Context;
 import android.os.Handler;
@@ -92,7 +93,7 @@ public class BluetoothBroadcaster extends FlightDataBroadcaster
     }
 
     @Override
-    public EnumSet<IFlightData.FlightDataType> supportedTypes() {
+    public HashSet<UUID> supportedTypes() {
         return new LXWP0FlightData().supportedTypes();
     }
 

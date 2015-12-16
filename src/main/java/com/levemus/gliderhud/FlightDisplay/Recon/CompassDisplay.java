@@ -17,13 +17,16 @@ import android.widget.TextView;
 
 import com.levemus.gliderhud.FlightData.Broadcasters.IFlightDataBroadcaster;
 import com.levemus.gliderhud.FlightData.IFlightData;
+import com.levemus.gliderhud.FlightData.FlightDataType;
 import com.levemus.gliderhud.FlightData.Listeners.WindDrift;
 import com.levemus.gliderhud.FlightDisplay.Components.DirectionDisplay;
 import com.levemus.gliderhud.FlightDisplay.Components.DirectionDisplayImage;
 import com.levemus.gliderhud.FlightDisplay.Components.DirectionDisplayText;
 import com.levemus.gliderhud.FlightDisplay.FlightDisplayListener;
 
-import java.util.EnumSet;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.UUID;
 
 /**
  * Created by mark@levemus on 15-12-01.
@@ -39,8 +42,8 @@ public class CompassDisplay extends FlightDisplayListener {
     private int UPDATE_INTERVAl_MS = 10;
     private double SCREEN_WIDTH_ANGLE = 53;
 
-    EnumSet<IFlightData.FlightDataType> mSubscriptionFlags = EnumSet.of(
-            IFlightData.FlightDataType.YAW);
+    HashSet<UUID> mSubscriptionFlags = new HashSet(Arrays.asList(
+            FlightDataType.YAW));
 
     @Override
     public void init(Activity activity)
@@ -58,8 +61,8 @@ public class CompassDisplay extends FlightDisplayListener {
     @Override
     public void registerWith(IFlightDataBroadcaster broadcaster) {
         if(!mSubscriptionFlags.isEmpty()) {
-            EnumSet<IFlightData.FlightDataType> result = broadcaster.addListener(this, UPDATE_INTERVAl_MS, mSubscriptionFlags);
-            mSubscriptionFlags.retainAll(EnumSet.complementOf(result));
+            HashSet<UUID> result = broadcaster.addListener(this, UPDATE_INTERVAl_MS, mSubscriptionFlags);
+            mSubscriptionFlags.removeAll(result);
         }
         mWindDisplay.registerWith(broadcaster);
         mBearingDisplay.registerWith(broadcaster);
@@ -77,7 +80,7 @@ public class CompassDisplay extends FlightDisplayListener {
     public void onData(IFlightData data) {
         try {
             mHeadingDisplay.setCurrentDirection(
-                    DirectionDisplay.smoothDirection(data.get(IFlightData.FlightDataType.YAW),
+                    DirectionDisplay.smoothDirection(data.get(FlightDataType.YAW),
                             mHeadingDisplay.getCurrentDirection()));
             mBearingDisplay.setBaseAngle(mHeadingDisplay.getCurrentDirection());
             mWindDisplay.setBaseAngle(mHeadingDisplay.getCurrentDirection());
@@ -102,9 +105,9 @@ public class CompassDisplay extends FlightDisplayListener {
 
         private int UPDATE_INTERVAl_MS = 10000;
 
-        EnumSet<IFlightData.FlightDataType> mSubscriptionFlags = EnumSet.of(
-                IFlightData.FlightDataType.WINDDIRECTION,
-                IFlightData.FlightDataType.WINDSPEED);
+        HashSet<UUID> mSubscriptionFlags = new HashSet(Arrays.asList(
+                FlightDataType.WINDDIRECTION,
+                FlightDataType.WINDSPEED));
 
         @Override
         public void init(Activity activity) {
@@ -117,8 +120,8 @@ public class CompassDisplay extends FlightDisplayListener {
         public void registerWith(IFlightDataBroadcaster broadcaster) {
             mWindDrift.registerWith(broadcaster);
             if(!mSubscriptionFlags.isEmpty()) {
-                EnumSet<IFlightData.FlightDataType> result = mWindDrift.addListener(this, UPDATE_INTERVAl_MS, mSubscriptionFlags);
-                mSubscriptionFlags.retainAll(EnumSet.complementOf(result));
+                HashSet<UUID> result = mWindDrift.addListener(this, UPDATE_INTERVAl_MS, mSubscriptionFlags);
+                mSubscriptionFlags.removeAll(result);
             }
         }
 
@@ -133,8 +136,8 @@ public class CompassDisplay extends FlightDisplayListener {
         @Override
         public void onData(IFlightData data) {
             try {
-                mWindSpeed = data.get(IFlightData.FlightDataType.WINDSPEED);
-                double mWindDirection = (data.get(IFlightData.FlightDataType.WINDDIRECTION) + DEGREES_HALF_CIRCLE) % DEGREES_FULL_CIRCLE;
+                mWindSpeed = data.get(FlightDataType.WINDSPEED);
+                double mWindDirection = (data.get(FlightDataType.WINDDIRECTION) + DEGREES_HALF_CIRCLE) % DEGREES_FULL_CIRCLE;
                 mWindDirectionDisplay.setCurrentDirection(mWindDirection);
                 mWindSpeedDisplay.setCurrentDirection(mWindDirection);
                 mWindSpeedDisplay.setText(Double.toString(Math.round(mWindSpeed)));
@@ -156,8 +159,8 @@ public class CompassDisplay extends FlightDisplayListener {
         private DirectionDisplayImage mBearingDisplay = null;
         private long UPDATE_INTERVAl_MS = 2000;
         private double mOffsetAngle = 0;
-        private EnumSet<IFlightData.FlightDataType> mSubscriptionFlags = EnumSet.of(
-                IFlightData.FlightDataType.BEARING);
+        HashSet<UUID> mSubscriptionFlags = new HashSet(Arrays.asList(
+                FlightDataType.BEARING));
 
         @Override
         public void init(Activity activity) {
@@ -173,15 +176,15 @@ public class CompassDisplay extends FlightDisplayListener {
         @Override
         public void registerWith(IFlightDataBroadcaster broadcaster) {
             if(!mSubscriptionFlags.isEmpty()) {
-                EnumSet<IFlightData.FlightDataType> result = broadcaster.addListener(this, UPDATE_INTERVAl_MS, mSubscriptionFlags);
-                mSubscriptionFlags.retainAll(EnumSet.complementOf(result));
+                HashSet<UUID> result = broadcaster.addListener(this, UPDATE_INTERVAl_MS, mSubscriptionFlags);
+                mSubscriptionFlags.removeAll(result);
             }
         }
 
         @Override
         public void onData(IFlightData data) {
             try {
-                mBearingDisplay.setCurrentDirection(data.get(IFlightData.FlightDataType.BEARING));
+                mBearingDisplay.setCurrentDirection(data.get(FlightDataType.BEARING));
                 display();
             } catch(java.lang.UnsupportedOperationException e){}
         }

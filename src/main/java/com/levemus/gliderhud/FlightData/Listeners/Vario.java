@@ -14,10 +14,13 @@ import android.app.Activity;
 
 import com.levemus.gliderhud.FlightData.Broadcasters.IFlightDataBroadcaster;
 import com.levemus.gliderhud.FlightData.IFlightData;
+import com.levemus.gliderhud.FlightData.FlightDataType;
 import com.levemus.gliderhud.FlightData.Broadcasters.FlightDataBroadcaster;
 
 import java.util.ArrayList;
-import java.util.EnumSet;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.UUID;
 import android.util.Log;
 
 /**
@@ -42,7 +45,7 @@ public class Vario extends FlightDataBroadcaster implements IFlightDataListener 
 
     // IFlightDataBroadcaster
     @Override
-    public EnumSet<IFlightData.FlightDataType> supportedTypes() {
+    public HashSet<UUID> supportedTypes() {
         return new VarioFlightData().supportedTypes();
     }
 
@@ -59,7 +62,7 @@ public class Vario extends FlightDataBroadcaster implements IFlightDataListener 
     @Override
     public void onData(IFlightData data) {
         try {
-            double value = data.get(IFlightData.FlightDataType.VARIORAW);
+            double value = data.get(FlightDataType.VARIORAW);
             mVarioRaw.add( new RawVario(value));
             if(mVarioRaw.size() > MAX_RAW_VARIO_ENTRIES)
                 mVarioRaw.remove(0);
@@ -78,14 +81,14 @@ public class Vario extends FlightDataBroadcaster implements IFlightDataListener 
         notifyListeners(new VarioFlightData(mAvgVario));
     }
 
-    EnumSet<IFlightData.FlightDataType> mSubscriptionFlags = EnumSet.of(
-            IFlightData.FlightDataType.VARIORAW);
+    HashSet<UUID> mSubscriptionFlags = new HashSet(Arrays.asList(
+            FlightDataType.VARIORAW));
 
     @Override
     public void registerWith(IFlightDataBroadcaster broadcaster) {
         if(!mSubscriptionFlags.isEmpty()) {
-            EnumSet<IFlightData.FlightDataType> result = broadcaster.addListener(this, VARIO_UPDATE_INTERVAL_MS, mSubscriptionFlags);
-            mSubscriptionFlags.retainAll(EnumSet.complementOf(result));
+            HashSet<UUID> result = broadcaster.addListener(this, VARIO_UPDATE_INTERVAL_MS, mSubscriptionFlags);
+            mSubscriptionFlags.removeAll(result);
         }
     }
 }
@@ -101,7 +104,7 @@ class VarioFlightData implements IFlightData{
     }
 
     @Override
-    public double get(FlightDataType type) throws java.lang.UnsupportedOperationException
+    public double get(UUID type) throws java.lang.UnsupportedOperationException
     {
         try {
             if (type == FlightDataType.VARIO)
@@ -112,8 +115,8 @@ class VarioFlightData implements IFlightData{
     }
 
     @Override
-    public EnumSet<FlightDataType> supportedTypes() {
-        return EnumSet.of(
-                IFlightData.FlightDataType.VARIO);
+    public HashSet<UUID> supportedTypes() {
+        return new HashSet(Arrays.asList(
+                FlightDataType.VARIO));
     }
 }

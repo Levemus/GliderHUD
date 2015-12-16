@@ -16,10 +16,10 @@ package com.levemus.gliderhud.FlightData.Broadcasters.Bluetooth;
 
 import com.levemus.gliderhud.FlightData.IFlightData;
 
-import java.util.ArrayList;
-import java.util.EnumSet;
-import java.util.HashMap;
-
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.UUID;
+import com.levemus.gliderhud.FlightData.FlightDataType;
 /**
  * Created by mark@levemus on 15-12-13.
  */
@@ -39,7 +39,10 @@ class LXWP0FlightData extends BluetoothFlightData {
     protected int elementCount() {return 12;}
 
     @Override
-    protected int elementOffset(FlightDataType type) {
+    protected String seperator() {return ",";}
+
+    @Override
+    protected int elementOffset(UUID type) {
         if(type == FlightDataType.VARIORAW)
             return 4;
         if (type == FlightDataType.ALTITUDE)
@@ -49,10 +52,10 @@ class LXWP0FlightData extends BluetoothFlightData {
     }
 
     @Override
-    public EnumSet<FlightDataType> supportedTypes() {
-        return EnumSet.of(
+    public HashSet<UUID> supportedTypes() {
+        return new HashSet(Arrays.asList(
                 FlightDataType.ALTITUDE,
-                FlightDataType.VARIORAW);
+                FlightDataType.VARIORAW));
     }
 }
 
