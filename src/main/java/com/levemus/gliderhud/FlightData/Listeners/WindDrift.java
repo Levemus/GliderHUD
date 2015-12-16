@@ -22,6 +22,7 @@ import android.os.Handler;
 import com.levemus.gliderhud.FlightData.IFlightData;
 import com.levemus.gliderhud.FlightData.FlightDataType;
 import com.levemus.gliderhud.FlightData.Broadcasters.IFlightDataBroadcaster;
+import com.levemus.gliderhud.FlightData.Broadcasters.BroadcasterStatus;
 import com.levemus.gliderhud.Utils.TaubinNewtonFitCircle;
 import com.levemus.gliderhud.Types.Vector;
 import com.levemus.gliderhud.FlightData.Broadcasters.FlightDataBroadcaster;
@@ -64,7 +65,7 @@ public class WindDrift extends FlightDataBroadcaster implements IFlightDataListe
 
     // IFlightDataListener
     @Override
-    public void onData(IFlightData data)
+    public void onData(IFlightDataBroadcaster broadcaster, IFlightData data)
     {
         Vector velocity = new Vector();
         try {
@@ -82,6 +83,9 @@ public class WindDrift extends FlightDataBroadcaster implements IFlightDataListe
         }
         catch(java.lang.UnsupportedOperationException e){}
     }
+
+    @Override
+    public void onStatus(IFlightDataBroadcaster broadcaster, BroadcasterStatus status) {}
 
     HashSet<UUID> mSubscriptionFlags = new HashSet(Arrays.asList(
             FlightDataType.GROUNDSPEED,

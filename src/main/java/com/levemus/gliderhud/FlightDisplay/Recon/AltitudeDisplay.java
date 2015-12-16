@@ -57,7 +57,7 @@ public class AltitudeDisplay extends FlightDisplayListener {
     public void display() {}
 
     @Override
-    public void onData(IFlightData data) {
+    public void onData(IFlightDataBroadcaster broadcaster, IFlightData data) {
         try {
             mAltitude = data.get(FlightDataType.ALTITUDE);
             mAltiDisplay.setText(Integer.toString((int)(Math.max(mAltitude, MIN_ALTITUDE))));

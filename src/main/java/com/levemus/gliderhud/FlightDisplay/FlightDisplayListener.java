@@ -14,6 +14,7 @@ package com.levemus.gliderhud.FlightDisplay;
 import android.app.Activity;
 
 import com.levemus.gliderhud.FlightData.Broadcasters.IFlightDataBroadcaster;
+import com.levemus.gliderhud.FlightData.Broadcasters.BroadcasterStatus;
 import com.levemus.gliderhud.FlightData.IFlightData;
 import com.levemus.gliderhud.FlightData.Listeners.IFlightDataListener;
 import com.levemus.gliderhud.FlightDisplay.IFlightDisplay;
@@ -23,14 +24,17 @@ import com.levemus.gliderhud.FlightDisplay.IFlightDisplay;
  */
 public abstract class FlightDisplayListener implements IFlightDisplay, IFlightDataListener {
     @Override
-    public abstract void init(Activity activity);
+    public void init(Activity activity) {}
 
     @Override
-    public abstract void display();
+    public void display() {}
 
     @Override
-    public abstract void registerWith(IFlightDataBroadcaster broadcaster);
+    public void registerWith(IFlightDataBroadcaster broadcaster) {}
 
     @Override
-    public abstract void onData(IFlightData data);
+    public void onData(IFlightDataBroadcaster broadcaster, IFlightData data) {}
+
+    @Override
+    public void onStatus(IFlightDataBroadcaster broadcaster, BroadcasterStatus status) {}
 }

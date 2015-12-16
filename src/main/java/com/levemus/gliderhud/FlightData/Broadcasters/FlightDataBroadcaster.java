@@ -53,8 +53,22 @@ public abstract class FlightDataBroadcaster implements IFlightDataBroadcaster {
                 HashSet<UUID> intersection = new HashSet(types);
                 intersection.retainAll(listenerInterval.mSubscription);
                 if(listenerInterval.mInterval < elapsed && !intersection.isEmpty()) {
-                    listenerInterval.mListener.onData(data);
+                    listenerInterval.mListener.onData(this, data);
                     listenerInterval.mTimeOfLastUpdate = currentTime;
+                }
+            }
+        }
+    }
+
+    protected void notifyListeners(BroadcasterStatus status)
+    {
+        HashSet<UUID> types = status.affectedTypes();
+        if(mListeners != null) {
+            for(ListenerInterval listenerInterval : mListeners) {
+                HashSet<UUID> intersection = new HashSet(types);
+                intersection.retainAll(listenerInterval.mSubscription);
+                if(!intersection.isEmpty()) {
+                    listenerInterval.mListener.onStatus(this, status);
                 }
             }
         }

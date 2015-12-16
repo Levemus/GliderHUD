@@ -16,6 +16,7 @@ import com.levemus.gliderhud.FlightData.Broadcasters.IFlightDataBroadcaster;
 import com.levemus.gliderhud.FlightData.IFlightData;
 import com.levemus.gliderhud.FlightData.FlightDataType;
 import com.levemus.gliderhud.FlightData.Broadcasters.FlightDataBroadcaster;
+import com.levemus.gliderhud.FlightData.Broadcasters.BroadcasterStatus;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -60,7 +61,7 @@ public class Vario extends FlightDataBroadcaster implements IFlightDataListener 
 
     // IFlightDataListener
     @Override
-    public void onData(IFlightData data) {
+    public void onData(IFlightDataBroadcaster broadcaster, IFlightData data) {
         try {
             double value = data.get(FlightDataType.VARIORAW);
             mVarioRaw.add( new RawVario(value));
@@ -80,6 +81,8 @@ public class Vario extends FlightDataBroadcaster implements IFlightDataListener 
             mAvgVario = 0;
         notifyListeners(new VarioFlightData(mAvgVario));
     }
+
+    public void onStatus(IFlightDataBroadcaster broadcaster, BroadcasterStatus status) {}
 
     HashSet<UUID> mSubscriptionFlags = new HashSet(Arrays.asList(
             FlightDataType.VARIORAW));
