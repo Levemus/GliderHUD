@@ -31,7 +31,7 @@ public class HUDActivity extends Activity {
 
 	private IFlightDataBroadcaster[] mBroadcasterList = {
 			new HeadLocationDataBroadcaster(),
-			new BluetoothBroadcaster(),
+			//new BluetoothBroadcaster(),
 			new InternalGPSFlightDataBroadcaster() //TestFlightDataBroadcaster()
 	};
 
