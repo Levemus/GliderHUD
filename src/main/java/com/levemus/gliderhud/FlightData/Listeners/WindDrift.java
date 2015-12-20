@@ -1,72 +1,62 @@
 package com.levemus.gliderhud.FlightData.Listeners;
 
-/*
- Both the author and publisher makes no representations or warranties
- about the suitability of this software, either expressed or implied, including
- but not limited to the implied warranties of merchantability, fitness
- for a particular purpose or noninfringement. Both the author and publisher
- shall not be liable for any damages suffered as a result of using,
- modifying or distributing the software or its derivatives.
-
- (c) 2015 Levemus Software, Inc.
- */
-
+import com.levemus.gliderhud.FlightData.Broadcasters.BroadcasterStatus;
+import com.levemus.gliderhud.FlightData.Broadcasters.IFlightDataBroadcaster;
+import com.levemus.gliderhud.FlightData.FlightDataType;
+import com.levemus.gliderhud.FlightData.IFlightData;
+import com.levemus.gliderhud.FlightData.IFlightDataClient;
+import com.levemus.gliderhud.FlightData.Listeners.IFlightDataListener;
+import com.levemus.gliderhud.Types.Vector;
+import com.levemus.gliderhud.Utils.Angle;
+import com.levemus.gliderhud.Utils.TaubinNewtonFitCircle;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
-
-import android.app.Activity;
-import android.os.Handler;
-
-import com.levemus.gliderhud.FlightData.IFlightData;
-import com.levemus.gliderhud.FlightData.FlightDataType;
-import com.levemus.gliderhud.FlightData.Broadcasters.IFlightDataBroadcaster;
-import com.levemus.gliderhud.FlightData.Broadcasters.BroadcasterStatus;
-import com.levemus.gliderhud.Utils.TaubinNewtonFitCircle;
-import com.levemus.gliderhud.Types.Vector;
-import com.levemus.gliderhud.FlightData.Broadcasters.FlightDataBroadcaster;
-
 import java.util.UUID;
 
 /**
- * Created by mark@levemus on 15-11-23.
+ * Created by markcarter on 15-12-20.
  */
-public class WindDrift extends FlightDataBroadcaster implements IFlightDataListener {
+public class WindDrift implements IFlightDataListener {
 
-    private final String TAG = this.getClass().getSimpleName();
+    IFlightDataClient mClient;
 
-    private ArrayList<Vector> mGroundVelocities = new ArrayList<Vector>();
-    private Handler mWindHandler = null;
+    public WindDrift(IFlightDataClient client) {
+        mClient = client;
+    }
 
-    private int MAX_NUM_GRND_VELOCITIES = 3;
-    private int WINDDRIFT_SAMPLE_INTERVAL_MS = 10000;
+    HashSet<UUID> mSubscriptionFlags = new HashSet(Arrays.asList(
+            FlightDataType.GROUNDSPEED,
+            FlightDataType.BEARING
+    ));
 
-    // IFlightDataBroadcaster
-    @Override
-    public void init(Activity activity) {
-        if(mWindHandler == null) {
-            mWindHandler = new Handler();
-            mWindHandler.postDelayed(new ProcessWindRunnable(), WINDDRIFT_SAMPLE_INTERVAL_MS);
+    private int UPDATE_INTERVAl_MS = 5000;
+    public HashSet<UUID> registerWith(IFlightDataBroadcaster broadcaster) {
+        HashSet<UUID> result = new HashSet<>();
+        if(!mSubscriptionFlags.isEmpty()) {
+            result = broadcaster.addListener(this, UPDATE_INTERVAl_MS, mSubscriptionFlags);
+            mSubscriptionFlags.removeAll(result);
         }
+
+        return result;
     }
 
-    @Override
-    public void pause(Activity activity) {}
+    private double mDirection = 0;
+    private double mSpeed = 0;
 
-    @Override
-    public void resume(Activity activity) {}
-
-    @Override
-    public HashSet<UUID> supportedTypes() {
-        return new WindFlightData().supportedTypes();
+    public double speed() {
+        return mSpeed;
     }
 
+    public double direction() {
+        return mDirection;
+    }
 
-    // IFlightDataListener
-    @Override
-    public void onData(IFlightDataBroadcaster broadcaster, IFlightData data)
-    {
+    private ArrayList<Vector> mGrndSpdVelocities = new ArrayList<Vector>();
+    private int MAX_NUM_GRND_VELOCITIES = 3;
+    private double MIN_SEPERATING_ANGLE = 45;
+    public void onData(IFlightDataBroadcaster broadcaster, IFlightData data) {
         Vector velocity = new Vector();
         try {
             if (data.get(FlightDataType.GROUNDSPEED) == 0)
@@ -74,109 +64,31 @@ public class WindDrift extends FlightDataBroadcaster implements IFlightDataListe
             velocity.SetDirectionAndMagnitude(data.get(
                     FlightDataType.BEARING), data.get(FlightDataType.GROUNDSPEED));
 
-            synchronized (mGroundVelocities) {
-                mGroundVelocities.add(velocity);
-                if (mGroundVelocities.size() > MAX_NUM_GRND_VELOCITIES) {
-                    mGroundVelocities.remove(0);
+            mGrndSpdVelocities.add(velocity);
+            if (mGrndSpdVelocities.size() > MAX_NUM_GRND_VELOCITIES) {
+                mGrndSpdVelocities.remove(0);
+            }
+
+            for (int i = 0; i < mGrndSpdVelocities.size() - 1; i++) {
+                for (int j = i + 1; j < mGrndSpdVelocities.size() - 1; j++) {
+                    if (Angle.delta(mGrndSpdVelocities.get(i).Direction(),
+                            mGrndSpdVelocities.get(j).Direction()) < MIN_SEPERATING_ANGLE) {
+                        mGrndSpdVelocities.clear();
+                        return;
+                    }
                 }
             }
-        }
-        catch(java.lang.UnsupportedOperationException e){}
+            Vector wind = TaubinNewtonFitCircle.FitCircle(mGrndSpdVelocities);
+            if(wind != null) {
+                mSpeed = wind.Magnitude();
+                mDirection = wind.Direction();
+            }
+        } catch (java.lang.UnsupportedOperationException e) {}
+
+        if(mClient != null)
+            mClient.onDataReady();
     }
 
     @Override
     public void onStatus(IFlightDataBroadcaster broadcaster, BroadcasterStatus status) {}
-
-    HashSet<UUID> mSubscriptionFlags = new HashSet(Arrays.asList(
-            FlightDataType.GROUNDSPEED,
-            FlightDataType.BEARING));
-
-    @Override
-    public void registerWith(IFlightDataBroadcaster broadcaster)
-    {
-        if(!mSubscriptionFlags.isEmpty()) {
-            HashSet<UUID> result = broadcaster.addListener(this, WINDDRIFT_SAMPLE_INTERVAL_MS, mSubscriptionFlags);
-            mSubscriptionFlags.removeAll(result);
-        }
-    }
-
-    private class ProcessWindRunnable implements Runnable {
-
-        private int WINDDRIFT_CALC_INTERVAL_MS = 30000;
-        private double DEGREES_FULL_CIRCLE = 360;
-        private int MAX_NUM_WIND_VELOCITIES = 20;
-        private double WIND_WEIGHTING_FACTOR = 0.9;
-
-        private ArrayList<Vector> mWindVelocities = new ArrayList<Vector>();
-
-        private Vector WeightedAverage(ArrayList<Vector> values, double r)
-        {
-            double weightedMagnitude = 0;
-            double weightedDirection = 0;
-
-            for(Vector current : values)
-            {
-                weightedMagnitude +=  r * (current.Magnitude() - weightedMagnitude);
-                weightedDirection += r * (current.Direction() - weightedDirection);
-            }
-            weightedDirection %= DEGREES_FULL_CIRCLE;
-            Vector windVelocity = new Vector();
-            windVelocity.SetDirectionAndMagnitude(weightedDirection, weightedMagnitude);
-            return(windVelocity);
-        }
-
-        private void ProcessWind() {
-            Vector wind;
-            ArrayList<Vector> velocities;
-            synchronized (mGroundVelocities) {
-                velocities = new ArrayList<Vector>(mGroundVelocities);
-            }
-
-            wind = TaubinNewtonFitCircle.FitCircle(velocities);
-
-            if (wind != null) {
-                mWindVelocities.add(wind);
-                if (mWindVelocities.size() > MAX_NUM_WIND_VELOCITIES)
-                    mWindVelocities.remove(0);
-                notifyListeners(new WindFlightData(WeightedAverage(mWindVelocities, WIND_WEIGHTING_FACTOR)));
-            }
-        }
-
-        public void run() {
-            android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_BACKGROUND);
-            mWindHandler.postDelayed(this, WINDDRIFT_CALC_INTERVAL_MS);
-            ProcessWind();
-        }
-    }
-}
-
-class WindFlightData implements IFlightData
-{
-    private Vector mWind;
-    public WindFlightData() {} // to get around lack of statics in interfaces while accessing supported types
-
-    public WindFlightData(Vector wind)
-    {
-        mWind = wind;
-    }
-
-    @Override
-    public double get(UUID type) throws java.lang.UnsupportedOperationException
-    {
-        try {
-            if (type == FlightDataType.WINDSPEED)
-                return mWind.Magnitude();
-            if (type == FlightDataType.WINDDIRECTION)
-                return mWind.Direction();
-        }
-        catch(Exception e) {}
-        throw new java.lang.UnsupportedOperationException();
-    }
-
-    @Override
-    public HashSet<UUID> supportedTypes() {
-        return new HashSet(Arrays.asList(
-                FlightDataType.WINDDIRECTION,
-                FlightDataType.WINDSPEED));
-    }
 }
