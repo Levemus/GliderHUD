@@ -18,6 +18,7 @@ import java.util.Iterator;
 
 import com.levemus.gliderhud.Types.Point;
 import com.levemus.gliderhud.Types.Vector;
+import com.levemus.gliderhud.Types.OffsetCircle;
 
 /**
  * Created by flyinorange on 15-11-23.
@@ -39,7 +40,7 @@ public class TaubinNewtonFitCircle {
         return new Point(sumX / points.size(), sumY / points.size());
     }
 
-    public static Vector FitCircle(ArrayList<Vector> points) {
+    public static OffsetCircle FitCircle(ArrayList<Vector> points) {
         int nPoints = points.size();
         if (nPoints < 3)
             return null;
@@ -106,6 +107,9 @@ public class TaubinNewtonFitCircle {
         double det = xnew * xnew - xnew * Mz + Cov_xy;
         double x = (Mxz * (Myy - xnew) - Myz * Mxy) / (det * 2);
         double y = (Myz * (Mxx - xnew) - Mxz * Mxy) / (det * 2);
-        return(new Vector(x + centroid.X(),y + centroid.Y()));
+        OffsetCircle result = new OffsetCircle();
+        result.mCenterOffset = new Vector(x + centroid.X(),y + centroid.Y());
+        result.mRadius = Math.sqrt(x * x + y * y + Mz);
+        return(result);
     }
 }

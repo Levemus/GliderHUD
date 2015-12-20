@@ -5,7 +5,7 @@ import com.levemus.gliderhud.FlightData.Broadcasters.IFlightDataBroadcaster;
 import com.levemus.gliderhud.FlightData.FlightDataType;
 import com.levemus.gliderhud.FlightData.IFlightData;
 import com.levemus.gliderhud.FlightData.IFlightDataClient;
-import com.levemus.gliderhud.FlightData.Listeners.IFlightDataListener;
+import com.levemus.gliderhud.Types.OffsetCircle;
 import com.levemus.gliderhud.Types.Vector;
 import com.levemus.gliderhud.Utils.Angle;
 import com.levemus.gliderhud.Utils.TaubinNewtonFitCircle;
@@ -42,15 +42,22 @@ public class WindDrift implements IFlightDataListener {
         return result;
     }
 
-    private double mDirection = 0;
-    private double mSpeed = 0;
+    private OffsetCircle mWind;
+
+    private int MAX_NUM_WIND_RESULT = 3;
+    private double MAX_WIND_RESULT_SPEED_VARIATION = 5;
+    private ArrayList<OffsetCircle> mPreviousWindResults = new ArrayList<OffsetCircle>();
 
     public double speed() {
-        return mSpeed;
+        if(mWind != null)
+            return mWind.mCenterOffset.Magnitude();
+        return 0;
     }
 
     public double direction() {
-        return mDirection;
+        if(mWind != null)
+            return mWind.mCenterOffset.Direction();
+        return 0;
     }
 
     private ArrayList<Vector> mGrndSpdVelocities = new ArrayList<Vector>();
@@ -78,10 +85,19 @@ public class WindDrift implements IFlightDataListener {
                     }
                 }
             }
-            Vector wind = TaubinNewtonFitCircle.FitCircle(mGrndSpdVelocities);
-            if(wind != null) {
-                mSpeed = wind.Magnitude();
-                mDirection = wind.Direction();
+            OffsetCircle result = TaubinNewtonFitCircle.FitCircle(mGrndSpdVelocities);
+            if(result != null) {
+                mPreviousWindResults.add(result);
+                if(mPreviousWindResults.size() > 1) {
+                    if(mPreviousWindResults.size() > MAX_NUM_WIND_RESULT)
+                        mPreviousWindResults.remove(0);
+                    for(OffsetCircle previous : mPreviousWindResults){
+                        if(Math.abs(previous.mRadius - result.mRadius) > MAX_WIND_RESULT_SPEED_VARIATION)
+                            return;
+                    }
+                }
+
+                mWind = result;
             }
         } catch (java.lang.UnsupportedOperationException e) {}
 
