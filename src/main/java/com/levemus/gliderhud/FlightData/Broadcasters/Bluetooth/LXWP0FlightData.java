@@ -43,7 +43,7 @@ class LXWP0FlightData extends BluetoothFlightData {
 
     @Override
     protected int elementOffset(UUID type) {
-        if(type == FlightDataType.VARIORAW)
+        if(type == FlightDataType.VARIO)
             return 4;
         if (type == FlightDataType.ALTITUDE)
             return 3;
@@ -55,7 +55,7 @@ class LXWP0FlightData extends BluetoothFlightData {
     public HashSet<UUID> supportedTypes() {
         return new HashSet(Arrays.asList(
                 FlightDataType.ALTITUDE,
-                FlightDataType.VARIORAW));
+                FlightDataType.VARIO));
     }
 }
 

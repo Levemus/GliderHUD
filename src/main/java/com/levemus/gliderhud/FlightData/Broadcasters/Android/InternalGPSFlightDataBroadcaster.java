@@ -120,7 +120,13 @@ public class InternalGPSFlightDataBroadcaster extends FlightDataBroadcaster impl
                 if (type == FlightDataType.BEARING)
                     return mLocation.getBearing();
 
-                if (type == FlightDataType.VARIORAW) {
+                if (type == FlightDataType.LATITUDE)
+                    return mLocation.getLatitude();
+
+                if (type == FlightDataType.LONGITUDE)
+                    return mLocation.getLongitude();
+
+                if (type == FlightDataType.VARIO) {
                     if(mTimeOfLastUpdate == 0 || mLocation.getTime() == mTimeOfLastUpdate)
                         new java.lang.UnsupportedOperationException(); // TODO: Need a better exception to indicate bad data
                     return(mLocation.getAltitude() - mLastAltitude) / (mLocation.getTime() - mTimeOfLastUpdate) * 1000;
@@ -134,10 +140,12 @@ public class InternalGPSFlightDataBroadcaster extends FlightDataBroadcaster impl
         @Override
         public HashSet<UUID> supportedTypes() {
             return new HashSet(Arrays.asList(
+                    FlightDataType.LATITUDE,
+                    FlightDataType.LONGITUDE,
                     FlightDataType.ALTITUDE,
                     FlightDataType.GROUNDSPEED,
                     FlightDataType.BEARING,
-                    FlightDataType.VARIORAW));
+                    FlightDataType.VARIO));
         }
     }
 }

@@ -17,11 +17,10 @@ import android.util.Log;
 
 import com.levemus.gliderhud.FlightData.Broadcasters.IFlightDataBroadcaster;
 import com.levemus.gliderhud.FlightData.Broadcasters.Recon.HeadLocationDataBroadcaster;
-import com.levemus.gliderhud.FlightData.Broadcasters.Android.InternalGPSFlightDataBroadcaster;
 import com.levemus.gliderhud.FlightData.Broadcasters.Test.TestFlightDataBroadcaster;
-import com.levemus.gliderhud.FlightDisplay.FlightDisplayListener;
-import com.levemus.gliderhud.FlightDisplay.Recon.ReconFlightDisplay;
-import com.levemus.gliderhud.FlightData.Broadcasters.Bluetooth.BluetoothBroadcaster;
+import com.levemus.gliderhud.FlightDisplay.FlightDisplay;
+import com.levemus.gliderhud.FlightDisplay.MainDisplay;
+
 /**
  * Created by mark@levemus on 15-11-23.
  */
@@ -32,11 +31,12 @@ public class HUDActivity extends Activity {
 	private IFlightDataBroadcaster[] mBroadcasterList = {
 			new HeadLocationDataBroadcaster(),
 			//new BluetoothBroadcaster(),
-			new InternalGPSFlightDataBroadcaster() //TestFlightDataBroadcaster()
+			//new InternalGPSFlightDataBroadcaster(),
+			new TestFlightDataBroadcaster()
 	};
 
-	private FlightDisplayListener[] mDisplayList = {
-			new ReconFlightDisplay()
+	private FlightDisplay[] mDisplayList = {
+			new MainDisplay()
 	};
 
 	@Override
@@ -44,7 +44,7 @@ public class HUDActivity extends Activity {
 		Log.i(TAG, "onCreate");
 		super.onCreate(savedInstanceState);
 
-		for(FlightDisplayListener display : mDisplayList)
+		for(FlightDisplay display : mDisplayList)
 		{
 			display.init(this);
 			for(IFlightDataBroadcaster broadcaster : mBroadcasterList) {

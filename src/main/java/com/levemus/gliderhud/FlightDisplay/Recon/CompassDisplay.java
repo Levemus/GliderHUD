@@ -18,33 +18,30 @@ import android.widget.TextView;
 import com.levemus.gliderhud.FlightData.Broadcasters.IFlightDataBroadcaster;
 import com.levemus.gliderhud.FlightData.IFlightData;
 import com.levemus.gliderhud.FlightData.FlightDataType;
+import com.levemus.gliderhud.FlightData.Listeners.IFlightDataListener;
 import com.levemus.gliderhud.FlightData.Listeners.WindDrift;
-import com.levemus.gliderhud.FlightDisplay.Components.DirectionDisplay;
-import com.levemus.gliderhud.FlightDisplay.Components.DirectionDisplayImage;
-import com.levemus.gliderhud.FlightDisplay.Components.DirectionDisplayText;
-import com.levemus.gliderhud.FlightDisplay.FlightDisplayListener;
+import com.levemus.gliderhud.FlightData.Listeners.Bearing;
+import com.levemus.gliderhud.FlightData.Listeners.Orientation;
+import com.levemus.gliderhud.FlightDisplay.Recon.Components.DirectionDisplay;
+import com.levemus.gliderhud.FlightDisplay.Recon.Components.DirectionDisplayImage;
+import com.levemus.gliderhud.FlightDisplay.Recon.Components.DirectionDisplayText;
+import com.levemus.gliderhud.FlightDisplay.FlightDisplay;
 
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.UUID;
 
 /**
  * Created by mark@levemus on 15-12-01.
  */
-public class CompassDisplay extends FlightDisplayListener {
+public class CompassDisplay extends FlightDisplay {
 
     private final String TAG = this.getClass().getSimpleName();
+
+    private Orientation mOrientation = new Orientation(this);
 
     private DirectionDisplayImage mHeadingDisplay = null;
     private WindDisplay mWindDisplay = null;
     private BearingDisplay mBearingDisplay = null;
-
-    private int UPDATE_INTERVAl_MS = 10;
-    private double SCREEN_WIDTH_ANGLE = 53;
-
-    HashSet<UUID> mSubscriptionFlags = new HashSet(Arrays.asList(
-            FlightDataType.YAW));
-
     @Override
     public void init(Activity activity)
     {
@@ -59,94 +56,73 @@ public class CompassDisplay extends FlightDisplayListener {
     }
 
     @Override
-    public void registerWith(IFlightDataBroadcaster broadcaster) {
-        if(!mSubscriptionFlags.isEmpty()) {
-            HashSet<UUID> result = broadcaster.addListener(this, UPDATE_INTERVAl_MS, mSubscriptionFlags);
-            mSubscriptionFlags.removeAll(result);
-        }
-        mWindDisplay.registerWith(broadcaster);
-        mBearingDisplay.registerWith(broadcaster);
+    public HashSet<UUID> registerWith(IFlightDataBroadcaster broadcaster) {
+
+        HashSet<UUID> result = new HashSet<UUID>();
+
+        result.addAll(mOrientation.registerWith(broadcaster));
+        result.addAll(mWindDisplay.registerWith(broadcaster));
+        result.addAll(mBearingDisplay.registerWith(broadcaster));
+        return result;
     }
 
     @Override
     public void display()
     {
+        mHeadingDisplay.setCurrentDirection(
+                DirectionDisplay.smoothDirection(mOrientation.yaw(),
+                        mHeadingDisplay.getCurrentDirection()));
+        mBearingDisplay.setBaseAngle(mHeadingDisplay.getCurrentDirection());
+        mWindDisplay.setBaseAngle(mHeadingDisplay.getCurrentDirection());
         mHeadingDisplay.display();
         mBearingDisplay.display();
         mWindDisplay.display();
     }
 
     @Override
-    public void onData(IFlightDataBroadcaster broadcaster, IFlightData data) {
-        try {
-            mHeadingDisplay.setCurrentDirection(
-                    DirectionDisplay.smoothDirection(data.get(FlightDataType.YAW),
-                            mHeadingDisplay.getCurrentDirection()));
-            mBearingDisplay.setBaseAngle(mHeadingDisplay.getCurrentDirection());
-            mWindDisplay.setBaseAngle(mHeadingDisplay.getCurrentDirection());
-            display();
-        }
-        catch(java.lang.UnsupportedOperationException e){}
-    }
+    public long getUpdateInterval() { return 50; } // milliseconds
 
     // this class is only applicabile within the context of the compass display
-    private class WindDisplay extends FlightDisplayListener {
+    private class WindDisplay extends FlightDisplay {
+
+        private WindDrift mWindDrift = new WindDrift(this);
 
         private DirectionDisplayImage mWindDirectionDisplay = null;
         private DirectionDisplayText mWindSpeedDisplay = null;
-
-        private WindDrift mWindDrift = new WindDrift();
-        private double mWindSpeed = -1;
-
-        private double mOffsetAngle = 0;
-
-        private double DEGREES_FULL_CIRCLE = 360;
-        private double DEGREES_HALF_CIRCLE = DEGREES_FULL_CIRCLE / 2;
-
-        private int UPDATE_INTERVAl_MS = 10000;
-
-        HashSet<UUID> mSubscriptionFlags = new HashSet(Arrays.asList(
-                FlightDataType.WINDDIRECTION,
-                FlightDataType.WINDSPEED));
 
         @Override
         public void init(Activity activity) {
             mWindDirectionDisplay = new DirectionDisplayImage((ImageView) activity.findViewById(com.levemus.gliderhud.R.id.wind_pointer));
             mWindSpeedDisplay = new DirectionDisplayText((TextView) activity.findViewById(com.levemus.gliderhud.R.id.windSpeed));
-            mWindDrift.init(activity);
         }
 
         @Override
-        public void registerWith(IFlightDataBroadcaster broadcaster) {
-            mWindDrift.registerWith(broadcaster);
-            if(!mSubscriptionFlags.isEmpty()) {
-                HashSet<UUID> result = mWindDrift.addListener(this, UPDATE_INTERVAl_MS, mSubscriptionFlags);
-                mSubscriptionFlags.removeAll(result);
-            }
+        public HashSet<UUID> registerWith(IFlightDataBroadcaster broadcaster) {
+            return mWindDrift.registerWith(broadcaster);
         }
 
+        private double DEGREES_FULL_CIRCLE = 360;
+        private double DEGREES_HALF_CIRCLE = DEGREES_FULL_CIRCLE / 2;
         @Override
         public void display() {
-            if(mWindSpeed <= 0 )
+            double windSpeed = mWindDrift.speed();
+            if(windSpeed <= 0 )
                 return;
+
+            double mWindDirection = (mWindDrift.direction() + DEGREES_HALF_CIRCLE) % DEGREES_FULL_CIRCLE;
+
+            mWindDirectionDisplay.setCurrentDirection(mWindDirection);
             mWindDirectionDisplay.display();
+
+            mWindSpeedDisplay.setCurrentDirection(mWindDrift.direction());
+            mWindSpeedDisplay.setText(Double.toString(Math.round(windSpeed)));
             mWindSpeedDisplay.display();
         }
 
         @Override
-        public void onData(IFlightDataBroadcaster broadcaster, IFlightData data) {
-            try {
-                mWindSpeed = data.get(FlightDataType.WINDSPEED);
-                double mWindDirection = (data.get(FlightDataType.WINDDIRECTION) + DEGREES_HALF_CIRCLE) % DEGREES_FULL_CIRCLE;
-                mWindDirectionDisplay.setCurrentDirection(mWindDirection);
-                mWindSpeedDisplay.setCurrentDirection(mWindDirection);
-                mWindSpeedDisplay.setText(Double.toString(Math.round(mWindSpeed)));
-                display();
-            }
-            catch(java.lang.UnsupportedOperationException e){}
+        public void onDataReady() {}
 
-        }
-
+        private double mOffsetAngle = 0;
         public void setBaseAngle(double angle) {
             mOffsetAngle = angle;
             mWindDirectionDisplay.setOffsetBaseAngle(mOffsetAngle);
@@ -155,13 +131,11 @@ public class CompassDisplay extends FlightDisplayListener {
     }
 
     // this class is only applicabile within the context of the compass display
-    private class BearingDisplay extends FlightDisplayListener {
-        private DirectionDisplayImage mBearingDisplay = null;
-        private long UPDATE_INTERVAl_MS = 2000;
-        private double mOffsetAngle = 0;
-        HashSet<UUID> mSubscriptionFlags = new HashSet(Arrays.asList(
-                FlightDataType.BEARING));
+    private class BearingDisplay extends FlightDisplay {
 
+        private Bearing mBearing = new Bearing(this);
+
+        private DirectionDisplayImage mBearingDisplay = null;
         @Override
         public void init(Activity activity) {
             mBearingDisplay = new DirectionDisplayImage((ImageView)
@@ -170,28 +144,20 @@ public class CompassDisplay extends FlightDisplayListener {
 
         @Override
         public void display() {
+            mBearingDisplay.setCurrentDirection(mBearing.value());
             mBearingDisplay.display();
         }
 
         @Override
-        public void registerWith(IFlightDataBroadcaster broadcaster) {
-            if(!mSubscriptionFlags.isEmpty()) {
-                HashSet<UUID> result = broadcaster.addListener(this, UPDATE_INTERVAl_MS, mSubscriptionFlags);
-                mSubscriptionFlags.removeAll(result);
-            }
+        public HashSet<UUID> registerWith(IFlightDataBroadcaster broadcaster) {
+            return mBearing.registerWith(broadcaster);
         }
 
         @Override
-        public void onData(IFlightDataBroadcaster broadcaster, IFlightData data) {
-            try {
-                mBearingDisplay.setCurrentDirection(data.get(FlightDataType.BEARING));
-                display();
-            } catch(java.lang.UnsupportedOperationException e){}
-        }
+        public void onDataReady() {}
 
         public void setBaseAngle(double angle) {
-            mOffsetAngle = angle;
-            mBearingDisplay.setOffsetBaseAngle(mOffsetAngle);
+            mBearingDisplay.setOffsetBaseAngle(angle);
         }
     }
 }
