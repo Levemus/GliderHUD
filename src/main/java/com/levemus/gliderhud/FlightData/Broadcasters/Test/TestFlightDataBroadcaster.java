@@ -17,11 +17,12 @@ import android.os.Handler;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.HashMap;
 import java.util.UUID;
 
 import com.levemus.gliderhud.FlightData.Broadcasters.FlightDataBroadcaster;
 import com.levemus.gliderhud.FlightData.FlightDataType;
-import com.levemus.gliderhud.FlightData.IFlightData;
+import com.levemus.gliderhud.FlightData.FlightData;
 import com.levemus.gliderhud.Types.Vector;
 import com.levemus.gliderhud.Utils.NormalDistribution;
 
@@ -78,9 +79,17 @@ public class TestFlightDataBroadcaster extends FlightDataBroadcaster {
             {
                 public void run()
                 {
-                    notifyListeners(new TestFlightData(mCurrentVelocity, mWindVelocity,
-                            mCurrentAltitude, mCurrentClimbRate,
-                            mLatitude,mLongitude));
+                    Vector combinedVelocity = new Vector(mCurrentVelocity).Add(mWindVelocity);
+                    HashMap<UUID, Double> values = new HashMap<>();
+
+                    values.put(FlightDataType.GROUNDSPEED, combinedVelocity.Magnitude());
+                    values.put(FlightDataType.BEARING, combinedVelocity.Direction());
+                    values.put(FlightDataType.VARIO, mCurrentClimbRate);
+                    values.put(FlightDataType.LONGITUDE, mLongitude);
+                    values.put(FlightDataType.LATITUDE, mLatitude);
+                    values.put(FlightDataType.ALTITUDE, mCurrentAltitude);
+
+                    notifyListeners(new FlightData(values));
                 }
             });
 
@@ -102,7 +111,13 @@ public class TestFlightDataBroadcaster extends FlightDataBroadcaster {
 
     @Override
     public HashSet<UUID> supportedTypes() {
-        return new TestFlightData().supportedTypes();
+        return new HashSet(Arrays.asList(
+                FlightDataType.ALTITUDE,
+                FlightDataType.GROUNDSPEED,
+                FlightDataType.BEARING,
+                FlightDataType.VARIO,
+                FlightDataType.LONGITUDE,
+                FlightDataType.LATITUDE));
     }
 
     private double MAX_VARIO = 10.0;
@@ -132,7 +147,6 @@ public class TestFlightDataBroadcaster extends FlightDataBroadcaster {
     private void UpdateVelocity(long deltaTime)
     {
         if(turnRate > 0) {
-
             double deltaHeading = (deltaTime * turnRate) / MS_PER_SECOND;
             double newHeading = mCurrentVelocity.Direction() + deltaHeading;
             while(newHeading < 0.0f)
@@ -151,75 +165,6 @@ public class TestFlightDataBroadcaster extends FlightDataBroadcaster {
         double deltaY = (velocity.Y() / 3.6) * (deltaTime / 1000); // kph to m/s and ms to s
         mLatitude = mLatitude + (180/Math.PI)*(deltaY/EARTH_RADIUS);
         mLongitude = mLongitude + (180/Math.PI)*(deltaX/EARTH_RADIUS)/ Math.cos(Math.PI/180.0*mLatitude);
-    }
-}
-
-class TestFlightData implements IFlightData {
-
-    private Vector mCurrentVelocity;
-    private Vector mWindVelocity;
-    private double mAltitude;
-    private double mClimbRate;
-    private double mLatitude;
-    private double mLongitude;
-
-    public TestFlightData() {} // to get around lack of statics in interfaces while accessing supported types
-
-    public TestFlightData(Vector groundVelocity, Vector windVelocity,
-                          double altitude, double climbrate,
-                          double latitude, double longitude)
-    {
-        mCurrentVelocity = groundVelocity;
-        mWindVelocity = windVelocity;
-        mAltitude = altitude;
-        mClimbRate = climbrate;
-        mLatitude = latitude;
-        mLongitude = longitude;
-    }
-
-    private double GroundSpeed() {
-        return(new Vector(mCurrentVelocity).Add(mWindVelocity).Magnitude());
-    }
-
-    private double Bearing() {
-        return(new Vector(mCurrentVelocity).Add(mWindVelocity).Direction());
-    }
-
-    @Override
-    public double get(UUID type) throws java.lang.UnsupportedOperationException
-    {
-        try {
-            if (type == FlightDataType.ALTITUDE)
-                return mAltitude;
-
-            if (type == FlightDataType.GROUNDSPEED)
-                return GroundSpeed();
-
-            if (type == FlightDataType.BEARING)
-                return Bearing();
-
-            if (type == FlightDataType.VARIO)
-                return mClimbRate;
-
-            if (type == FlightDataType.LONGITUDE)
-                return mLongitude;
-
-            if (type == FlightDataType.LATITUDE)
-                return mLatitude;
-        }
-        catch(Exception e) {}
-        throw new java.lang.UnsupportedOperationException();
-    }
-
-    @Override
-    public HashSet<UUID> supportedTypes() {
-        return new HashSet(Arrays.asList(
-                FlightDataType.ALTITUDE,
-                FlightDataType.GROUNDSPEED,
-                FlightDataType.BEARING,
-                FlightDataType.VARIO,
-                FlightDataType.LONGITUDE,
-                FlightDataType.LATITUDE));
     }
 }
 

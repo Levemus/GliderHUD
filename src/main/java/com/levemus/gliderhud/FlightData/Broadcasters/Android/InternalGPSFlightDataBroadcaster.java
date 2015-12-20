@@ -18,6 +18,7 @@ import android.os.Bundle;
 import android.util.Log;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.UUID;
 
@@ -27,6 +28,7 @@ import android.content.Context;
 import com.levemus.gliderhud.FlightData.Broadcasters.FlightDataBroadcaster;
 import com.levemus.gliderhud.FlightData.FlightDataType;
 import com.levemus.gliderhud.FlightData.IFlightData;
+import com.levemus.gliderhud.FlightData.FlightData;
 
 /**
  * Created by flyinorange on 15-11-23.
@@ -42,9 +44,6 @@ public class InternalGPSFlightDataBroadcaster extends FlightDataBroadcaster impl
 
     private long mTimeOfLastUpdate = 0;
     private double mLastAltitude = 0;
-
-    HashSet<UUID> mSubscriptionFlags = new HashSet(Arrays.asList(
-            FlightDataType.VARIO));
 
     @Override
     public void init(Activity activity)
@@ -68,14 +67,29 @@ public class InternalGPSFlightDataBroadcaster extends FlightDataBroadcaster impl
     }
 
     @Override
-    public HashSet<UUID> supportedTypes()
-    {
-        return new GPSFlightData().supportedTypes();
+    public HashSet<UUID> supportedTypes() {
+        return new HashSet(Arrays.asList(
+                FlightDataType.LATITUDE,
+                FlightDataType.LONGITUDE,
+                FlightDataType.ALTITUDE,
+                FlightDataType.GROUNDSPEED,
+                FlightDataType.BEARING,
+                FlightDataType.VARIO));
     }
 
     @Override
     public void onLocationChanged(android.location.Location location) {
-        notifyListeners(new GPSFlightData(location, mLastAltitude, mTimeOfLastUpdate));
+        HashMap<UUID, Double> values = new HashMap<>();
+        values.put(FlightDataType.LATITUDE, location.getLatitude());
+        values.put(FlightDataType.LONGITUDE, location.getLongitude());
+        values.put(FlightDataType.ALTITUDE, location.getAltitude());
+        values.put(FlightDataType.GROUNDSPEED, location.getSpeed() * 3.6);
+        values.put(FlightDataType.BEARING, (double)location.getBearing());
+        if(mTimeOfLastUpdate != 0 && location.getTime() != mTimeOfLastUpdate) {
+            values.put(FlightDataType.VARIO,
+                    (location.getAltitude() - mLastAltitude) / (location.getTime() - mTimeOfLastUpdate) * 1000);
+        }
+        notifyListeners(new FlightData(values));
         mTimeOfLastUpdate = location.getTime();
         mLastAltitude = location.getAltitude();
     }
@@ -90,62 +104,5 @@ public class InternalGPSFlightDataBroadcaster extends FlightDataBroadcaster impl
 
     @Override
     public void onStatusChanged(String provider, int status, Bundle extras) {
-    }
-
-    private class GPSFlightData implements IFlightData {
-
-        private Location mLocation = null;
-
-        private long mTimeOfLastUpdate = 0;
-        private double mLastAltitude = 0;
-
-        public GPSFlightData() {} // to get around lack of statics in interfaces while accessing supported types
-
-        public GPSFlightData (Location location, double lastAltitude, long timeOfLastUpdate ) {
-            mLastAltitude = lastAltitude;
-            mTimeOfLastUpdate = timeOfLastUpdate;
-            mLocation = location;
-        }
-
-        @Override
-        public double get(UUID type) throws java.lang.UnsupportedOperationException
-        {
-            try {
-                if (type == FlightDataType.ALTITUDE)
-                    return mLocation.getAltitude();
-
-                if (type == FlightDataType.GROUNDSPEED)
-                    return Math.round((mLocation.getSpeed() * 3.6f) * 10) / 10;
-
-                if (type == FlightDataType.BEARING)
-                    return mLocation.getBearing();
-
-                if (type == FlightDataType.LATITUDE)
-                    return mLocation.getLatitude();
-
-                if (type == FlightDataType.LONGITUDE)
-                    return mLocation.getLongitude();
-
-                if (type == FlightDataType.VARIO) {
-                    if(mTimeOfLastUpdate == 0 || mLocation.getTime() == mTimeOfLastUpdate)
-                        new java.lang.UnsupportedOperationException(); // TODO: Need a better exception to indicate bad data
-                    return(mLocation.getAltitude() - mLastAltitude) / (mLocation.getTime() - mTimeOfLastUpdate) * 1000;
-                }
-
-            }
-            catch(Exception e) {}
-            throw new java.lang.UnsupportedOperationException();
-        }
-
-        @Override
-        public HashSet<UUID> supportedTypes() {
-            return new HashSet(Arrays.asList(
-                    FlightDataType.LATITUDE,
-                    FlightDataType.LONGITUDE,
-                    FlightDataType.ALTITUDE,
-                    FlightDataType.GROUNDSPEED,
-                    FlightDataType.BEARING,
-                    FlightDataType.VARIO));
-        }
     }
 }

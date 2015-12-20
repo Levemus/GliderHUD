@@ -114,7 +114,7 @@ public class CompassDisplay extends FlightDisplay {
             mWindDirectionDisplay.setCurrentDirection(mWindDirection);
             mWindDirectionDisplay.display();
 
-            mWindSpeedDisplay.setCurrentDirection(mWindDrift.direction());
+            mWindSpeedDisplay.setCurrentDirection(mWindDirection);
             mWindSpeedDisplay.setText(Double.toString(Math.round(windSpeed)));
             mWindSpeedDisplay.display();
         }

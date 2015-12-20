@@ -14,13 +14,14 @@ package com.levemus.gliderhud.FlightData.Broadcasters.Recon;
 import android.app.Activity;
 
 import com.levemus.gliderhud.FlightData.Broadcasters.FlightDataBroadcaster;
-import com.levemus.gliderhud.FlightData.IFlightData;
+import com.levemus.gliderhud.FlightData.FlightData;
 import com.levemus.gliderhud.FlightData.FlightDataType;
 import com.reconinstruments.os.HUDOS;
 import com.reconinstruments.os.hardware.sensors.HUDHeadingManager;
 import com.reconinstruments.os.hardware.sensors.HeadLocationListener;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.UUID;
 /**
@@ -50,7 +51,8 @@ public class HeadLocationDataBroadcaster extends FlightDataBroadcaster implement
 
     @Override
     public HashSet<UUID> supportedTypes() {
-        return new HeadLocationFlightData().supportedTypes();
+        return new HashSet(Arrays.asList(
+                FlightDataType.YAW));
     }
 
     @Override
@@ -59,35 +61,8 @@ public class HeadLocationDataBroadcaster extends FlightDataBroadcaster implement
             return;
         }
 
-        notifyListeners(new HeadLocationFlightData(yaw));
-    }
-}
-
-class HeadLocationFlightData implements IFlightData {
-
-    private double mYaw;
-
-    public HeadLocationFlightData() {} // to get around lack of statics in interfaces while accessing supported types
-
-    public HeadLocationFlightData(double yaw)
-    {
-        mYaw = yaw;
-    }
-
-    @Override
-    public double get(UUID type) throws java.lang.UnsupportedOperationException
-    {
-        try {
-            if (type == FlightDataType.YAW)
-                return mYaw;
-        }
-        catch(Exception e) {}
-        throw new java.lang.UnsupportedOperationException();
-    }
-
-    @Override
-    public HashSet<UUID> supportedTypes() {
-        return new HashSet(Arrays.asList(
-                FlightDataType.YAW));
+        HashMap<UUID, Double> values = new HashMap<>();
+        values.put(FlightDataType.YAW, (double)yaw);
+        notifyListeners(new FlightData(values));
     }
 }
