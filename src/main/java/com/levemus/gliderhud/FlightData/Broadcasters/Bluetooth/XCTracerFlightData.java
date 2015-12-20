@@ -46,10 +46,14 @@ class XCTracerFlightData extends BluetoothFlightData {
 
     @Override
     protected int elementOffset(UUID type) {
-        if(type == FlightDataType.VARIORAW)
+        if(type == FlightDataType.VARIO)
             return 13;
         if (type == FlightDataType.ALTITUDE)
             return 10;
+        if (type == FlightDataType.LONGITUDE)
+            return 9;
+        if (type == FlightDataType.LATITUDE)
+            return 8;
         if(type == FlightDataType.BEARING)
             return 12;
         if (type == FlightDataType.GROUNDSPEED)
@@ -61,8 +65,10 @@ class XCTracerFlightData extends BluetoothFlightData {
     @Override
     public HashSet<UUID> supportedTypes() {
         return new HashSet(Arrays.asList(
+                FlightDataType.LATITUDE,
+                FlightDataType.LONGITUDE,
                 FlightDataType.ALTITUDE,
-                FlightDataType.VARIORAW,
+                FlightDataType.VARIO,
                 FlightDataType.BEARING,
                 FlightDataType.GROUNDSPEED));
     }
