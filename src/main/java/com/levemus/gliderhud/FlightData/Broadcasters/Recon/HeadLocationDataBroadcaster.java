@@ -15,7 +15,7 @@ import android.app.Activity;
 
 import com.levemus.gliderhud.FlightData.Broadcasters.FlightDataBroadcaster;
 import com.levemus.gliderhud.FlightData.FlightData;
-import com.levemus.gliderhud.FlightData.FlightDataType;
+import com.levemus.gliderhud.FlightData.FlightDataID;
 import com.reconinstruments.os.HUDOS;
 import com.reconinstruments.os.hardware.sensors.HUDHeadingManager;
 import com.reconinstruments.os.hardware.sensors.HeadLocationListener;
@@ -34,8 +34,8 @@ public class HeadLocationDataBroadcaster extends FlightDataBroadcaster implement
     private HUDHeadingManager mHUDHeadingManager = null;
 
     @Override
-    public void init(Activity activity)
-    {
+    public void init(Activity activity) {
+        super.init(activity);
         mHUDHeadingManager = (HUDHeadingManager) HUDOS.getHUDService(HUDOS.HUD_HEADING_SERVICE);
     }
 
@@ -52,7 +52,7 @@ public class HeadLocationDataBroadcaster extends FlightDataBroadcaster implement
     @Override
     public HashSet<UUID> supportedTypes() {
         return new HashSet(Arrays.asList(
-                FlightDataType.YAW));
+                FlightDataID.YAW));
     }
 
     @Override
@@ -62,7 +62,10 @@ public class HeadLocationDataBroadcaster extends FlightDataBroadcaster implement
         }
 
         HashMap<UUID, Double> values = new HashMap<>();
-        values.put(FlightDataType.YAW, (double)yaw);
-        notifyListeners(new FlightData(values));
+        values.put(FlightDataID.YAW, (double)yaw);
+
+        setOnline();
+
+        notifyListenersOfData(new FlightData(values));
     }
 }

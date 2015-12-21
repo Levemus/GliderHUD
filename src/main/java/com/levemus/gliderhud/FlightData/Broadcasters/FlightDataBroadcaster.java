@@ -14,12 +14,12 @@ package com.levemus.gliderhud.FlightData.Broadcasters;
 import android.app.Activity;
 
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.ArrayList;
 import java.util.UUID;
 
 import com.levemus.gliderhud.FlightData.IFlightData;
-import com.levemus.gliderhud.FlightData.FlightDataType;
 import com.levemus.gliderhud.FlightData.Listeners.IFlightDataListener;
 
 /**
@@ -28,64 +28,102 @@ import com.levemus.gliderhud.FlightData.Listeners.IFlightDataListener;
 public abstract class FlightDataBroadcaster implements IFlightDataBroadcaster {
 
     private class ListenerInterval {
-        public IFlightDataListener mListener = null;
-        HashSet<UUID> mSubscription = FlightDataType.ALL;
+        public IFlightDataListener mListener;
+        HashSet<UUID> mSubscription;
+        public long mInterval;
         public long mTimeOfLastUpdate = 0;
-        public long mInterval = 0;
 
         public ListenerInterval(IFlightDataListener datalistener, long notificationInterval, HashSet<UUID> subscription)
         {
             mListener = datalistener;
             mInterval = notificationInterval;
-            mSubscription = new HashSet(FlightDataType.ALL);
+            mSubscription = new HashSet<UUID>(subscription);
         }
     }
 
     private ArrayList<ListenerInterval> mListeners = new ArrayList<ListenerInterval>();
 
-    protected void notifyListeners(IFlightData data)
+    protected HashMap<UUID, BroadcasterStatus.Status> mStatus = new HashMap<UUID, BroadcasterStatus.Status>();
+
+    protected void notifyListenersOfData(final IFlightData data)
     {
-        HashSet<UUID> types = data.supportedTypes();
-        long currentTime = new Date().getTime();
-        if(mListeners != null) {
-            for(ListenerInterval listenerInterval : mListeners) {
-                long elapsed = currentTime - listenerInterval.mTimeOfLastUpdate;
-                HashSet<UUID> intersection = new HashSet(types);
-                intersection.retainAll(listenerInterval.mSubscription);
-                if(listenerInterval.mInterval < elapsed && !intersection.isEmpty()) {
-                    listenerInterval.mListener.onData(this, data);
-                    listenerInterval.mTimeOfLastUpdate = currentTime;
+        final IFlightDataBroadcaster broadcaster = this;
+        mActivity.runOnUiThread(new Runnable()
+        {
+            public void run() {
+                HashSet<UUID> types = data.supportedTypes();
+                long currentTime = new Date().getTime();
+                if(mListeners != null) {
+                    for (ListenerInterval listenerInterval : mListeners) {
+                        long elapsed = currentTime - listenerInterval.mTimeOfLastUpdate;
+                        HashSet<UUID> intersection = new HashSet(types);
+                        intersection.retainAll(listenerInterval.mSubscription);
+                        if (listenerInterval.mInterval < elapsed && !intersection.isEmpty()) {
+                            listenerInterval.mListener.onData(broadcaster, data);
+                            listenerInterval.mTimeOfLastUpdate = currentTime;
+                        }
+                    }
                 }
             }
-        }
+        });
     }
 
-    protected void notifyListeners(BroadcasterStatus status)
+    protected void notifyListenersOfStatus(final HashSet<UUID> types)
     {
-        HashSet<UUID> types = status.affectedTypes();
-        if(mListeners != null) {
-            for(ListenerInterval listenerInterval : mListeners) {
-                HashSet<UUID> intersection = new HashSet(types);
-                intersection.retainAll(listenerInterval.mSubscription);
-                if(!intersection.isEmpty()) {
-                    listenerInterval.mListener.onStatus(this, status);
+        final IFlightDataBroadcaster broadcaster = this;
+        mActivity.runOnUiThread(new Runnable()
+        {
+            public void run() {
+                if (mListeners != null) {
+                    for (ListenerInterval listenerInterval : mListeners) {
+                        HashSet<UUID> intersection = new HashSet(types);
+                        intersection.retainAll(listenerInterval.mSubscription);
+                        if (!intersection.isEmpty()) {
+                            HashMap<UUID, BroadcasterStatus.Status> status
+                                    = new HashMap<>();
+                            for (UUID type : intersection)
+                                status.put(type, mStatus.get(type));
+                            listenerInterval.mListener.onStatus(broadcaster, status);
+                        }
+                    }
                 }
             }
+        });
+    }
+
+    protected void setOnline() {
+        boolean updateStatus = false;
+        for(UUID type: supportedTypes()) {
+            if(mStatus.get(type) != BroadcasterStatus.Status.ONLINE) {
+                mStatus.put(type, BroadcasterStatus.Status.ONLINE);
+                updateStatus = true;
+            }
         }
+        if(updateStatus == true)
+            notifyListenersOfStatus(supportedTypes());
     }
 
     public HashSet<UUID> addListener(IFlightDataListener listener, long notificationInterval, HashSet<UUID> subscription)
     {
         HashSet<UUID> intersection = new HashSet(subscription);
         intersection.retainAll(supportedTypes());
-        if(!intersection.isEmpty())
+        if(!intersection.isEmpty()) {
             mListeners.add(new ListenerInterval(listener, notificationInterval, subscription));
+        }
         return intersection;
     }
 
     public abstract HashSet<UUID> supportedTypes();
 
-    public void init(Activity activity) {};
+    protected Activity mActivity;
+
+    public void init(Activity activity) {
+        for(UUID key : supportedTypes()) {
+            if (!mStatus.containsKey(key))
+                mStatus.put(key, BroadcasterStatus.Status.OFFLINE);
+        }
+        mActivity = activity;
+    };
     public void pause(Activity activity) {};
     public void resume(Activity activity) {};
 }

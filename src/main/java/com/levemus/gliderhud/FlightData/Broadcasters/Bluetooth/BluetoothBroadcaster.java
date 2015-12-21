@@ -24,15 +24,18 @@ import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothProfile;
 import android.bluetooth.BluetoothGattService;
 import android.bluetooth.BluetoothGattDescriptor;
-import com.levemus.gliderhud.FlightData.IFlightData;
 
+import com.levemus.gliderhud.FlightData.Broadcasters.Bluetooth.Message.BluetoothFlightDataFactory;
+
+import java.util.Date;
 import java.util.HashSet;
 import java.util.UUID;
 
 import android.util.Log;
 
+import com.levemus.gliderhud.FlightData.Broadcasters.BroadcasterStatus;
 import com.levemus.gliderhud.FlightData.Broadcasters.FlightDataBroadcaster;
-import com.levemus.gliderhud.FlightData.FlightDataType;
+import com.levemus.gliderhud.FlightData.IFlightData;
 
 import android.content.Context;
 import android.os.Handler;
@@ -55,11 +58,12 @@ public class BluetoothBroadcaster extends FlightDataBroadcaster
 
     private String mAddress = "20:C3:8F:EB:04:9E"; // I only care about my vario - TODO: re-add a scanner
 
-    Activity mActivity;
+    private long mStartTime;
 
     @Override
     public void init(Activity activity) {
-        mActivity = activity;
+        super.init(activity);
+        mStartTime = new Date().getTime();
     }
 
     @Override
@@ -92,9 +96,11 @@ public class BluetoothBroadcaster extends FlightDataBroadcaster
         }
     }
 
+    BluetoothFlightDataFactory mMsgFactory = new BluetoothFlightDataFactory();
+
     @Override
     public HashSet<UUID> supportedTypes() {
-        return new LXWP0FlightData().supportedTypes();
+        return mMsgFactory.supportedTypes();
     }
 
     protected static final UUID CHARACTERISTIC_UPDATE_NOTIFICATION_DESCRIPTOR_UUID = UUID.fromString("00002902-0000-1000-8000-00805f9b34fb");
@@ -102,6 +108,7 @@ public class BluetoothBroadcaster extends FlightDataBroadcaster
     // Various callback methods defined by the BLE API.
     private final BluetoothGattCallback mGattCallback = new BluetoothGattCallback()
     {
+        private long MAX_CONNECT_ATTEMPT_TIME = (120 * 1000); // milliseconds
         @Override
         public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState)
         {
@@ -114,8 +121,15 @@ public class BluetoothBroadcaster extends FlightDataBroadcaster
             else if (newState == BluetoothProfile.STATE_DISCONNECTED)
             {
                 Log.i(TAG, "Disconnected from GATT server.");
-                if(mBluetoothGatt != null)
+                long currentTime = new Date().getTime();
+                if(currentTime - mStartTime > MAX_CONNECT_ATTEMPT_TIME) {
+                    for (UUID type : supportedTypes())
+                        mStatus.put(type, BroadcasterStatus.Status.OFFLINE);
+                    notifyListenersOfStatus(supportedTypes());
+                }
+                else {
                     resume(mActivity);
+                }
             }
         }
 
@@ -153,8 +167,6 @@ public class BluetoothBroadcaster extends FlightDataBroadcaster
         }
     };
 
-
-    BluetoothFlightData flightDataMsg = new LXWP0FlightData();
     private Handler messageHandler = new Handler()
     {
         public void handleMessage(Message msg)
@@ -162,10 +174,19 @@ public class BluetoothBroadcaster extends FlightDataBroadcaster
             super.handleMessage(msg);
             try {
                 String decoded = new String((byte[]) msg.obj, "UTF-8");
-                if(flightDataMsg.build(decoded)) {
-                    final BluetoothFlightData notifyMsg = flightDataMsg;
-                    flightDataMsg = new LXWP0FlightData();
-                    notifyListeners(notifyMsg);
+                IFlightData btMsg = mMsgFactory.build(decoded);
+                if(btMsg != null) {
+                    boolean updateStatus = false;
+                    for(UUID type: btMsg.supportedTypes()) {
+                        if(mStatus.get(type) != BroadcasterStatus.Status.ONLINE) {
+                            mStatus.put(type, BroadcasterStatus.Status.ONLINE);
+                            updateStatus = true;
+                        }
+                    }
+                    if(updateStatus == true)
+                        notifyListenersOfStatus(btMsg.supportedTypes());
+
+                    notifyListenersOfData(btMsg);
                 }
             }catch(Exception e){}
         }

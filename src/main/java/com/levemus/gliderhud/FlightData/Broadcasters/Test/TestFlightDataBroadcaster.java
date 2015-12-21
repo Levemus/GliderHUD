@@ -21,10 +21,9 @@ import java.util.HashMap;
 import java.util.UUID;
 
 import com.levemus.gliderhud.FlightData.Broadcasters.FlightDataBroadcaster;
-import com.levemus.gliderhud.FlightData.FlightDataType;
+import com.levemus.gliderhud.FlightData.FlightDataID;
 import com.levemus.gliderhud.FlightData.FlightData;
 import com.levemus.gliderhud.Types.Vector;
-import com.levemus.gliderhud.Utils.NormalDistribution;
 
 /**
  * Created by mark@levemus on 15-11-23.
@@ -42,7 +41,6 @@ public class TestFlightDataBroadcaster extends FlightDataBroadcaster {
     private double mCurrentAltitude = startAltitude;
     private Vector mCurrentVelocity =  new Vector(-1*airspeed,0);
     private double mCurrentClimbRate = 0;
-    private NormalDistribution climbRateRandomGen = new NormalDistribution();
     private double mLatitude = 0;
     private double mLongitude = 0;
 
@@ -71,10 +69,10 @@ public class TestFlightDataBroadcaster extends FlightDataBroadcaster {
                 mCurrentVelocity.SetDirectionAndMagnitude(mCurrentVelocity.Direction(), 30);
             }
 
-            UpdateClimbRate();
-            UpdateVelocity(deltaTime);
-            UpdateAltitude(deltaTime);
-            UpdateLocation(deltaTime);
+            updateClimbRate();
+            updateVelocity(deltaTime);
+            updateAltitude(deltaTime);
+            updateLocation(deltaTime);
             mActivity.runOnUiThread(new Runnable()
             {
                 public void run()
@@ -82,14 +80,16 @@ public class TestFlightDataBroadcaster extends FlightDataBroadcaster {
                     Vector combinedVelocity = new Vector(mCurrentVelocity).Add(mWindVelocity);
                     HashMap<UUID, Double> values = new HashMap<>();
 
-                    values.put(FlightDataType.GROUNDSPEED, combinedVelocity.Magnitude());
-                    values.put(FlightDataType.BEARING, combinedVelocity.Direction());
-                    values.put(FlightDataType.VARIO, mCurrentClimbRate);
-                    values.put(FlightDataType.LONGITUDE, mLongitude);
-                    values.put(FlightDataType.LATITUDE, mLatitude);
-                    values.put(FlightDataType.ALTITUDE, mCurrentAltitude);
+                    values.put(FlightDataID.GROUNDSPEED, combinedVelocity.Magnitude());
+                    values.put(FlightDataID.BEARING, combinedVelocity.Direction());
+                    values.put(FlightDataID.VARIO, mCurrentClimbRate);
+                    values.put(FlightDataID.LONGITUDE, mLongitude);
+                    values.put(FlightDataID.LATITUDE, mLatitude);
+                    values.put(FlightDataID.ALTITUDE, mCurrentAltitude);
 
-                    notifyListeners(new FlightData(values));
+                    setOnline();
+
+                    notifyListenersOfData(new FlightData(values));
                 }
             });
 
@@ -99,11 +99,10 @@ public class TestFlightDataBroadcaster extends FlightDataBroadcaster {
     }
 
     private DataNotifier mDataNotifer = new DataNotifier(this);
-    private Activity mActivity;
 
     @Override
     public void init(Activity activity) {
-        mActivity = activity;
+        super.init(activity);
         timeOfLastUpdate = new Date().getTime();
         mHandler = new Handler();
         mDataNotifer.run();
@@ -112,17 +111,17 @@ public class TestFlightDataBroadcaster extends FlightDataBroadcaster {
     @Override
     public HashSet<UUID> supportedTypes() {
         return new HashSet(Arrays.asList(
-                FlightDataType.ALTITUDE,
-                FlightDataType.GROUNDSPEED,
-                FlightDataType.BEARING,
-                FlightDataType.VARIO,
-                FlightDataType.LONGITUDE,
-                FlightDataType.LATITUDE));
+                FlightDataID.ALTITUDE,
+                FlightDataID.GROUNDSPEED,
+                FlightDataID.BEARING,
+                FlightDataID.VARIO,
+                FlightDataID.LONGITUDE,
+                FlightDataID.LATITUDE));
     }
 
     private double MAX_VARIO = 10.0;
     private double MIN_VARIO = -6.0;
-    private void UpdateClimbRate()
+    private void updateClimbRate()
     {
         if(turnRate < 1.0) {
             mCurrentClimbRate = -1.1;
@@ -139,12 +138,12 @@ public class TestFlightDataBroadcaster extends FlightDataBroadcaster {
         }
     }
 
-    private void UpdateAltitude(long deltaTime)
+    private void updateAltitude(long deltaTime)
     {
         mCurrentAltitude += (deltaTime * mCurrentClimbRate) / MS_PER_SECOND;
     }
 
-    private void UpdateVelocity(long deltaTime)
+    private void updateVelocity(long deltaTime)
     {
         if(turnRate > 0) {
             double deltaHeading = (deltaTime * turnRate) / MS_PER_SECOND;
@@ -158,7 +157,7 @@ public class TestFlightDataBroadcaster extends FlightDataBroadcaster {
 
     private static double EARTH_RADIUS = 6378137; // m
 
-    private void UpdateLocation(long deltaTime)
+    private void updateLocation(long deltaTime)
     {
         Vector velocity = new Vector(mCurrentVelocity).Add(mWindVelocity);
         double deltaX = (velocity.X() / 3.6) * (deltaTime / 1000); // kph to m/s and ms to s

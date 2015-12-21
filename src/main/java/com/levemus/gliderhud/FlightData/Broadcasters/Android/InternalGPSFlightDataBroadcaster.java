@@ -11,7 +11,6 @@ package com.levemus.gliderhud.FlightData.Broadcasters.Android;
  (c) 2015 Levemus Software, Inc.
  */
 
-import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
@@ -26,8 +25,7 @@ import android.app.Activity;
 import android.content.Context;
 
 import com.levemus.gliderhud.FlightData.Broadcasters.FlightDataBroadcaster;
-import com.levemus.gliderhud.FlightData.FlightDataType;
-import com.levemus.gliderhud.FlightData.IFlightData;
+import com.levemus.gliderhud.FlightData.FlightDataID;
 import com.levemus.gliderhud.FlightData.FlightData;
 
 /**
@@ -48,6 +46,7 @@ public class InternalGPSFlightDataBroadcaster extends FlightDataBroadcaster impl
     @Override
     public void init(Activity activity)
     {
+        super.init(activity);
         try {
             mLocationManager = (LocationManager) activity
                     .getSystemService(Context.LOCATION_SERVICE);
@@ -69,40 +68,39 @@ public class InternalGPSFlightDataBroadcaster extends FlightDataBroadcaster impl
     @Override
     public HashSet<UUID> supportedTypes() {
         return new HashSet(Arrays.asList(
-                FlightDataType.LATITUDE,
-                FlightDataType.LONGITUDE,
-                FlightDataType.ALTITUDE,
-                FlightDataType.GROUNDSPEED,
-                FlightDataType.BEARING,
-                FlightDataType.VARIO));
+                FlightDataID.LATITUDE,
+                FlightDataID.LONGITUDE,
+                FlightDataID.ALTITUDE,
+                FlightDataID.GROUNDSPEED,
+                FlightDataID.BEARING,
+                FlightDataID.VARIO));
     }
 
     @Override
     public void onLocationChanged(android.location.Location location) {
         HashMap<UUID, Double> values = new HashMap<>();
-        values.put(FlightDataType.LATITUDE, location.getLatitude());
-        values.put(FlightDataType.LONGITUDE, location.getLongitude());
-        values.put(FlightDataType.ALTITUDE, location.getAltitude());
-        values.put(FlightDataType.GROUNDSPEED, location.getSpeed() * 3.6);
-        values.put(FlightDataType.BEARING, (double)location.getBearing());
+        values.put(FlightDataID.LATITUDE, location.getLatitude());
+        values.put(FlightDataID.LONGITUDE, location.getLongitude());
+        values.put(FlightDataID.ALTITUDE, location.getAltitude());
+        values.put(FlightDataID.GROUNDSPEED, location.getSpeed() * 3.6);
+        values.put(FlightDataID.BEARING, (double)location.getBearing());
         if(mTimeOfLastUpdate != 0 && location.getTime() != mTimeOfLastUpdate) {
-            values.put(FlightDataType.VARIO,
+            values.put(FlightDataID.VARIO,
                     (location.getAltitude() - mLastAltitude) / (location.getTime() - mTimeOfLastUpdate) * 1000);
         }
-        notifyListeners(new FlightData(values));
+
+        setOnline();
+        notifyListenersOfData(new FlightData(values));
         mTimeOfLastUpdate = location.getTime();
         mLastAltitude = location.getAltitude();
     }
 
     @Override
-    public void onProviderDisabled(String provider) {
-    }
+    public void onProviderDisabled(String provider) {}
 
     @Override
-    public void onProviderEnabled(String provider) {
-    }
+    public void onProviderEnabled(String provider) {}
 
     @Override
-    public void onStatusChanged(String provider, int status, Bundle extras) {
-    }
+    public void onStatusChanged(String provider, int status, Bundle extras) {}
 }
