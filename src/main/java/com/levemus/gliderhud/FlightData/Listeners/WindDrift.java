@@ -1,8 +1,19 @@
 package com.levemus.gliderhud.FlightData.Listeners;
 
+/*
+ Both the author and publisher makes no representations or warranties
+ about the suitability of this software, either expressed or implied, including
+ but not limited to the implied warranties of merchantability, fitness
+ for a particular purpose or noninfringement. Both the author and publisher
+ shall not be liable for any damages suffered as a result of using,
+ modifying or distributing the software or its derivatives.
+
+ (c) 2015 Levemus Software, Inc.
+ */
+
 import com.levemus.gliderhud.FlightData.Broadcasters.BroadcasterStatus;
 import com.levemus.gliderhud.FlightData.Broadcasters.IFlightDataBroadcaster;
-import com.levemus.gliderhud.FlightData.FlightDataType;
+import com.levemus.gliderhud.FlightData.FlightDataID;
 import com.levemus.gliderhud.FlightData.IFlightData;
 import com.levemus.gliderhud.FlightData.IFlightDataClient;
 import com.levemus.gliderhud.Types.OffsetCircle;
@@ -13,10 +24,11 @@ import com.levemus.gliderhud.Utils.TaubinNewtonFitCircle;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.HashMap;
 import java.util.UUID;
 
 /**
- * Created by markcarter on 15-12-20.
+ * Created by mark@levemus on 15-12-20.
  */
 public class WindDrift implements IFlightDataListener {
 
@@ -27,8 +39,8 @@ public class WindDrift implements IFlightDataListener {
     }
 
     HashSet<UUID> mSubscriptionFlags = new HashSet(Arrays.asList(
-            FlightDataType.GROUNDSPEED,
-            FlightDataType.BEARING
+            FlightDataID.GROUNDSPEED,
+            FlightDataID.BEARING
     ));
 
     private int UPDATE_INTERVAl_MS = 5000;
@@ -66,10 +78,10 @@ public class WindDrift implements IFlightDataListener {
     public void onData(IFlightDataBroadcaster broadcaster, IFlightData data) {
         Vector velocity = new Vector();
         try {
-            if (data.get(FlightDataType.GROUNDSPEED) == 0)
+            if (data.get(FlightDataID.GROUNDSPEED) == 0)
                 return;
             velocity.SetDirectionAndMagnitude(data.get(
-                    FlightDataType.BEARING), data.get(FlightDataType.GROUNDSPEED));
+                    FlightDataID.BEARING), data.get(FlightDataID.GROUNDSPEED));
 
             mGrndSpdVelocities.add(velocity);
             if (mGrndSpdVelocities.size() > MAX_NUM_GRND_VELOCITIES) {
@@ -102,9 +114,9 @@ public class WindDrift implements IFlightDataListener {
         } catch (java.lang.UnsupportedOperationException e) {}
 
         if(mClient != null)
-            mClient.onDataReady();
+            mClient.onDataReady(false);
     }
 
     @Override
-    public void onStatus(IFlightDataBroadcaster broadcaster, BroadcasterStatus status) {}
+    public void onStatus(IFlightDataBroadcaster broadcaster, HashMap<UUID, BroadcasterStatus.Status> status) {}
 }

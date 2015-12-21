@@ -16,12 +16,10 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.levemus.gliderhud.FlightData.Broadcasters.IFlightDataBroadcaster;
-import com.levemus.gliderhud.FlightData.IFlightData;
-import com.levemus.gliderhud.FlightData.FlightDataType;
-import com.levemus.gliderhud.FlightData.Listeners.IFlightDataListener;
 import com.levemus.gliderhud.FlightData.Listeners.WindDrift;
 import com.levemus.gliderhud.FlightData.Listeners.Bearing;
 import com.levemus.gliderhud.FlightData.Listeners.Orientation;
+import com.levemus.gliderhud.FlightData.Listeners.GroundSpeed;
 import com.levemus.gliderhud.FlightDisplay.Recon.Components.DirectionDisplay;
 import com.levemus.gliderhud.FlightDisplay.Recon.Components.DirectionDisplayImage;
 import com.levemus.gliderhud.FlightDisplay.Recon.Components.DirectionDisplayText;
@@ -80,7 +78,7 @@ public class CompassDisplay extends FlightDisplay {
     }
 
     @Override
-    public long getUpdateInterval() { return 50; } // milliseconds
+    public long getUpdateInterval() { return 10; } // milliseconds
 
     // this class is only applicabile within the context of the compass display
     private class WindDisplay extends FlightDisplay {
@@ -120,7 +118,7 @@ public class CompassDisplay extends FlightDisplay {
         }
 
         @Override
-        public void onDataReady() {}
+        public void onDataReady(boolean force) {}
 
         private double mOffsetAngle = 0;
         public void setBaseAngle(double angle) {
@@ -134,6 +132,7 @@ public class CompassDisplay extends FlightDisplay {
     private class BearingDisplay extends FlightDisplay {
 
         private Bearing mBearing = new Bearing(this);
+        private GroundSpeed mGroundSpeed = new GroundSpeed(this);
 
         private DirectionDisplayImage mBearingDisplay = null;
         @Override
@@ -142,19 +141,29 @@ public class CompassDisplay extends FlightDisplay {
                     activity.findViewById(com.levemus.gliderhud.R.id.bearing_pointer));
         }
 
+        private double MIN_GROUND_SPEED = 1.0;
+
         @Override
         public void display() {
-            mBearingDisplay.setCurrentDirection(mBearing.value());
-            mBearingDisplay.display();
+            try {
+                if (mGroundSpeed.value() > MIN_GROUND_SPEED) {
+                    mBearingDisplay.setCurrentDirection(mBearing.value());
+                    mBearingDisplay.display();
+                }
+            }catch(Exception e){}
         }
 
         @Override
         public HashSet<UUID> registerWith(IFlightDataBroadcaster broadcaster) {
-            return mBearing.registerWith(broadcaster);
+            HashSet<UUID> result = new HashSet<UUID>();
+            result.addAll(mGroundSpeed.registerWith(broadcaster));
+            result.addAll(mBearing.registerWith(broadcaster));
+            return result;
+
         }
 
         @Override
-        public void onDataReady() {}
+        public void onDataReady(boolean force) {}
 
         public void setBaseAngle(double angle) {
             mBearingDisplay.setOffsetBaseAngle(angle);

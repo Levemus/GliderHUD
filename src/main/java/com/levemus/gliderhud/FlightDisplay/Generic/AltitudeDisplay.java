@@ -15,8 +15,6 @@ import android.app.Activity;
 import android.widget.TextView;
 
 import com.levemus.gliderhud.FlightData.Broadcasters.IFlightDataBroadcaster;
-import com.levemus.gliderhud.FlightData.IFlightData;
-import com.levemus.gliderhud.FlightData.FlightDataType;
 import com.levemus.gliderhud.FlightDisplay.FlightDisplay;
 
 import com.levemus.gliderhud.FlightData.Listeners.Altitude;
@@ -42,7 +40,11 @@ public class AltitudeDisplay extends FlightDisplay {
     private static final double MIN_ALTITUDE = 0.0;
     @Override
     public void display() {
-        mAltiDisplay.setText(Integer.toString((int)Math.max(mAltitude.value(), MIN_ALTITUDE)));
+        try {
+            mAltiDisplay.setText(Integer.toString((int) Math.max(mAltitude.value(), MIN_ALTITUDE)));
+        }catch (Exception e){
+            mAltiDisplay.setText("---");
+        }
     }
 
     @Override

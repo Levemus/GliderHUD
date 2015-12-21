@@ -27,9 +27,10 @@ public abstract class MFDElement extends FlightDisplay {
     };
     public abstract DisplayPriority displayPriority();
 
-    public void onDataReady() {
+    @Override
+    public void onDataReady(boolean force) {
         if(mParentDisplay != null) {
-            mParentDisplay.onDataReady();
+            mParentDisplay.onDataReady(force);
         }
     }
 }

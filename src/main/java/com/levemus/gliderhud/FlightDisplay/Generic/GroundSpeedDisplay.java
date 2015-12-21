@@ -15,13 +15,9 @@ import android.app.Activity;
 import android.widget.TextView;
 
 import com.levemus.gliderhud.FlightData.Broadcasters.IFlightDataBroadcaster;
-import com.levemus.gliderhud.FlightData.IFlightData;
-import com.levemus.gliderhud.FlightData.FlightDataType;
-import com.levemus.gliderhud.FlightData.Listeners.Altitude;
 import com.levemus.gliderhud.FlightData.Listeners.GroundSpeed;
 import com.levemus.gliderhud.FlightDisplay.FlightDisplay;
 
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.UUID;
 
@@ -40,10 +36,13 @@ public class GroundSpeedDisplay extends FlightDisplay {
     }
 
     private GroundSpeed mGroundSpeed = new GroundSpeed(this);
-    private static final double MIN_SPEED = 1.0;
     @Override
     public void display() {
-        mGroundSpeedDisplay.setText(Integer.toString((int)(Math.max(mGroundSpeed.value(), MIN_SPEED))));
+        try {
+            mGroundSpeedDisplay.setText(Integer.toString((int)mGroundSpeed.value()));
+        }catch (Exception e){
+            mGroundSpeedDisplay.setText("---");
+        }
     }
 
     @Override

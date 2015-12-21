@@ -18,6 +18,7 @@ import android.util.Log;
 import com.levemus.gliderhud.FlightData.Broadcasters.IFlightDataBroadcaster;
 import com.levemus.gliderhud.FlightData.Broadcasters.Recon.HeadLocationDataBroadcaster;
 import com.levemus.gliderhud.FlightData.Broadcasters.Test.TestFlightDataBroadcaster;
+import com.levemus.gliderhud.FlightData.Broadcasters.Bluetooth.BluetoothBroadcaster;
 import com.levemus.gliderhud.FlightDisplay.FlightDisplay;
 import com.levemus.gliderhud.FlightDisplay.MainDisplay;
 
@@ -30,9 +31,9 @@ public class HUDActivity extends Activity {
 
 	private IFlightDataBroadcaster[] mBroadcasterList = {
 			new HeadLocationDataBroadcaster(),
-			//new BluetoothBroadcaster(),
+			new BluetoothBroadcaster(),
 			//new InternalGPSFlightDataBroadcaster(),
-			new TestFlightDataBroadcaster()
+			//new TestFlightDataBroadcaster()
 	};
 
 	private FlightDisplay[] mDisplayList = {

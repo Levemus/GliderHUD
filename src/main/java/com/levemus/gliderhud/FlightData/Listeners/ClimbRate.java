@@ -13,12 +13,12 @@ package com.levemus.gliderhud.FlightData.Listeners;
 
 import com.levemus.gliderhud.FlightData.Broadcasters.BroadcasterStatus;
 import com.levemus.gliderhud.FlightData.Broadcasters.IFlightDataBroadcaster;
-import com.levemus.gliderhud.FlightData.FlightDataType;
+import com.levemus.gliderhud.FlightData.FlightDataID;
 import com.levemus.gliderhud.FlightData.IFlightData;
 import com.levemus.gliderhud.FlightData.IFlightDataClient;
-import com.levemus.gliderhud.FlightData.Listeners.IFlightDataListener;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.UUID;
 
@@ -34,7 +34,7 @@ public class ClimbRate implements IFlightDataListener {
     }
 
     HashSet<UUID> mSubscriptionFlags = new HashSet(Arrays.asList(
-            FlightDataType.VARIO
+            FlightDataID.VARIO
     ));
 
     private int UPDATE_INTERVAl_MS = 100;
@@ -57,7 +57,7 @@ public class ClimbRate implements IFlightDataListener {
     private int AVG_CLIMB_WEIGHT = 5;
     public void onData(IFlightDataBroadcaster broadcaster, IFlightData data) {
         try {
-            double value = data.get(FlightDataType.VARIO);
+            double value = data.get(FlightDataID.VARIO);
             mClimb = (AVG_CLIMB_WEIGHT - 1) * mClimb;
             mClimb += value;
             mClimb /= AVG_CLIMB_WEIGHT;
@@ -65,9 +65,9 @@ public class ClimbRate implements IFlightDataListener {
         catch(java.lang.UnsupportedOperationException e){}
 
         if(mClient != null)
-            mClient.onDataReady();
+            mClient.onDataReady(false);
     }
 
     @Override
-    public void onStatus(IFlightDataBroadcaster broadcaster, BroadcasterStatus status) {}
+    public void onStatus(IFlightDataBroadcaster broadcaster, HashMap<UUID, BroadcasterStatus.Status> status) {}
 }

@@ -15,6 +15,7 @@ import com.levemus.gliderhud.FlightData.Broadcasters.IFlightDataBroadcaster;
 import com.levemus.gliderhud.FlightData.Broadcasters.BroadcasterStatus;
 
 import java.util.HashSet;
+import java.util.HashMap;
 import java.util.UUID;
 
 /**
@@ -23,6 +24,6 @@ import java.util.UUID;
 public interface IFlightDataListener {
 
     void onData(IFlightDataBroadcaster broadcaster, IFlightData data);
-    void onStatus(IFlightDataBroadcaster broadcaster, BroadcasterStatus status);
+    void onStatus(IFlightDataBroadcaster broadcaster, HashMap<UUID, BroadcasterStatus.Status> status);
     HashSet<UUID> registerWith(IFlightDataBroadcaster broadcaster);
 }

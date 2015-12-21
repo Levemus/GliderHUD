@@ -17,18 +17,19 @@ public abstract class FlightDisplay implements IFlightDisplay, IFlightDataClient
     // IFlightDisplay
     @Override
     public abstract void init(Activity activity);
+
     @Override
     public abstract void display();
 
     // IFlightDataNotification
     private long mTimeOfLastUpdate = -1;
     @Override
-    public void onDataReady() {
+    public void onDataReady(boolean force) {
         long currentTime = new Date().getTime();
         if(mTimeOfLastUpdate == -1)
             mTimeOfLastUpdate = currentTime;
 
-        if(currentTime - mTimeOfLastUpdate > getUpdateInterval()) {
+        if(currentTime - mTimeOfLastUpdate > getUpdateInterval() || force == true) {
             display();
             mTimeOfLastUpdate = currentTime;
         }

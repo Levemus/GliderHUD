@@ -15,12 +15,12 @@ import android.location.Location;
 
 import com.levemus.gliderhud.FlightData.Broadcasters.BroadcasterStatus;
 import com.levemus.gliderhud.FlightData.Broadcasters.IFlightDataBroadcaster;
-import com.levemus.gliderhud.FlightData.FlightDataType;
+import com.levemus.gliderhud.FlightData.FlightDataID;
 import com.levemus.gliderhud.FlightData.IFlightData;
 import com.levemus.gliderhud.FlightData.IFlightDataClient;
-import com.levemus.gliderhud.FlightData.Listeners.IFlightDataListener;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.UUID;
 
@@ -49,8 +49,8 @@ public class DistanceFr implements IFlightDataListener {
     }
 
     HashSet<UUID> mSubscriptionFlags = new HashSet(Arrays.asList(
-            FlightDataType.LATITUDE,
-            FlightDataType.LONGITUDE
+            FlightDataID.LATITUDE,
+            FlightDataID.LONGITUDE
     ));
 
     private int UPDATE_INTERVAl_MS = 100;
@@ -71,8 +71,8 @@ public class DistanceFr implements IFlightDataListener {
     }
 
     public void onData(IFlightDataBroadcaster broadcaster, IFlightData data) {
-        double latitude = data.get(FlightDataType.LATITUDE);
-        double longtitude = data.get(FlightDataType.LONGITUDE);
+        double latitude = data.get(FlightDataID.LATITUDE);
+        double longtitude = data.get(FlightDataID.LONGITUDE);
 
         if (mStartLongitude == Double.MIN_VALUE ||
                 mStartLatitude == Double.MIN_VALUE) {
@@ -89,9 +89,9 @@ public class DistanceFr implements IFlightDataListener {
         mDistance = currentLocation.distanceTo(launchLocation);
 
         if(mClient != null)
-            mClient.onDataReady();
+            mClient.onDataReady(false);
     }
 
     @Override
-    public void onStatus(IFlightDataBroadcaster broadcaster, BroadcasterStatus status) {}
+    public void onStatus(IFlightDataBroadcaster broadcaster, HashMap<UUID, BroadcasterStatus.Status> status) {}
 }

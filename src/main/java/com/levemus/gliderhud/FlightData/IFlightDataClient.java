@@ -15,5 +15,5 @@ package com.levemus.gliderhud.FlightData;
  * Created by mark@levemus on 15-12-20.
  */
 public interface IFlightDataClient {
-    public void onDataReady();
+    public void onDataReady(boolean force);
 }

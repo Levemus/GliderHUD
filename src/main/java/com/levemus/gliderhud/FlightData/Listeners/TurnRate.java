@@ -13,14 +13,14 @@ package com.levemus.gliderhud.FlightData.Listeners;
 
 import com.levemus.gliderhud.FlightData.Broadcasters.BroadcasterStatus;
 import com.levemus.gliderhud.FlightData.Broadcasters.IFlightDataBroadcaster;
-import com.levemus.gliderhud.FlightData.FlightDataType;
+import com.levemus.gliderhud.FlightData.FlightDataID;
 import com.levemus.gliderhud.FlightData.IFlightData;
 import com.levemus.gliderhud.FlightData.IFlightDataClient;
-import com.levemus.gliderhud.FlightData.Listeners.IFlightDataListener;
 import com.levemus.gliderhud.Utils.Angle;
 
 import java.util.Arrays;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.UUID;
 
@@ -47,7 +47,7 @@ public class TurnRate implements IFlightDataListener {
     }
 
     HashSet<UUID> mSubscriptionFlags = new HashSet(Arrays.asList(
-            FlightDataType.BEARING
+            FlightDataID.BEARING
     ));
 
     private int UPDATE_INTERVAl_MS = 100;
@@ -76,7 +76,7 @@ public class TurnRate implements IFlightDataListener {
                 mStartTime = currentTime;
 
             if(mStartTime != currentTime) {
-                double value = data.get(FlightDataType.BEARING);
+                double value = data.get(FlightDataID.BEARING);
 
                 if(mStartBearing == Double.MIN_VALUE)
                     mStartBearing = value;
@@ -92,10 +92,10 @@ public class TurnRate implements IFlightDataListener {
         catch(java.lang.UnsupportedOperationException e){}
 
         if(mClient != null)
-            mClient.onDataReady();
+            mClient.onDataReady(false);
     }
 
     @Override
-    public void onStatus(IFlightDataBroadcaster broadcaster, BroadcasterStatus status) {}
+    public void onStatus(IFlightDataBroadcaster broadcaster, HashMap<UUID, BroadcasterStatus.Status> status) {}
 }
 

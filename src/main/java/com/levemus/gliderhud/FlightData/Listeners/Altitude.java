@@ -2,11 +2,12 @@ package com.levemus.gliderhud.FlightData.Listeners;
 
 import com.levemus.gliderhud.FlightData.Broadcasters.BroadcasterStatus;
 import com.levemus.gliderhud.FlightData.Broadcasters.IFlightDataBroadcaster;
-import com.levemus.gliderhud.FlightData.FlightDataType;
+import com.levemus.gliderhud.FlightData.FlightDataID;
 import com.levemus.gliderhud.FlightData.IFlightData;
 import com.levemus.gliderhud.FlightData.IFlightDataClient;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.UUID;
 
@@ -22,7 +23,7 @@ public class Altitude implements IFlightDataListener {
     }
 
     HashSet<UUID> mSubscriptionFlags = new HashSet(Arrays.asList(
-            FlightDataType.ALTITUDE
+            FlightDataID.ALTITUDE
     ));
 
     private int UPDATE_INTERVAl_MS = 100;
@@ -36,23 +37,32 @@ public class Altitude implements IFlightDataListener {
         return result;
     }
 
-    private double mAltitude = 0;
+    private double mAltitude = Double.MIN_VALUE;
 
-    public double value() {
-        return mAltitude;
+    public double value() throws java.lang.UnsupportedOperationException {
+        if(mAltitude != Double.MIN_VALUE)
+            return mAltitude;
+        throw new java.lang.UnsupportedOperationException();
     }
 
     public void onData(IFlightDataBroadcaster broadcaster, IFlightData data) {
 
         try {
-            mAltitude = data.get(FlightDataType.ALTITUDE);
+            mAltitude = data.get(FlightDataID.ALTITUDE);
         }
         catch(java.lang.UnsupportedOperationException e){}
 
         if(mClient != null)
-            mClient.onDataReady();
+            mClient.onDataReady(false);
     }
 
     @Override
-    public void onStatus(IFlightDataBroadcaster broadcaster, BroadcasterStatus status) {}
+    public void onStatus(IFlightDataBroadcaster broadcaster, HashMap<UUID, BroadcasterStatus.Status> status) {
+        if(status.containsKey(FlightDataID.ALTITUDE)
+                && status.get(FlightDataID.ALTITUDE) == BroadcasterStatus.Status.OFFLINE) {
+            mAltitude = Double.MIN_VALUE;
+            if(mClient != null)
+                mClient.onDataReady(true);
+        }
+    }
 }

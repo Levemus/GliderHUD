@@ -13,12 +13,12 @@ package com.levemus.gliderhud.FlightData.Listeners;
 
 import com.levemus.gliderhud.FlightData.Broadcasters.BroadcasterStatus;
 import com.levemus.gliderhud.FlightData.Broadcasters.IFlightDataBroadcaster;
-import com.levemus.gliderhud.FlightData.FlightDataType;
+import com.levemus.gliderhud.FlightData.FlightDataID;
 import com.levemus.gliderhud.FlightData.IFlightData;
 import com.levemus.gliderhud.FlightData.IFlightDataClient;
-import com.levemus.gliderhud.FlightData.Listeners.IFlightDataListener;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.UUID;
 
@@ -34,7 +34,7 @@ public class GroundSpeed implements IFlightDataListener {
     }
 
     HashSet<UUID> mSubscriptionFlags = new HashSet(Arrays.asList(
-            FlightDataType.GROUNDSPEED
+            FlightDataID.GROUNDSPEED
     ));
 
     private int UPDATE_INTERVAl_MS = 100;
@@ -48,16 +48,18 @@ public class GroundSpeed implements IFlightDataListener {
         return result;
     }
 
-    private double mGroundSpeed = 0;
+    private double mGroundSpeed = Double.MIN_VALUE;
 
-    public double value() {
-        return mGroundSpeed;
+    public double value() throws java.lang.UnsupportedOperationException {
+        if(mGroundSpeed != Double.MIN_VALUE)
+            return mGroundSpeed;
+        throw new java.lang.UnsupportedOperationException();
     }
 
     private int AVG_GROUNDSPEED_WEIGHT = 5;
     public void onData(IFlightDataBroadcaster broadcaster, IFlightData data) {
         try {
-            double value = data.get(FlightDataType.GROUNDSPEED);
+            double value = data.get(FlightDataID.GROUNDSPEED);
             mGroundSpeed = (AVG_GROUNDSPEED_WEIGHT - 1) * mGroundSpeed;
             mGroundSpeed += value;
             mGroundSpeed /= AVG_GROUNDSPEED_WEIGHT;
@@ -65,10 +67,17 @@ public class GroundSpeed implements IFlightDataListener {
         catch(java.lang.UnsupportedOperationException e){}
 
         if(mClient != null)
-            mClient.onDataReady();
+            mClient.onDataReady(false);
     }
 
     @Override
-    public void onStatus(IFlightDataBroadcaster broadcaster, BroadcasterStatus status) {}
+    public void onStatus(IFlightDataBroadcaster broadcaster, HashMap<UUID, BroadcasterStatus.Status> status) {
+        if(status.containsKey(FlightDataID.GROUNDSPEED)
+                && status.get(FlightDataID.GROUNDSPEED) == BroadcasterStatus.Status.OFFLINE) {
+            mGroundSpeed = Double.MIN_VALUE;
+            if(mClient != null)
+                mClient.onDataReady(true);
+        }
+    }
 }
 

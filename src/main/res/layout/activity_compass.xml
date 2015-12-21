@@ -29,7 +29,7 @@
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceLarge"
         android:id="@+id/altiDisplay"
-        android:text="0.0"
+        android:text="---"
         android:textSize="48dp"
         android:layout_below="@+id/altitudeTitle"
         android:layout_alignParentLeft="true" />
@@ -41,7 +41,7 @@
         android:id="@+id/speedDisplay"
         android:layout_alignTop="@+id/altiDisplay"
         android:layout_alignParentRight="true"
-        android:text="0.0"
+        android:text="---"
         android:textSize="48dp" />
 
     <TextView

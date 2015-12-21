@@ -13,12 +13,12 @@ package com.levemus.gliderhud.FlightData.Listeners;
 
 import com.levemus.gliderhud.FlightData.Broadcasters.BroadcasterStatus;
 import com.levemus.gliderhud.FlightData.Broadcasters.IFlightDataBroadcaster;
-import com.levemus.gliderhud.FlightData.FlightDataType;
+import com.levemus.gliderhud.FlightData.FlightDataID;
 import com.levemus.gliderhud.FlightData.IFlightData;
 import com.levemus.gliderhud.FlightData.IFlightDataClient;
-import com.levemus.gliderhud.FlightData.Listeners.IFlightDataListener;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.UUID;
 
@@ -42,7 +42,7 @@ public class HeightAbv implements IFlightDataListener {
     }
 
     HashSet<UUID> mSubscriptionFlags = new HashSet(Arrays.asList(
-            FlightDataType.ALTITUDE
+            FlightDataID.ALTITUDE
     ));
 
     private int UPDATE_INTERVAl_MS = 100;
@@ -65,7 +65,7 @@ public class HeightAbv implements IFlightDataListener {
     public void onData(IFlightDataBroadcaster broadcaster, IFlightData data) {
 
         try {
-            double altitude = data.get(FlightDataType.ALTITUDE);
+            double altitude = data.get(FlightDataID.ALTITUDE);
             if(mStartAltitude == Double.MIN_VALUE)
                 mStartAltitude = altitude;
             mHeight = altitude - mStartAltitude;
@@ -73,9 +73,9 @@ public class HeightAbv implements IFlightDataListener {
         catch(java.lang.UnsupportedOperationException e){}
 
         if(mClient != null)
-            mClient.onDataReady();
+            mClient.onDataReady(false);
     }
 
     @Override
-    public void onStatus(IFlightDataBroadcaster broadcaster, BroadcasterStatus status) {}
+    public void onStatus(IFlightDataBroadcaster broadcaster, HashMap<UUID, BroadcasterStatus.Status> status) {}
 }
