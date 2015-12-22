@@ -90,8 +90,6 @@ public class TestFlightDataBroadcaster extends FlightDataBroadcaster {
                     values.put(FlightDataID.LATITUDE, mLatitude);
                     values.put(FlightDataID.ALTITUDE, mCurrentAltitude);
 
-                    setOnline();
-
                     notifyListenersOfData(new FlightData(values));
                 }
             });

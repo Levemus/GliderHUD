@@ -176,26 +176,6 @@ public class BluetoothBroadcaster extends FlightDataBroadcaster
                 String decoded = new String((byte[]) msg.obj, "UTF-8");
                 IFlightData btMsg = mMsgFactory.build(decoded);
                 if(btMsg != null) {
-                    boolean updateStatus = false;
-                    for(UUID type: btMsg.supportedTypes()) {
-                        if(mStatus.get(type) != BroadcasterStatus.Status.ONLINE) {
-                            mStatus.put(type, BroadcasterStatus.Status.ONLINE);
-                            updateStatus = true;
-                        }
-                    }
-
-                    HashSet<UUID> unsupportedTypes = new HashSet<>(mMsgFactory.supportedTypes());
-                    unsupportedTypes.removeAll(btMsg.supportedTypes());
-                    for(UUID type: unsupportedTypes) {
-                        if(mStatus.get(type) != BroadcasterStatus.Status.OFFLINE) {
-                            mStatus.put(type, BroadcasterStatus.Status.OFFLINE);
-                            updateStatus = true;
-                        }
-                    }
-                    if(updateStatus == true) {
-                        notifyListenersOfStatus(btMsg.supportedTypes());
-                        notifyListenersOfStatus(unsupportedTypes);
-                    }
                     notifyListenersOfData(btMsg);
                 }
             }catch(Exception e){}

@@ -64,8 +64,6 @@ public class HeadLocationDataBroadcaster extends FlightDataBroadcaster implement
         HashMap<UUID, Double> values = new HashMap<>();
         values.put(FlightDataID.YAW, (double)yaw);
 
-        setOnline();
-
         notifyListenersOfData(new FlightData(values));
     }
 }

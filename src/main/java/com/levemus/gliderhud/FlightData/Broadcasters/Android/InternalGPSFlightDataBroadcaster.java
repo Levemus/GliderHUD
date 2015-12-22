@@ -89,7 +89,6 @@ public class InternalGPSFlightDataBroadcaster extends FlightDataBroadcaster impl
                     (location.getAltitude() - mLastAltitude) / (location.getTime() - mTimeOfLastUpdate) * 1000);
         }
 
-        setOnline();
         notifyListenersOfData(new FlightData(values));
         mTimeOfLastUpdate = location.getTime();
         mLastAltitude = location.getAltitude();

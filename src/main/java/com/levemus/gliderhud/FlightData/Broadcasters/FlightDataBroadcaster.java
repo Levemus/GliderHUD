@@ -52,6 +52,17 @@ public abstract class FlightDataBroadcaster implements IFlightDataBroadcaster {
         {
             public void run() {
                 HashSet<UUID> types = data.supportedTypes();
+                HashSet<UUID> updateStatus = new HashSet<>();
+
+                // determine if just online
+                for(UUID id : types) {
+                    if(!mStatus.containsKey(id) ||
+                            (mStatus.containsKey(id) &&
+                            mStatus.get(id) == BroadcasterStatus.Status.OFFLINE)) {
+                        updateStatus.add(id);
+                        mStatus.put(id, BroadcasterStatus.Status.ONLINE);
+                    }
+                }
                 long currentTime = new Date().getTime();
                 if(mListeners != null) {
                     for (ListenerInterval listenerInterval : mListeners) {
@@ -59,6 +70,15 @@ public abstract class FlightDataBroadcaster implements IFlightDataBroadcaster {
                         HashSet<UUID> intersection = new HashSet(types);
                         intersection.retainAll(listenerInterval.mSubscription);
                         if (listenerInterval.mInterval < elapsed && !intersection.isEmpty()) {
+
+                            // status update, if needed
+                            HashSet<UUID> listenerStatus
+                                    = new HashSet<>(updateStatus);
+                            listenerStatus.retainAll(intersection);
+                            if(!listenerStatus.isEmpty())
+                                notifyListenersOfStatus(listenerStatus);
+
+                            // send msg
                             listenerInterval.mListener.onData(broadcaster, data);
                             listenerInterval.mTimeOfLastUpdate = currentTime;
                         }
@@ -89,18 +109,6 @@ public abstract class FlightDataBroadcaster implements IFlightDataBroadcaster {
                 }
             }
         });
-    }
-
-    protected void setOnline() {
-        boolean updateStatus = false;
-        for(UUID type: supportedTypes()) {
-            if(mStatus.get(type) != BroadcasterStatus.Status.ONLINE) {
-                mStatus.put(type, BroadcasterStatus.Status.ONLINE);
-                updateStatus = true;
-            }
-        }
-        if(updateStatus == true)
-            notifyListenersOfStatus(supportedTypes());
     }
 
     public HashSet<UUID> addListener(IFlightDataListener listener, long notificationInterval, HashSet<UUID> subscription)
