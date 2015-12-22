@@ -83,31 +83,40 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceLarge"
-        android:id="@+id/mfdTitle"
-        android:layout_toLeftOf="@+id/speedTitle"
-        android:layout_below="@+id/speedTitle"
-        android:layout_toRightOf="@+id/altitudeTitle"
-        android:gravity="center_horizontal" />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceLarge"
-        android:id="@+id/mfdDisplay"
-        android:textSize="32dp"
-        android:layout_below="@+id/mfdTitle"
-        android:layout_toRightOf="@+id/altitudeTitle"
-        android:layout_alignRight="@+id/mfdTitle"
-        android:layout_alignBottom="@+id/altiDisplay"
-        android:gravity="center_horizontal" />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceMedium"
         android:id="@+id/windSpeed"
         android:layout_centerHorizontal="true"
         android:textSize="30dp" />
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_alignBottom="@+id/altiDisplay"
+        android:layout_toLeftOf="@+id/speedTitle"
+        android:id="@+id/mfd"
+        android:layout_toRightOf="@+id/altitudeTitle"
+        android:layout_below="@+id/compass_bar">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:id="@+id/mfdTitle"
+            android:gravity="center_horizontal"
+            android:layout_alignTop="@+id/altiDisplay"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentLeft="true" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:id="@+id/mfdDisplay"
+            android:textSize="32dp"
+            android:gravity="center_horizontal"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentBottom="true" />
+    </RelativeLayout>
 
 </RelativeLayout>

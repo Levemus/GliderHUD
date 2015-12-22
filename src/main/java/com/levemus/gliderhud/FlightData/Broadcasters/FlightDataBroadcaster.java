@@ -94,19 +94,19 @@ public abstract class FlightDataBroadcaster implements IFlightDataBroadcaster {
         mActivity.runOnUiThread(new Runnable()
         {
             public void run() {
-                if (mListeners != null) {
-                    for (ListenerInterval listenerInterval : mListeners) {
-                        HashSet<UUID> intersection = new HashSet(types);
-                        intersection.retainAll(listenerInterval.mSubscription);
-                        if (!intersection.isEmpty()) {
-                            HashMap<UUID, BroadcasterStatus.Status> status
-                                    = new HashMap<>();
-                            for (UUID type : intersection)
-                                status.put(type, mStatus.get(type));
-                            listenerInterval.mListener.onStatus(broadcaster, status);
-                        }
+            if (mListeners != null) {
+                for (ListenerInterval listenerInterval : mListeners) {
+                    HashSet<UUID> intersection = new HashSet(types);
+                    intersection.retainAll(listenerInterval.mSubscription);
+                    if (!intersection.isEmpty()) {
+                        HashMap<UUID, BroadcasterStatus.Status> status
+                                = new HashMap<>();
+                        for (UUID type : intersection)
+                            status.put(type, mStatus.get(type));
+                        listenerInterval.mListener.onStatus(broadcaster, status);
                     }
                 }
+            }
             }
         });
     }

@@ -12,6 +12,8 @@ package com.levemus.gliderhud.FlightDisplay.Generic.MFD;
  */
 
 import android.app.Activity;
+import android.widget.RelativeLayout;
+import android.view.View;
 
 import com.levemus.gliderhud.FlightData.Broadcasters.IFlightDataBroadcaster;
 import com.levemus.gliderhud.FlightDisplay.FlightDisplay;
@@ -38,8 +40,11 @@ public class MultiFunctionManager extends FlightDisplay {
             new DistanceFrLaunchDisplay(this)
     };
 
+    private RelativeLayout mMFDDisplay;
+
     @Override
     public void init(Activity activity) {
+        mMFDDisplay = (RelativeLayout) activity.findViewById(com.levemus.gliderhud.R.id.mfd);
         for(MFDElement element : mDisplayElements) {
             element.init(activity);
         }
@@ -79,9 +84,11 @@ public class MultiFunctionManager extends FlightDisplay {
         if(priority == MFDElement.DisplayPriority.NONE) {
             mDisplayQueue.clear();
             mCurrentDisplayStart = currentTime;
+            mMFDDisplay.setVisibility(View.GONE);
             return;
         }
 
+        mMFDDisplay.setVisibility(View.VISIBLE);
         ArrayList<MFDElement> displayQueue = new ArrayList<>();
 
         if(mDisplayQueue.size() > 0 && mDisplayQueue.get(0).displayPriority() != MFDElement.DisplayPriority.NONE)

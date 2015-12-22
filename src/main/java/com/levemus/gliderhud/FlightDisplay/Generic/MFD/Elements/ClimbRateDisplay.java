@@ -36,7 +36,7 @@ public class ClimbRateDisplay extends MFDElement {
     private ClimbRate mClimbRate = new ClimbRate(this);
     private TurnRate mTurnRate = new TurnRate(this);
 
-    protected String title() {return "Climb Rate (m/s)";}
+    protected String title() {return "Climb (m/s)";}
     protected String value() {
         double displayVario = 0;
         if (Math.abs(mClimbRate.value()) > MIN_VARIO) {
