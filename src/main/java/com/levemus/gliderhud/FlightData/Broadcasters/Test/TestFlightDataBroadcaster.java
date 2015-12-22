@@ -24,6 +24,7 @@ import com.levemus.gliderhud.FlightData.Broadcasters.FlightDataBroadcaster;
 import com.levemus.gliderhud.FlightData.FlightDataID;
 import com.levemus.gliderhud.FlightData.FlightData;
 import com.levemus.gliderhud.Types.Vector;
+import com.levemus.gliderhud.Utils.Angle;
 
 /**
  * Created by mark@levemus on 15-11-23.
@@ -60,7 +61,9 @@ public class TestFlightDataBroadcaster extends FlightDataBroadcaster {
             long currentTime = new Date().getTime();
             long deltaTime = currentTime - timeOfLastUpdate;
 
-            if(mCurrentAltitude > startAltitude + 200 && turnRate != 0.0) {
+            if(mCurrentAltitude > startAltitude + 200
+                    && turnRate != 0.0
+                    && Angle.delta(mCurrentVelocity.Direction(), mWindVelocity.Direction()) < 20) {
                 turnRate = 0.0;
                 mCurrentVelocity.SetDirectionAndMagnitude(mCurrentVelocity.Direction(), 50);
             }

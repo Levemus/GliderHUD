@@ -33,22 +33,11 @@ public class DistanceFrLaunchDisplay extends MFDElement {
 
     DistanceFr mDistanceFr = new DistanceFr(this);
 
-    private String title() {return "Dist Fr Lnch (km)";}
-    private String value() {return Double.toString((Math.round(mDistanceFr.value() / 3600) * 10) / 10);}
-
-    private TextView mMFDDisplay = null;
-    private TextView mMFDTitle = null;
-
-    public void init(Activity activity) {
-        mMFDTitle = (TextView) activity.findViewById(com.levemus.gliderhud.R.id.mfdTitle);
-        mMFDDisplay = (TextView) activity.findViewById(com.levemus.gliderhud.R.id.mfdDisplay);
-    }
+    @Override
+    protected String title() {return "Dist Fr Lnch (km)";}
 
     @Override
-    public void display() {
-        mMFDTitle.setText(title());
-        mMFDDisplay.setText(value());
-    }
+    protected String value() {return Double.toString((Math.round(mDistanceFr.value() / 3600) * 10) / 10);}
 
     @Override
     public HashSet<UUID> registerWith(IFlightDataBroadcaster broadcaster) {
@@ -59,9 +48,13 @@ public class DistanceFrLaunchDisplay extends MFDElement {
 
     @Override
     public DisplayPriority displayPriority() {
-        DisplayPriority priority = DisplayPriority.NONE;
-        if(mDistanceFr.value() > MIN_DISTANCE_FROM_LAUNCH)
-            priority = DisplayPriority.MEDIUM;
-        return priority;
+        try {
+            DisplayPriority priority = DisplayPriority.NONE;
+            if(mDistanceFr.value() > MIN_DISTANCE_FROM_LAUNCH)
+                priority = DisplayPriority.MEDIUM;
+            return priority;
+        }catch(Exception e) {
+            return DisplayPriority.NONE;
+        }
     }
 }

@@ -46,7 +46,8 @@ public class Glide implements IFlightDataListener {
     private GroundSpeed mGroundSpeed;
     private ClimbRate mClimbRate;
 
-    private double mGlide = 0;
+    private final double INVALID =  Double.MIN_VALUE;
+    private double mGlide = INVALID;
 
     public double value() {
         return mGlide;
@@ -64,7 +65,7 @@ public class Glide implements IFlightDataListener {
         }
 
         if(mClient != null)
-            mClient.onDataReady(false);
+            mClient.onDataReady();
     }
 
     @Override

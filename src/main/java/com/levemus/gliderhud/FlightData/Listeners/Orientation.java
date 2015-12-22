@@ -37,7 +37,8 @@ public class Orientation implements IFlightDataListener {
         return result;
     }
 
-    private double mYaw = 0;
+    private final double INVALID =  Double.MIN_VALUE;
+    private double mYaw = INVALID;
 
     public double yaw() {
         return mYaw;
@@ -51,7 +52,7 @@ public class Orientation implements IFlightDataListener {
         catch(java.lang.UnsupportedOperationException e){}
 
         if(mClient != null)
-            mClient.onDataReady(false);
+            mClient.onDataReady();
     }
 
     @Override

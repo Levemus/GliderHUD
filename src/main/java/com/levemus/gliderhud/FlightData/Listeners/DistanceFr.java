@@ -31,12 +31,13 @@ public class DistanceFr implements IFlightDataListener {
 
     IFlightDataClient mClient;
 
+    private final double INVALID =  Double.MIN_VALUE;
     private double mStartLongitude;
     private double mStartLatitude;
 
     public DistanceFr(IFlightDataClient client) {
-        mStartLongitude = Double.MIN_VALUE;
-        mStartLatitude = Double.MIN_VALUE;
+        mStartLongitude = INVALID;
+        mStartLatitude = INVALID;
 
         mClient = client;
     }
@@ -64,7 +65,7 @@ public class DistanceFr implements IFlightDataListener {
         return result;
     }
 
-    private double mDistance = 0;
+    private double mDistance = INVALID;
 
     public double value() {
         return mDistance;
@@ -74,8 +75,8 @@ public class DistanceFr implements IFlightDataListener {
         double latitude = data.get(FlightDataID.LATITUDE);
         double longtitude = data.get(FlightDataID.LONGITUDE);
 
-        if (mStartLongitude == Double.MIN_VALUE ||
-                mStartLatitude == Double.MIN_VALUE) {
+        if (mStartLongitude == INVALID ||
+                mStartLatitude == INVALID) {
             mStartLatitude = latitude;
             mStartLongitude = longtitude;
         }
@@ -89,7 +90,7 @@ public class DistanceFr implements IFlightDataListener {
         mDistance = currentLocation.distanceTo(launchLocation);
 
         if(mClient != null)
-            mClient.onDataReady(false);
+            mClient.onDataReady();
     }
 
     @Override

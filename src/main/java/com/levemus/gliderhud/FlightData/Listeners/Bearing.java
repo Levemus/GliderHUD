@@ -37,12 +37,13 @@ public class Bearing implements IFlightDataListener {
         return result;
     }
 
-    private double mBearing = Double.MIN_VALUE;
+    private final double INVALID =  Double.MIN_VALUE;
+    private double mBearing = INVALID;
 
     public double value() {
-        if(mBearing != Double.MIN_VALUE)
-            return mBearing;
-        throw new java.lang.UnsupportedOperationException();
+        if(mBearing == INVALID)
+            throw new java.lang.UnsupportedOperationException();
+        return mBearing;
     }
 
     public void onData(IFlightDataBroadcaster broadcaster, IFlightData data) {
@@ -53,16 +54,16 @@ public class Bearing implements IFlightDataListener {
         catch(java.lang.UnsupportedOperationException e){}
 
         if(mClient != null)
-            mClient.onDataReady(false);
+            mClient.onDataReady();
     }
 
     @Override
     public void onStatus(IFlightDataBroadcaster broadcaster, HashMap<UUID, BroadcasterStatus.Status> status) {
         if(status.containsKey(FlightDataID.BEARING)
                 && status.get(FlightDataID.BEARING) == BroadcasterStatus.Status.OFFLINE) {
-            mBearing = Double.MIN_VALUE;
+            mBearing = INVALID;
             if(mClient != null)
-                mClient.onDataReady(true);
+                mClient.onDataReady();
         }
     }
 }

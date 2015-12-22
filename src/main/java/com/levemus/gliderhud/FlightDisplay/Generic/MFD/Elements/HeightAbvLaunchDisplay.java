@@ -37,27 +37,13 @@ public class HeightAbvLaunchDisplay extends MFDElement {
     HeightAbv mHeight = new HeightAbv(this);
     TurnRate mTurnRate = new TurnRate(this);
 
-    private String title() {return "Height ABL (m)";}
-    private String value() {
+    protected String title() {return "Height ABL (m)";}
+    protected String value() {
         double height = 0;
         if(mHeight.value() > MIN_HEIGHT_ABVL) {
             height = Math.round(mHeight.value() * 10) / 10;
         }
         return Double.toString(height);
-    }
-
-    private TextView mMFDDisplay = null;
-    private TextView mMFDTitle = null;
-
-    public void init(Activity activity) {
-        mMFDTitle = (TextView) activity.findViewById(com.levemus.gliderhud.R.id.mfdTitle);
-        mMFDDisplay = (TextView) activity.findViewById(com.levemus.gliderhud.R.id.mfdDisplay);
-    }
-
-    @Override
-    public void display() {
-        mMFDTitle.setText(title());
-        mMFDDisplay.setText(value());
     }
 
     @Override
@@ -76,11 +62,15 @@ public class HeightAbvLaunchDisplay extends MFDElement {
 
     @Override
     public DisplayPriority displayPriority() {
-        if(mHeight.value() < MIN_HEIGHT_ABVL || mDistanceFr.value() > MAX_DISTANCE_FROM_LAUNCH)
+        try {
+            if(mHeight.value() < MIN_HEIGHT_ABVL || mDistanceFr.value() > MAX_DISTANCE_FROM_LAUNCH)
+                return DisplayPriority.NONE;
+            else if(mTurnRate.value() > MAX_TURN_RATE)
+                return DisplayPriority.LOW;
+            else
+                return DisplayPriority.MEDIUM;
+        }catch(Exception e) {
             return DisplayPriority.NONE;
-        else if(mTurnRate.value() > MAX_TURN_RATE)
-            return DisplayPriority.LOW;
-        else
-            return DisplayPriority.MEDIUM;
+        }
     }
 }

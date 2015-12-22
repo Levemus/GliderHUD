@@ -48,12 +48,13 @@ public class GroundSpeed implements IFlightDataListener {
         return result;
     }
 
-    private double mGroundSpeed = Double.MIN_VALUE;
+    private final double INVALID =  Double.MIN_VALUE;
+    private double mGroundSpeed = INVALID;
 
     public double value() throws java.lang.UnsupportedOperationException {
-        if(mGroundSpeed != Double.MIN_VALUE)
-            return mGroundSpeed;
-        throw new java.lang.UnsupportedOperationException();
+        if(mGroundSpeed == INVALID)
+            throw new java.lang.UnsupportedOperationException();
+        return mGroundSpeed;
     }
 
     private int AVG_GROUNDSPEED_WEIGHT = 5;
@@ -67,16 +68,16 @@ public class GroundSpeed implements IFlightDataListener {
         catch(java.lang.UnsupportedOperationException e){}
 
         if(mClient != null)
-            mClient.onDataReady(false);
+            mClient.onDataReady();
     }
 
     @Override
     public void onStatus(IFlightDataBroadcaster broadcaster, HashMap<UUID, BroadcasterStatus.Status> status) {
         if(status.containsKey(FlightDataID.GROUNDSPEED)
                 && status.get(FlightDataID.GROUNDSPEED) == BroadcasterStatus.Status.OFFLINE) {
-            mGroundSpeed = Double.MIN_VALUE;
+            mGroundSpeed = INVALID;
             if(mClient != null)
-                mClient.onDataReady(true);
+                mClient.onDataReady();
         }
     }
 }

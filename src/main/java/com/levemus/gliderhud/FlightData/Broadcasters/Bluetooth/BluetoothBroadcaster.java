@@ -183,9 +183,19 @@ public class BluetoothBroadcaster extends FlightDataBroadcaster
                             updateStatus = true;
                         }
                     }
-                    if(updateStatus == true)
-                        notifyListenersOfStatus(btMsg.supportedTypes());
 
+                    HashSet<UUID> unsupportedTypes = new HashSet<>(mMsgFactory.supportedTypes());
+                    unsupportedTypes.removeAll(btMsg.supportedTypes());
+                    for(UUID type: unsupportedTypes) {
+                        if(mStatus.get(type) != BroadcasterStatus.Status.OFFLINE) {
+                            mStatus.put(type, BroadcasterStatus.Status.OFFLINE);
+                            updateStatus = true;
+                        }
+                    }
+                    if(updateStatus == true) {
+                        notifyListenersOfStatus(btMsg.supportedTypes());
+                        notifyListenersOfStatus(unsupportedTypes);
+                    }
                     notifyListenersOfData(btMsg);
                 }
             }catch(Exception e){}

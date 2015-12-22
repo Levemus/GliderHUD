@@ -37,12 +37,13 @@ public class Altitude implements IFlightDataListener {
         return result;
     }
 
-    private double mAltitude = Double.MIN_VALUE;
+    private final double INVALID =  Double.MIN_VALUE;
+    private double mAltitude = INVALID;
 
     public double value() throws java.lang.UnsupportedOperationException {
-        if(mAltitude != Double.MIN_VALUE)
-            return mAltitude;
-        throw new java.lang.UnsupportedOperationException();
+        if(mAltitude == INVALID)
+            throw new java.lang.UnsupportedOperationException();
+        return mAltitude;
     }
 
     public void onData(IFlightDataBroadcaster broadcaster, IFlightData data) {
@@ -53,16 +54,16 @@ public class Altitude implements IFlightDataListener {
         catch(java.lang.UnsupportedOperationException e){}
 
         if(mClient != null)
-            mClient.onDataReady(false);
+            mClient.onDataReady();
     }
 
     @Override
     public void onStatus(IFlightDataBroadcaster broadcaster, HashMap<UUID, BroadcasterStatus.Status> status) {
         if(status.containsKey(FlightDataID.ALTITUDE)
                 && status.get(FlightDataID.ALTITUDE) == BroadcasterStatus.Status.OFFLINE) {
-            mAltitude = Double.MIN_VALUE;
+            mAltitude = INVALID;
             if(mClient != null)
-                mClient.onDataReady(true);
+                mClient.onDataReady();
         }
     }
 }

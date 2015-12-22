@@ -61,7 +61,8 @@ public class TurnRate implements IFlightDataListener {
         return result;
     }
 
-    private double mTurnRate = 0;
+    private final double INVALID =  Double.MIN_VALUE;
+    private double mTurnRate = INVALID;
 
     public double value() {
         return Math.abs(mTurnRate);
@@ -92,7 +93,7 @@ public class TurnRate implements IFlightDataListener {
         catch(java.lang.UnsupportedOperationException e){}
 
         if(mClient != null)
-            mClient.onDataReady(false);
+            mClient.onDataReady();
     }
 
     @Override

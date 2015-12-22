@@ -118,7 +118,7 @@ public class CompassDisplay extends FlightDisplay {
         }
 
         @Override
-        public void onDataReady(boolean force) {}
+        public void onDataReady() {}
 
         private double mOffsetAngle = 0;
         public void setBaseAngle(double angle) {
@@ -163,7 +163,7 @@ public class CompassDisplay extends FlightDisplay {
         }
 
         @Override
-        public void onDataReady(boolean force) {}
+        public void onDataReady() {}
 
         public void setBaseAngle(double angle) {
             mBearingDisplay.setOffsetBaseAngle(angle);

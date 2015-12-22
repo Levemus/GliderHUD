@@ -11,6 +11,9 @@ package com.levemus.gliderhud.FlightDisplay.Generic.MFD.Elements;
  (c) 2015 Levemus Software, Inc.
  */
 
+import android.app.Activity;
+import android.widget.TextView;
+
 import com.levemus.gliderhud.FlightDisplay.FlightDisplay;
 
 /**
@@ -28,9 +31,32 @@ public abstract class MFDElement extends FlightDisplay {
     public abstract DisplayPriority displayPriority();
 
     @Override
-    public void onDataReady(boolean force) {
+    public void onDataReady() {
         if(mParentDisplay != null) {
-            mParentDisplay.onDataReady(force);
+            mParentDisplay.onDataReady();
         }
+    }
+
+    protected String title() {return "";}
+    protected String value() {return "";}
+
+    @Override
+    public void display() {
+        try {
+            mMFDDisplay.setText(value());
+            mMFDTitle.setText(title());
+        } catch(Exception e) {
+            mMFDDisplay.setText("");
+            mMFDTitle.setText("");
+        }
+    }
+
+    private TextView mMFDDisplay = null;
+    private TextView mMFDTitle = null;
+
+    @Override
+    public void init(Activity activity) {
+        mMFDTitle = (TextView) activity.findViewById(com.levemus.gliderhud.R.id.mfdTitle);
+        mMFDDisplay = (TextView) activity.findViewById(com.levemus.gliderhud.R.id.mfdDisplay);
     }
 }

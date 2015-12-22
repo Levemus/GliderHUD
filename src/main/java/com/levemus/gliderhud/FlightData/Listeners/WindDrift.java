@@ -109,12 +109,13 @@ public class WindDrift implements IFlightDataListener {
                     }
                 }
 
-                mWind = result;
+                if(mPreviousWindResults.size() == MAX_NUM_GRND_VELOCITIES)
+                    mWind = result;
             }
         } catch (java.lang.UnsupportedOperationException e) {}
 
         if(mClient != null)
-            mClient.onDataReady(false);
+            mClient.onDataReady();
     }
 
     @Override

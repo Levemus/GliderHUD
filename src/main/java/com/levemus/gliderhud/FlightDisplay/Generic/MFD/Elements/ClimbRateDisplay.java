@@ -36,28 +36,14 @@ public class ClimbRateDisplay extends MFDElement {
     private ClimbRate mClimbRate = new ClimbRate(this);
     private TurnRate mTurnRate = new TurnRate(this);
 
-    private String title() {return "Climb Rate (m/s)";}
-    private String value() {
+    protected String title() {return "Climb Rate (m/s)";}
+    protected String value() {
         double displayVario = 0;
-        if(Math.abs(mClimbRate.value()) > MIN_VARIO) {
+        if (Math.abs(mClimbRate.value()) > MIN_VARIO) {
             displayVario = Math.round(mClimbRate.value() * 100);
             displayVario /= 100;
         }
         return Double.toString(displayVario);
-    }
-
-    private TextView mMFDDisplay = null;
-    private TextView mMFDTitle = null;
-
-    public void init(Activity activity) {
-        mMFDTitle = (TextView) activity.findViewById(com.levemus.gliderhud.R.id.mfdTitle);
-        mMFDDisplay = (TextView) activity.findViewById(com.levemus.gliderhud.R.id.mfdDisplay);
-    }
-
-    @Override
-    public void display() {
-        mMFDTitle.setText(title());
-        mMFDDisplay.setText(value());
     }
 
     @Override
@@ -74,11 +60,15 @@ public class ClimbRateDisplay extends MFDElement {
     private double HIGH_CLIMB_RATE = 3.0;
     @Override
     public DisplayPriority displayPriority() {
-        if(mTurnRate.value() < MIN_CLIMB_TURN_RATE && mClimbRate.value() < 0)
-            return DisplayPriority.LOW;
-        else if(Math.abs(mTurnRate.value()) > HIGH_CLIMB_RATE)
-            return DisplayPriority.HIGH;
-        else
-            return DisplayPriority.MEDIUM;
+        try {
+            if (mTurnRate.value() < MIN_CLIMB_TURN_RATE && mClimbRate.value() < 0)
+                return DisplayPriority.LOW;
+            else if (Math.abs(mTurnRate.value()) > HIGH_CLIMB_RATE)
+                return DisplayPriority.HIGH;
+            else
+                return DisplayPriority.MEDIUM;
+        }catch(Exception e) {
+            return DisplayPriority.NONE;
+        }
     }
 }

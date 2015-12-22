@@ -24,12 +24,12 @@ public abstract class FlightDisplay implements IFlightDisplay, IFlightDataClient
     // IFlightDataNotification
     private long mTimeOfLastUpdate = -1;
     @Override
-    public void onDataReady(boolean force) {
+    public void onDataReady() {
         long currentTime = new Date().getTime();
         if(mTimeOfLastUpdate == -1)
             mTimeOfLastUpdate = currentTime;
 
-        if(currentTime - mTimeOfLastUpdate > getUpdateInterval() || force == true) {
+        if(currentTime - mTimeOfLastUpdate > getUpdateInterval()) {
             display();
             mTimeOfLastUpdate = currentTime;
         }

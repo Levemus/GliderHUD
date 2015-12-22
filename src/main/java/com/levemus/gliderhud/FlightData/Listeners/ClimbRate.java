@@ -48,9 +48,12 @@ public class ClimbRate implements IFlightDataListener {
         return result;
     }
 
-    private double mClimb = 0;
+    private final double INVALID =  Double.MIN_VALUE;
+    private double mClimb = INVALID;
 
-    public double value() {
+    public double value() throws java.lang.UnsupportedOperationException {
+        if(mClimb == INVALID)
+            throw new java.lang.UnsupportedOperationException();
         return mClimb;
     }
 
@@ -65,9 +68,16 @@ public class ClimbRate implements IFlightDataListener {
         catch(java.lang.UnsupportedOperationException e){}
 
         if(mClient != null)
-            mClient.onDataReady(false);
+            mClient.onDataReady();
     }
 
     @Override
-    public void onStatus(IFlightDataBroadcaster broadcaster, HashMap<UUID, BroadcasterStatus.Status> status) {}
+    public void onStatus(IFlightDataBroadcaster broadcaster, HashMap<UUID, BroadcasterStatus.Status> status) {
+        if(status.containsKey(FlightDataID.VARIO)
+                && status.get(FlightDataID.VARIO) == BroadcasterStatus.Status.OFFLINE) {
+            mClimb = INVALID;
+            if(mClient != null)
+                mClient.onDataReady();
+        }
+    }
 }

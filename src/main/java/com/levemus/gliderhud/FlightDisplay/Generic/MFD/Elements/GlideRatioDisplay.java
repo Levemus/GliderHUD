@@ -35,25 +35,14 @@ public class GlideRatioDisplay extends MFDElement {
     private TurnRate mTurnRate = new TurnRate(this);
     private Glide mGlide = new Glide(this);
 
-    private String title() {return "Glide";}
-    private String value() {
+    @Override
+    protected String title() {return "Glide";}
+
+    @Override
+    protected String value() {
         double displayGlide = Math.round(mGlide.value() * 100);
         displayGlide /= 100;
         return Double.toString(displayGlide);
-    }
-
-    private TextView mMFDDisplay = null;
-    private TextView mMFDTitle = null;
-
-    public void init(Activity activity) {
-        mMFDTitle = (TextView) activity.findViewById(com.levemus.gliderhud.R.id.mfdTitle);
-        mMFDDisplay = (TextView) activity.findViewById(com.levemus.gliderhud.R.id.mfdDisplay);
-    }
-
-    @Override
-    public void display() {
-        mMFDTitle.setText(title());
-        mMFDDisplay.setText(value());
     }
 
     @Override
@@ -72,11 +61,15 @@ public class GlideRatioDisplay extends MFDElement {
 
     @Override
     public MFDElement.DisplayPriority displayPriority() {
-        if(mGlide.value() >= MIN_GLIDE || mTurnRate.value() > MAX_TURN_RATE)
-            return MFDElement.DisplayPriority.NONE;
-        else if(mGlide.value() >= CRITICAL_GLIDE &&  mTurnRate.value() < MAX_TURN_RATE)
-            return MFDElement.DisplayPriority.CRITICAL;
-        else
-            return MFDElement.DisplayPriority.MEDIUM;
+        try {
+            if(mGlide.value() >= MIN_GLIDE || mTurnRate.value() > MAX_TURN_RATE)
+                return MFDElement.DisplayPriority.NONE;
+            else if(mGlide.value() >= CRITICAL_GLIDE &&  mTurnRate.value() < MAX_TURN_RATE)
+                return MFDElement.DisplayPriority.CRITICAL;
+            else
+                return MFDElement.DisplayPriority.MEDIUM;
+        }catch(Exception e) {
+            return DisplayPriority.NONE;
+        }
     }
 }
