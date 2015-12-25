@@ -22,6 +22,7 @@ import com.levemus.gliderhud.FlightData.IFlightDataClient;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -29,41 +30,39 @@ import java.util.UUID;
  */
 public class DistanceFr implements IFlightDataListener {
 
-    IFlightDataClient mClient;
+    private HashSet<IFlightDataClient> mClients;
+
+    @Override
+    public HashSet<IFlightDataClient> clients() {return mClients;}
 
     private final double INVALID =  Double.MIN_VALUE;
-    private double mStartLongitude;
-    private double mStartLatitude;
+    private double mStartLongitude = INVALID;
+    private double mStartLatitude = INVALID;
 
-    public DistanceFr(IFlightDataClient client) {
-        mStartLongitude = INVALID;
-        mStartLatitude = INVALID;
+    private UUID mId;
 
-        mClient = client;
+    public DistanceFr() {
+        mId = UUID.randomUUID();
     }
 
-    public DistanceFr(IFlightDataClient client, double latitude, double longitude) {
+    public DistanceFr(double latitude, double longitude) {
         mStartLongitude = latitude;
         mStartLatitude = longitude;
-
-        mClient = client;
+        mId = UUID.randomUUID();
     }
 
-    HashSet<UUID> mSubscriptionFlags = new HashSet(Arrays.asList(
+    HashSet<UUID> mRequiredChannels = new HashSet(Arrays.asList(
             FlightDataID.LATITUDE,
             FlightDataID.LONGITUDE
     ));
 
-    private int UPDATE_INTERVAl_MS = 100;
-    public HashSet<UUID> registerWith(IFlightDataBroadcaster broadcaster) {
-        HashSet<UUID> result = new HashSet<>();
-        if(!mSubscriptionFlags.isEmpty()) {
-            result = broadcaster.addListener(this, UPDATE_INTERVAl_MS, mSubscriptionFlags);
-            mSubscriptionFlags.removeAll(result);
-        }
-
-        return result;
+    @Override
+    public List<HashSet<UUID>> requiredChannels() {
+        return Arrays.asList(mRequiredChannels);
     }
+
+    @Override
+    public long notificationInterval() { return 100; }
 
     private double mDistance = INVALID;
 
@@ -89,10 +88,14 @@ public class DistanceFr implements IFlightDataListener {
         currentLocation.setLongitude(longtitude);
         mDistance = currentLocation.distanceTo(launchLocation);
 
-        if(mClient != null)
-            mClient.onDataReady();
+        for(IFlightDataClient client : mClients)
+            client.onDataReady();
     }
 
     @Override
     public void onStatus(IFlightDataBroadcaster broadcaster, HashMap<UUID, BroadcasterStatus.Status> status) {}
+
+    @Override
+    public UUID id() { return mId;}
+
 }

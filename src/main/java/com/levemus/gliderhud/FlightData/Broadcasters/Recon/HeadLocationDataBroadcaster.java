@@ -50,7 +50,7 @@ public class HeadLocationDataBroadcaster extends FlightDataBroadcaster implement
         }
 
     @Override
-    public HashSet<UUID> supportedTypes() {
+    public HashSet<UUID> supportedChannels() {
         return new HashSet(Arrays.asList(
                 FlightDataID.YAW));
     }

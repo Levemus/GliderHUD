@@ -34,9 +34,10 @@ public class AltitudeDisplay extends FlightDisplay {
     public void init(Activity activity)
     {
         mAltiDisplay = (TextView) activity.findViewById(com.levemus.gliderhud.R.id.altiDisplay);
+        mAltitude.clients().add(this);
     }
 
-    private Altitude mAltitude = new Altitude(this);
+    private Altitude mAltitude = new Altitude();
     private static final double MIN_ALTITUDE = 0.0;
     @Override
     public void display() {
@@ -48,7 +49,7 @@ public class AltitudeDisplay extends FlightDisplay {
     }
 
     @Override
-    public HashSet<UUID> registerWith(IFlightDataBroadcaster broadcaster) {
-        return mAltitude.registerWith(broadcaster);
+    public void registerWith(IFlightDataBroadcaster broadcaster) {
+        mAltitude = (Altitude)broadcaster.register(mAltitude);
     }
 }

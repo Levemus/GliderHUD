@@ -30,8 +30,8 @@ import java.util.UUID;
  * Created by mark@levemus on 15-11-23.
  */
 public interface IFlightDataBroadcaster {
-    public HashSet<UUID> supportedTypes();
-    public HashSet<UUID> addListener(IFlightDataListener listener, long notificationInterval, HashSet<UUID> subscription);
+    public HashSet<UUID> supportedChannels();
+    public IFlightDataListener register(IFlightDataListener listener);
     public void init(Activity activity);
     public void pause(Activity activity);
     public void resume(Activity activity);

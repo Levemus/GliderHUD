@@ -13,17 +13,21 @@ package com.levemus.gliderhud.FlightData.Listeners;
 import com.levemus.gliderhud.FlightData.IFlightData;
 import com.levemus.gliderhud.FlightData.Broadcasters.IFlightDataBroadcaster;
 import com.levemus.gliderhud.FlightData.Broadcasters.BroadcasterStatus;
+import com.levemus.gliderhud.FlightData.IFlightDataClient;
 
 import java.util.HashSet;
 import java.util.HashMap;
 import java.util.UUID;
+import java.util.List;
 
 /**
  * Created by mark@levemus on 15-11-23.
  */
 public interface IFlightDataListener {
-
+    UUID id();
     void onData(IFlightDataBroadcaster broadcaster, IFlightData data);
     void onStatus(IFlightDataBroadcaster broadcaster, HashMap<UUID, BroadcasterStatus.Status> status);
-    HashSet<UUID> registerWith(IFlightDataBroadcaster broadcaster);
+    List<HashSet<UUID>> requiredChannels();
+    long notificationInterval();
+    HashSet<IFlightDataClient> clients();
 }

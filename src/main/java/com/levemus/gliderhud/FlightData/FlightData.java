@@ -36,7 +36,7 @@ public class FlightData implements IFlightData{
     }
 
     @Override
-    public HashSet<UUID> supportedTypes() {
+    public HashSet<UUID> supportedChannels() {
         return(new HashSet<UUID>(mValues.keySet()));
     }
 }

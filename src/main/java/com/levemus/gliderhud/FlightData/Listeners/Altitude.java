@@ -9,6 +9,7 @@ import com.levemus.gliderhud.FlightData.IFlightDataClient;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -16,26 +17,22 @@ import java.util.UUID;
  */
 public class Altitude implements IFlightDataListener {
 
-    IFlightDataClient mClient;
+    private HashSet<IFlightDataClient> mClients;
 
-    public Altitude(IFlightDataClient client) {
-        mClient = client;
-    }
+    @Override
+    public HashSet<IFlightDataClient> clients() {return mClients;}
 
-    HashSet<UUID> mSubscriptionFlags = new HashSet(Arrays.asList(
+    HashSet<UUID> mRequiredChannels = new HashSet(Arrays.asList(
             FlightDataID.ALTITUDE
     ));
 
-    private int UPDATE_INTERVAl_MS = 100;
-    public HashSet<UUID> registerWith(IFlightDataBroadcaster broadcaster) {
-        HashSet<UUID> result = new HashSet<>();
-        if(!mSubscriptionFlags.isEmpty()) {
-            result = broadcaster.addListener(this, UPDATE_INTERVAl_MS, mSubscriptionFlags);
-            mSubscriptionFlags.removeAll(result);
-        }
-
-        return result;
+    @Override
+    public List<HashSet<UUID>> requiredChannels() {
+        return Arrays.asList(mRequiredChannels);
     }
+
+    @Override
+    public long notificationInterval() { return 100; }
 
     private final double INVALID =  Double.MIN_VALUE;
     private double mAltitude = INVALID;
@@ -53,8 +50,8 @@ public class Altitude implements IFlightDataListener {
         }
         catch(java.lang.UnsupportedOperationException e){}
 
-        if(mClient != null)
-            mClient.onDataReady();
+        for(IFlightDataClient client : mClients)
+            client.onDataReady();
     }
 
     @Override
@@ -62,8 +59,11 @@ public class Altitude implements IFlightDataListener {
         if(status.containsKey(FlightDataID.ALTITUDE)
                 && status.get(FlightDataID.ALTITUDE) == BroadcasterStatus.Status.OFFLINE) {
             mAltitude = INVALID;
-            if(mClient != null)
-                mClient.onDataReady();
+            for(IFlightDataClient client : mClients)
+                client.onDataReady();
         }
     }
+
+    @Override
+    public UUID id() { return UUID.fromString("1646c2a9-a550-4590-aa76-a184e6ad3770");}
 }

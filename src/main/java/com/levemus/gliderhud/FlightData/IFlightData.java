@@ -19,6 +19,6 @@ import java.util.UUID;
 
 public interface IFlightData {
     public double get(UUID type) throws java.lang.UnsupportedOperationException;
-    public HashSet<UUID> supportedTypes();
+    public HashSet<UUID> supportedChannels();
 
 }

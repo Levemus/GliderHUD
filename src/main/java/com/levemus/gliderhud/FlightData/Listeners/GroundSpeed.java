@@ -17,6 +17,7 @@ import com.levemus.gliderhud.FlightData.FlightDataID;
 import com.levemus.gliderhud.FlightData.IFlightData;
 import com.levemus.gliderhud.FlightData.IFlightDataClient;
 
+import java.util.List;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -27,26 +28,22 @@ import java.util.UUID;
  */
 public class GroundSpeed implements IFlightDataListener {
 
-    IFlightDataClient mClient;
+    private HashSet<IFlightDataClient> mClients;
 
-    public GroundSpeed(IFlightDataClient client) {
-        mClient = client;
-    }
+    @Override
+    public HashSet<IFlightDataClient> clients() {return mClients;}
 
-    HashSet<UUID> mSubscriptionFlags = new HashSet(Arrays.asList(
+    HashSet<UUID> mRequiredChannels = new HashSet(Arrays.asList(
             FlightDataID.GROUNDSPEED
     ));
 
-    private int UPDATE_INTERVAl_MS = 100;
-    public HashSet<UUID> registerWith(IFlightDataBroadcaster broadcaster) {
-        HashSet<UUID> result = new HashSet<>();
-        if(!mSubscriptionFlags.isEmpty()) {
-            result = broadcaster.addListener(this, UPDATE_INTERVAl_MS, mSubscriptionFlags);
-            mSubscriptionFlags.removeAll(result);
-        }
-
-        return result;
+    @Override
+    public List<HashSet<UUID>> requiredChannels() {
+        return Arrays.asList(mRequiredChannels);
     }
+
+    @Override
+    public long notificationInterval() {return 100; }
 
     private final double INVALID =  Double.MIN_VALUE;
     private double mGroundSpeed = INVALID;
@@ -67,8 +64,8 @@ public class GroundSpeed implements IFlightDataListener {
         }
         catch(java.lang.UnsupportedOperationException e){}
 
-        if(mClient != null)
-            mClient.onDataReady();
+        for(IFlightDataClient client : mClients)
+            client.onDataReady();
     }
 
     @Override
@@ -76,9 +73,12 @@ public class GroundSpeed implements IFlightDataListener {
         if(status.containsKey(FlightDataID.GROUNDSPEED)
                 && status.get(FlightDataID.GROUNDSPEED) == BroadcasterStatus.Status.OFFLINE) {
             mGroundSpeed = INVALID;
-            if(mClient != null)
-                mClient.onDataReady();
+            for(IFlightDataClient client : mClients)
+                client.onDataReady();
         }
     }
+
+    @Override
+    public UUID id() { return UUID.fromString("b75ae181-3229-4954-9915-690ef468b519");}
 }
 

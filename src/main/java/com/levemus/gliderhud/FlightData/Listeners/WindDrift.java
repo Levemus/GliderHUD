@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.HashMap;
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -32,27 +33,23 @@ import java.util.UUID;
  */
 public class WindDrift implements IFlightDataListener {
 
-    IFlightDataClient mClient;
+    private HashSet<IFlightDataClient> mClients;
 
-    public WindDrift(IFlightDataClient client) {
-        mClient = client;
-    }
+    @Override
+    public HashSet<IFlightDataClient> clients() {return mClients;}
 
-    HashSet<UUID> mSubscriptionFlags = new HashSet(Arrays.asList(
+    HashSet<UUID> mRequiredChannels = new HashSet(Arrays.asList(
             FlightDataID.GROUNDSPEED,
             FlightDataID.BEARING
     ));
 
-    private int UPDATE_INTERVAl_MS = 5000;
-    public HashSet<UUID> registerWith(IFlightDataBroadcaster broadcaster) {
-        HashSet<UUID> result = new HashSet<>();
-        if(!mSubscriptionFlags.isEmpty()) {
-            result = broadcaster.addListener(this, UPDATE_INTERVAl_MS, mSubscriptionFlags);
-            mSubscriptionFlags.removeAll(result);
-        }
-
-        return result;
+    @Override
+    public List<HashSet<UUID>> requiredChannels() {
+        return Arrays.asList(mRequiredChannels);
     }
+
+    @Override
+    public long notificationInterval() { return 5000; }
 
     private OffsetCircle mWind;
 
@@ -114,10 +111,13 @@ public class WindDrift implements IFlightDataListener {
             }
         } catch (java.lang.UnsupportedOperationException e) {}
 
-        if(mClient != null)
-            mClient.onDataReady();
+        for(IFlightDataClient client : mClients)
+            client.onDataReady();
     }
 
     @Override
     public void onStatus(IFlightDataBroadcaster broadcaster, HashMap<UUID, BroadcasterStatus.Status> status) {}
+
+    @Override
+    public UUID id() { return UUID.fromString("fe351c72-7eea-4b53-94e4-1bb91f78725f");}
 }

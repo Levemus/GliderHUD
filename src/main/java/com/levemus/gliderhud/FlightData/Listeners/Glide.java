@@ -16,35 +16,35 @@ import com.levemus.gliderhud.FlightData.Broadcasters.IFlightDataBroadcaster;
 import com.levemus.gliderhud.FlightData.IFlightData;
 import com.levemus.gliderhud.FlightData.IFlightDataClient;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.UUID;
+import java.util.ArrayList;
 
 /**
  * Created by mark@levemus on 15-12-19.
  */
 public class Glide implements IFlightDataListener {
 
-    IFlightDataClient mClient;
+    private HashSet<IFlightDataClient> mClients;
 
-    public Glide(IFlightDataClient client) {
-        mClient = client;
-        mGroundSpeed = new GroundSpeed(mClient);
-        mClimbRate = new ClimbRate(mClient);
+    @Override
+    public HashSet<IFlightDataClient> clients() {return mClients;}
+
+    @Override
+    public List<HashSet<UUID>> requiredChannels() {
+        return Arrays.asList(
+                mGroundSpeed.requiredChannels().get(0),
+                mClimbRate.requiredChannels().get(0));
     }
 
-    private int UPDATE_INTERVAl_MS = 100;
-    public HashSet<UUID> registerWith(IFlightDataBroadcaster broadcaster) {
-        HashSet<UUID> result = new HashSet<>();
-        result.addAll(mClimbRate.registerWith(broadcaster));
-        result.addAll(mGroundSpeed.registerWith(broadcaster));
-        broadcaster.addListener(this, UPDATE_INTERVAl_MS, result); /* notify me when climb
-        and groundspeed components are updated */
-        return result;
-    }
+    @Override
+    public long notificationInterval() { return 100; }
 
-    private GroundSpeed mGroundSpeed;
-    private ClimbRate mClimbRate;
+    private GroundSpeed mGroundSpeed = new GroundSpeed();
+    private ClimbRate mClimbRate = new ClimbRate();
 
     private final double INVALID =  Double.MIN_VALUE;
     private double mGlide = INVALID;
@@ -64,11 +64,14 @@ public class Glide implements IFlightDataListener {
             mGlide /= AVG_CLIMB_WEIGHT;
         }
 
-        if(mClient != null)
-            mClient.onDataReady();
+        for(IFlightDataClient client : mClients)
+            client.onDataReady();
     }
 
     @Override
     public void onStatus(IFlightDataBroadcaster broadcaster, HashMap<UUID, BroadcasterStatus.Status> status) {}
+
+    @Override
+    public UUID id() { return UUID.fromString("87038a0d-d55e-4d32-aed5-ee3c390ca21f");}
 }
 

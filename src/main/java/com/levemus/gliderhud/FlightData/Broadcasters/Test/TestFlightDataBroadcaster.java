@@ -110,7 +110,7 @@ public class TestFlightDataBroadcaster extends FlightDataBroadcaster {
     }
 
     @Override
-    public HashSet<UUID> supportedTypes() {
+    public HashSet<UUID> supportedChannels() {
         return new HashSet(Arrays.asList(
                 FlightDataID.ALTITUDE,
                 FlightDataID.GROUNDSPEED,

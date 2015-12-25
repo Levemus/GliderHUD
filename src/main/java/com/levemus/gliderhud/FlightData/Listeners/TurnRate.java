@@ -22,6 +22,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -29,37 +30,35 @@ import java.util.UUID;
  */
 public class TurnRate implements IFlightDataListener {
 
-    IFlightDataClient mClient;
+    private HashSet<IFlightDataClient> mClients;
+
+    @Override
+    public HashSet<IFlightDataClient> clients() {return mClients;}
 
     private double mStartBearing;
     private long mStartTime;
 
-    public TurnRate(IFlightDataClient client) {
+    public TurnRate() {
         mStartBearing = Double.MIN_VALUE;
         mStartTime = -1;
-        mClient = client;
     }
 
     public TurnRate(IFlightDataClient client, double startBearing) {
         mStartBearing = startBearing;
         mStartTime = -1;
-        mClient = client;
     }
 
-    HashSet<UUID> mSubscriptionFlags = new HashSet(Arrays.asList(
+    HashSet<UUID> mRequiredChannels = new HashSet(Arrays.asList(
             FlightDataID.BEARING
     ));
 
-    private int UPDATE_INTERVAl_MS = 100;
-    public HashSet<UUID> registerWith(IFlightDataBroadcaster broadcaster) {
-        HashSet<UUID> result = new HashSet<>();
-        if(!mSubscriptionFlags.isEmpty()) {
-            result = broadcaster.addListener(this, UPDATE_INTERVAl_MS, mSubscriptionFlags);
-            mSubscriptionFlags.removeAll(result);
-        }
-
-        return result;
+    @Override
+    public List<HashSet<UUID>> requiredChannels() {
+        return Arrays.asList(mRequiredChannels);
     }
+
+    @Override
+    public long notificationInterval() { return 100; }
 
     private final double INVALID =  Double.MIN_VALUE;
     private double mTurnRate = INVALID;
@@ -92,11 +91,14 @@ public class TurnRate implements IFlightDataListener {
         }
         catch(java.lang.UnsupportedOperationException e){}
 
-        if(mClient != null)
-            mClient.onDataReady();
+        for(IFlightDataClient client : mClients)
+            client.onDataReady();
     }
 
     @Override
     public void onStatus(IFlightDataBroadcaster broadcaster, HashMap<UUID, BroadcasterStatus.Status> status) {}
+
+    @Override
+    public UUID id() { return UUID.fromString("dfd91983-1528-4a6a-abb5-1a9ff05e4de7");}
 }
 
