@@ -29,12 +29,14 @@ public class ClimbRateDisplay extends MFDTextElement {
 
     private final String TAG = this.getClass().getSimpleName();
 
+    private ClimbRate mClimbRate = new ClimbRate();
+    private TurnRate mTurnRate = new TurnRate();
+
     public ClimbRateDisplay(FlightDisplay parent) {
         super(parent);
+        mClimbRate.clients().add(this);
+        mTurnRate.clients().add(this);
     }
-
-    private ClimbRate mClimbRate = new ClimbRate(this);
-    private TurnRate mTurnRate = new TurnRate(this);
 
     protected String title() {return "Climb (m/s)";}
     protected String value() {
@@ -47,12 +49,10 @@ public class ClimbRateDisplay extends MFDTextElement {
     }
 
     @Override
-    public HashSet<UUID> registerWith(IFlightDataBroadcaster broadcaster)
+    public void registerWith(IFlightDataBroadcaster broadcaster)
     {
-        HashSet<UUID> result = new HashSet<>();
-        result.addAll(mTurnRate.registerWith(broadcaster));
-        result.addAll(mClimbRate.registerWith(broadcaster));
-        return result;
+        mTurnRate = (TurnRate)broadcaster.register(mTurnRate);
+        mClimbRate = (ClimbRate)broadcaster.register(mClimbRate);
     }
 
     private double MIN_VARIO = 0.10;

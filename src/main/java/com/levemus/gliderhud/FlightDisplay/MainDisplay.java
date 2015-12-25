@@ -52,13 +52,11 @@ public class MainDisplay extends FlightDisplay {
     }
 
     @Override
-    public HashSet<UUID> registerWith(IFlightDataBroadcaster broadcaster)
+    public void registerWith(IFlightDataBroadcaster broadcaster)
     {
-        HashSet<UUID> result = new HashSet<UUID>();
         for(FlightDisplay display : mDisplays ) {
-            result.addAll(display.registerWith(broadcaster));
+            display.registerWith(broadcaster);
         }
-        return result;
     }
 
     @Override

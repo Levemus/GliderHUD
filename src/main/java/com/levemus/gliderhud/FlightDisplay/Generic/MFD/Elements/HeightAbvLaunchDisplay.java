@@ -17,6 +17,7 @@ import android.widget.TextView;
 import com.levemus.gliderhud.FlightData.Broadcasters.IFlightDataBroadcaster;
 import com.levemus.gliderhud.FlightData.Listeners.DistanceFr;
 import com.levemus.gliderhud.FlightData.Listeners.HeightAbv;
+import com.levemus.gliderhud.FlightData.Listeners.IFlightDataListener;
 import com.levemus.gliderhud.FlightData.Listeners.TurnRate;
 import com.levemus.gliderhud.FlightDisplay.FlightDisplay;
 
@@ -31,11 +32,14 @@ public class HeightAbvLaunchDisplay extends MFDTextElement {
 
     public HeightAbvLaunchDisplay(FlightDisplay parent) {
         super(parent);
+        mDistanceFr.clients().add(this);
+        mHeight.clients().add(this);
+        mTurnRate.clients().add(this);
     }
 
-    DistanceFr mDistanceFr = new DistanceFr(this);
-    HeightAbv mHeight = new HeightAbv(this);
-    TurnRate mTurnRate = new TurnRate(this);
+    DistanceFr mDistanceFr = new DistanceFr();
+    HeightAbv mHeight = new HeightAbv();
+    TurnRate mTurnRate = new TurnRate();
 
     protected String title() {return "Height ABL (m)";}
     protected String value() {
@@ -47,13 +51,11 @@ public class HeightAbvLaunchDisplay extends MFDTextElement {
     }
 
     @Override
-    public HashSet<UUID> registerWith(IFlightDataBroadcaster broadcaster)
+    public void registerWith(IFlightDataBroadcaster broadcaster)
     {
-        HashSet<UUID> result = new HashSet<>();
-        result.addAll(mDistanceFr.registerWith(broadcaster));
-        result.addAll(mHeight.registerWith(broadcaster));
-        result.addAll(mTurnRate.registerWith(broadcaster));
-        return result;
+        mDistanceFr = (DistanceFr)broadcaster.register(mDistanceFr);
+        mHeight = (HeightAbv)broadcaster.register(mHeight);
+        mTurnRate = (TurnRate)broadcaster.register(mTurnRate);
     }
 
     private double MIN_HEIGHT_ABVL = 10.0; // meters

@@ -33,7 +33,7 @@ public class HUDActivity extends Activity {
 			new HeadLocationDataBroadcaster(),
 			new BluetoothBroadcaster(),
 			//new InternalGPSFlightDataBroadcaster(),
-			//new TestFlightDataBroadcaster()
+			new TestFlightDataBroadcaster()
 	};
 
 	private FlightDisplay[] mDisplayList = {

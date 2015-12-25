@@ -16,6 +16,7 @@ import android.widget.TextView;
 
 import com.levemus.gliderhud.FlightData.Broadcasters.IFlightDataBroadcaster;
 import com.levemus.gliderhud.FlightData.Listeners.DistanceFr;
+import com.levemus.gliderhud.FlightData.Listeners.IFlightDataListener;
 import com.levemus.gliderhud.FlightDisplay.FlightDisplay;
 
 import java.util.HashSet;
@@ -29,9 +30,10 @@ public class DistanceFrLaunchDisplay extends MFDTextElement {
 
     public DistanceFrLaunchDisplay(FlightDisplay parent) {
         super(parent);
+        mDistanceFr.clients().add(this);
     }
 
-    DistanceFr mDistanceFr = new DistanceFr(this);
+    DistanceFr mDistanceFr = new DistanceFr();
 
     @Override
     protected String title() {return "Dist Fr Lnch (km)";}
@@ -40,8 +42,8 @@ public class DistanceFrLaunchDisplay extends MFDTextElement {
     protected String value() {return Double.toString((Math.round(mDistanceFr.value() / 3600) * 10) / 10);}
 
     @Override
-    public HashSet<UUID> registerWith(IFlightDataBroadcaster broadcaster) {
-        return(mDistanceFr.registerWith(broadcaster));
+    public void registerWith(IFlightDataBroadcaster broadcaster) {
+        mDistanceFr = (DistanceFr)broadcaster.register(mDistanceFr);
     }
 
     private double MIN_DISTANCE_FROM_LAUNCH = 5000; // meters

@@ -35,7 +35,7 @@ public class CompassDisplay extends FlightDisplay {
 
     private final String TAG = this.getClass().getSimpleName();
 
-    private Orientation mOrientation = new Orientation(this);
+    private Orientation mOrientation = new Orientation();
 
     private DirectionDisplayImage mHeadingDisplay = null;
     private WindDisplay mWindDisplay = null;
@@ -51,17 +51,15 @@ public class CompassDisplay extends FlightDisplay {
 
         mBearingDisplay = new BearingDisplay();
         mBearingDisplay.init(activity);
+
+        mOrientation.clients().add(this);
     }
 
     @Override
-    public HashSet<UUID> registerWith(IFlightDataBroadcaster broadcaster) {
-
-        HashSet<UUID> result = new HashSet<UUID>();
-
-        result.addAll(mOrientation.registerWith(broadcaster));
-        result.addAll(mWindDisplay.registerWith(broadcaster));
-        result.addAll(mBearingDisplay.registerWith(broadcaster));
-        return result;
+    public void registerWith(IFlightDataBroadcaster broadcaster) {
+        broadcaster.register(mOrientation);
+        mWindDisplay.registerWith(broadcaster);
+        mBearingDisplay.registerWith(broadcaster);
     }
 
     @Override
@@ -86,7 +84,7 @@ public class CompassDisplay extends FlightDisplay {
     // this class is only applicabile within the context of the compass display
     private class WindDisplay extends FlightDisplay {
 
-        private WindDrift mWindDrift = new WindDrift(this);
+        private WindDrift mWindDrift = new WindDrift();
 
         private DirectionDisplayImage mWindDirectionDisplay = null;
         private DirectionDisplayText mWindSpeedDisplay = null;
@@ -95,11 +93,12 @@ public class CompassDisplay extends FlightDisplay {
         public void init(Activity activity) {
             mWindDirectionDisplay = new DirectionDisplayImage((ImageView) activity.findViewById(com.levemus.gliderhud.R.id.wind_pointer));
             mWindSpeedDisplay = new DirectionDisplayText((TextView) activity.findViewById(com.levemus.gliderhud.R.id.windSpeed));
+            mWindDrift.clients().add(this);
         }
 
         @Override
-        public HashSet<UUID> registerWith(IFlightDataBroadcaster broadcaster) {
-            return mWindDrift.registerWith(broadcaster);
+        public void registerWith(IFlightDataBroadcaster broadcaster) {
+            broadcaster.register(mWindDrift);
         }
 
         private double DEGREES_FULL_CIRCLE = 360;
@@ -134,14 +133,16 @@ public class CompassDisplay extends FlightDisplay {
     // this class is only applicabile within the context of the compass display
     private class BearingDisplay extends FlightDisplay {
 
-        private Bearing mBearing = new Bearing(this);
-        private GroundSpeed mGroundSpeed = new GroundSpeed(this);
+        private Bearing mBearing = new Bearing();
+        private GroundSpeed mGroundSpeed = new GroundSpeed();
 
         private DirectionDisplayImage mBearingDisplay = null;
         @Override
         public void init(Activity activity) {
             mBearingDisplay = new DirectionDisplayImage((ImageView)
                     activity.findViewById(com.levemus.gliderhud.R.id.bearing_pointer));
+            mBearing.clients().add(this);
+            mGroundSpeed.clients().add(this);
         }
 
         private double MIN_GROUND_SPEED = 1.0;
@@ -157,12 +158,9 @@ public class CompassDisplay extends FlightDisplay {
         }
 
         @Override
-        public HashSet<UUID> registerWith(IFlightDataBroadcaster broadcaster) {
-            HashSet<UUID> result = new HashSet<UUID>();
-            result.addAll(mGroundSpeed.registerWith(broadcaster));
-            result.addAll(mBearing.registerWith(broadcaster));
-            return result;
-
+        public void registerWith(IFlightDataBroadcaster broadcaster) {
+            broadcaster.register(mGroundSpeed);
+            broadcaster.register(mBearing);
         }
 
         @Override

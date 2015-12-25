@@ -15,6 +15,7 @@ import android.app.Activity;
 import android.widget.TextView;
 
 import com.levemus.gliderhud.FlightData.Broadcasters.IFlightDataBroadcaster;
+import com.levemus.gliderhud.FlightData.Listeners.IFlightDataListener;
 import com.levemus.gliderhud.FlightData.Listeners.TurnRate;
 import com.levemus.gliderhud.FlightData.Listeners.Glide;
 import com.levemus.gliderhud.FlightDisplay.FlightDisplay;
@@ -28,12 +29,14 @@ import java.util.UUID;
 public class GlideRatioDisplay extends MFDTextElement {
     private final String TAG = this.getClass().getSimpleName();
 
+    private TurnRate mTurnRate = new TurnRate();
+    private Glide mGlide = new Glide();
+
     public GlideRatioDisplay(FlightDisplay parent) {
         super(parent);
+        mTurnRate.clients().add(this);
+        mGlide.clients().add(this);
     }
-
-    private TurnRate mTurnRate = new TurnRate(this);
-    private Glide mGlide = new Glide(this);
 
     @Override
     protected String title() {return "Glide";}
@@ -46,13 +49,10 @@ public class GlideRatioDisplay extends MFDTextElement {
     }
 
     @Override
-    public HashSet<UUID> registerWith(IFlightDataBroadcaster broadcaster)
+    public void registerWith(IFlightDataBroadcaster broadcaster)
     {
-        HashSet<UUID> result = new HashSet<>();
-        result.addAll(mTurnRate.registerWith(broadcaster));
-        result.addAll(mGlide.registerWith(broadcaster));
-
-        return result;
+        mTurnRate = (TurnRate)broadcaster.register(mTurnRate);
+        mGlide = (Glide)broadcaster.register(mGlide);
     }
 
     private double MIN_GLIDE = -0.01;

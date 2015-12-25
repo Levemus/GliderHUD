@@ -51,12 +51,10 @@ public class MultiFunctionManager extends FlightDisplay {
     }
 
     @Override
-    public HashSet<UUID> registerWith(IFlightDataBroadcaster broadcaster) {
-        HashSet<UUID> result = new HashSet<UUID>();
+    public void registerWith(IFlightDataBroadcaster broadcaster) {
         for(MFDElement element : mDisplayElements) {
-            result.addAll(element.registerWith(broadcaster));
+            element.registerWith(broadcaster);
         }
-        return result;
     }
 
     private ArrayList<MFDElement> mDisplayQueue = new ArrayList<MFDElement>();

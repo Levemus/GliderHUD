@@ -33,9 +33,10 @@ public class GroundSpeedDisplay extends FlightDisplay {
     public void init(Activity activity)
     {
         mGroundSpeedDisplay = (TextView) activity.findViewById(com.levemus.gliderhud.R.id.speedDisplay);
+        mGroundSpeed.clients().add(this);
     }
 
-    private GroundSpeed mGroundSpeed = new GroundSpeed(this);
+    private GroundSpeed mGroundSpeed = new GroundSpeed();
     @Override
     public void display() {
         try {
@@ -46,7 +47,7 @@ public class GroundSpeedDisplay extends FlightDisplay {
     }
 
     @Override
-    public HashSet<UUID> registerWith(IFlightDataBroadcaster broadcaster) {
-        return mGroundSpeed.registerWith(broadcaster);
+    public void registerWith(IFlightDataBroadcaster broadcaster) {
+        mGroundSpeed = (GroundSpeed)broadcaster.register(mGroundSpeed);
     }
 }
