@@ -25,7 +25,7 @@ import java.util.UUID;
 /**
  * Created by mark@levemus on 15-12-18.
  */
-public class GlideRatioDisplay extends MFDElement {
+public class GlideRatioDisplay extends MFDTextElement {
     private final String TAG = this.getClass().getSimpleName();
 
     public GlideRatioDisplay(FlightDisplay parent) {

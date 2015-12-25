@@ -26,7 +26,7 @@ import java.util.UUID;
 /**
  * Created by mark@levemus on 15-12-18.
  */
-public class HeightAbvLaunchDisplay extends MFDElement {
+public class HeightAbvLaunchDisplay extends MFDTextElement {
     private final String TAG = this.getClass().getSimpleName();
 
     public HeightAbvLaunchDisplay(FlightDisplay parent) {

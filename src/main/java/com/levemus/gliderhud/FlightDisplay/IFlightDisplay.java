@@ -19,4 +19,5 @@ import android.app.Activity;
 public interface IFlightDisplay {
     public void init(Activity activity);
     public void display();
+    public void hide();
 }

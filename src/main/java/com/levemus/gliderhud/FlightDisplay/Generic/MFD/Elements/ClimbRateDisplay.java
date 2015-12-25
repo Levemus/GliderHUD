@@ -25,7 +25,7 @@ import java.util.UUID;
 /**
  * Created by mark@levemus on 15-12-17.
  */
-public class ClimbRateDisplay extends MFDElement {
+public class ClimbRateDisplay extends MFDTextElement {
 
     private final String TAG = this.getClass().getSimpleName();
 

@@ -63,4 +63,7 @@ public class MainDisplay extends FlightDisplay {
 
     @Override
     public void display() {}
+
+    @Override
+    public void hide() {}
 }

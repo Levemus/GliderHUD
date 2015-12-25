@@ -78,6 +78,9 @@ public class CompassDisplay extends FlightDisplay {
     }
 
     @Override
+    public void hide() {}
+
+    @Override
     public long getUpdateInterval() { return 10; } // milliseconds
 
     // this class is only applicabile within the context of the compass display

@@ -71,6 +71,9 @@ public class MultiFunctionManager extends FlightDisplay {
         if(mCurrentDisplayStart == 0)
             mCurrentDisplayStart = currentTime;
 
+        for(MFDElement element : mDisplayElements)
+            element.hide();
+
         determineDisplayElement();
 
         if(mDisplayQueue.size() > 0)

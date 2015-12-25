@@ -26,6 +26,7 @@ abstract public class DirectionDisplay implements IFlightDisplay {
     protected DirectionDisplay() {}
 
     public void display(boolean refresh) {}
+    public void hide() {}
 
     public static double smoothDirection(double newHeading, double oldHeading) {
 

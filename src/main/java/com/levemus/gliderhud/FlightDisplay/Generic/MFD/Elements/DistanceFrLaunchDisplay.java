@@ -24,7 +24,7 @@ import java.util.UUID;
 /**
  * Created by mark@levemus on 15-12-18.
  */
-public class DistanceFrLaunchDisplay extends MFDElement {
+public class DistanceFrLaunchDisplay extends MFDTextElement {
     private final String TAG = this.getClass().getSimpleName();
 
     public DistanceFrLaunchDisplay(FlightDisplay parent) {
