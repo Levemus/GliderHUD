@@ -18,6 +18,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.ArrayList;
 import java.util.UUID;
+import java.util.List;
 
 import com.levemus.gliderhud.FlightData.IFlightData;
 import com.levemus.gliderhud.FlightData.Listeners.IFlightDataListener;
@@ -30,13 +31,11 @@ public abstract class FlightDataBroadcaster implements IFlightDataBroadcaster {
     private class ListenerInterval {
         public IFlightDataListener mListener;
         HashSet<UUID> mSubscription;
-        public long mInterval;
         public long mTimeOfLastUpdate = 0;
 
-        public ListenerInterval(IFlightDataListener datalistener, long notificationInterval, HashSet<UUID> subscription)
+        public ListenerInterval(IFlightDataListener datalistener, HashSet<UUID> subscription)
         {
             mListener = datalistener;
-            mInterval = notificationInterval;
             mSubscription = new HashSet<UUID>(subscription);
         }
     }
@@ -51,7 +50,7 @@ public abstract class FlightDataBroadcaster implements IFlightDataBroadcaster {
         mActivity.runOnUiThread(new Runnable()
         {
             public void run() {
-                HashSet<UUID> types = data.supportedTypes();
+                HashSet<UUID> types = data.supportedChannels();
                 HashSet<UUID> updateStatus = new HashSet<>();
 
                 // determine if just online
@@ -69,7 +68,7 @@ public abstract class FlightDataBroadcaster implements IFlightDataBroadcaster {
                         long elapsed = currentTime - listenerInterval.mTimeOfLastUpdate;
                         HashSet<UUID> intersection = new HashSet(types);
                         intersection.retainAll(listenerInterval.mSubscription);
-                        if (listenerInterval.mInterval < elapsed && !intersection.isEmpty()) {
+                        if (listenerInterval.mListener.notificationInterval() < elapsed && !intersection.isEmpty()) {
 
                             // status update, if needed
                             HashSet<UUID> listenerStatus
@@ -111,22 +110,36 @@ public abstract class FlightDataBroadcaster implements IFlightDataBroadcaster {
         });
     }
 
-    public HashSet<UUID> addListener(IFlightDataListener listener, long notificationInterval, HashSet<UUID> subscription)
-    {
-        HashSet<UUID> intersection = new HashSet(subscription);
-        intersection.retainAll(supportedTypes());
-        if(!intersection.isEmpty()) {
-            mListeners.add(new ListenerInterval(listener, notificationInterval, subscription));
+    public IFlightDataListener register(IFlightDataListener listener) {
+
+        for(ListenerInterval interval : mListeners) {
+            if(interval.mListener.id().compareTo(listener.id()) == 0)
+                return interval.mListener; // return cached listener
         }
-        return intersection;
+
+        List<HashSet<UUID>> subscription = listener.requiredChannels();
+        HashSet<UUID> intersection = new HashSet();
+        for(HashSet<UUID> channels : subscription) {
+            intersection.addAll(channels);
+        }
+        intersection.retainAll(supportedChannels());
+        if(!intersection.isEmpty()) {
+            mListeners.add(new ListenerInterval(listener, intersection));
+        }
+
+        for(HashSet<UUID> channels : subscription) {
+            channels.removeAll(intersection);
+        }
+
+        return listener;
     }
 
-    public abstract HashSet<UUID> supportedTypes();
+    public abstract HashSet<UUID> supportedChannels();
 
     protected Activity mActivity;
 
     public void init(Activity activity) {
-        for(UUID key : supportedTypes()) {
+        for(UUID key : supportedChannels()) {
             if (!mStatus.containsKey(key))
                 mStatus.put(key, BroadcasterStatus.Status.OFFLINE);
         }

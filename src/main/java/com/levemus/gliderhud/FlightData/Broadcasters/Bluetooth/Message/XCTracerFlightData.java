@@ -60,7 +60,7 @@ class XCTracerFlightData extends BluetoothFlightData {
     }
 
     @Override
-    public HashSet<UUID> supportedTypes() {
+    public HashSet<UUID> supportedChannels() {
         return new HashSet(Arrays.asList(
                 FlightDataID.LATITUDE,
                 FlightDataID.LONGITUDE,

@@ -75,5 +75,5 @@ public abstract class BluetoothFlightData implements IFlightData {
     }
 
     @Override
-    public abstract HashSet<UUID> supportedTypes();
+    public abstract HashSet<UUID> supportedChannels();
 }

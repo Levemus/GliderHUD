@@ -99,7 +99,7 @@ public class BluetoothBroadcaster extends FlightDataBroadcaster
     BluetoothFlightDataFactory mMsgFactory = new BluetoothFlightDataFactory();
 
     @Override
-    public HashSet<UUID> supportedTypes() {
+    public HashSet<UUID> supportedChannels() {
         return mMsgFactory.supportedTypes();
     }
 
@@ -123,9 +123,9 @@ public class BluetoothBroadcaster extends FlightDataBroadcaster
                 Log.i(TAG, "Disconnected from GATT server.");
                 long currentTime = new Date().getTime();
                 if(currentTime - mStartTime > MAX_CONNECT_ATTEMPT_TIME) {
-                    for (UUID type : supportedTypes())
+                    for (UUID type : supportedChannels())
                         mStatus.put(type, BroadcasterStatus.Status.OFFLINE);
-                    notifyListenersOfStatus(supportedTypes());
+                    notifyListenersOfStatus(supportedChannels());
                 }
                 else {
                     resume(mActivity);

@@ -48,7 +48,7 @@ public class BluetoothFlightDataFactory {
     public HashSet<UUID> supportedTypes() {
         HashSet<UUID> result = new HashSet<>();
         for(BluetoothFlightData msg: mSupportedMessages) {
-            result.addAll(msg.supportedTypes());
+            result.addAll(msg.supportedChannels());
         }
         return result;
     }
