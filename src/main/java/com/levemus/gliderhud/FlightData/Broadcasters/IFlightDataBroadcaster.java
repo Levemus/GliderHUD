@@ -11,7 +11,9 @@ package com.levemus.gliderhud.FlightData.Broadcasters;
  */
 import android.app.Activity;
 
-import com.levemus.gliderhud.FlightData.Listeners.IFlightDataListener;
+import com.levemus.gliderhud.FlightData.Listeners.IListenerStatus;
+import com.levemus.gliderhud.FlightData.Listeners.IListenerConfig;
+import com.levemus.gliderhud.FlightData.Listeners.IListenerData;
 import java.util.HashSet;
 import java.util.UUID;
 
@@ -31,7 +33,7 @@ import java.util.UUID;
  */
 public interface IFlightDataBroadcaster {
     public HashSet<UUID> supportedChannels();
-    public IFlightDataListener register(IFlightDataListener listener);
+    public void registerForData(IListenerConfig config, IListenerData listener );
     public void init(Activity activity);
     public void pause(Activity activity);
     public void resume(Activity activity);

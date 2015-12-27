@@ -122,12 +122,7 @@ public class BluetoothBroadcaster extends FlightDataBroadcaster
             {
                 Log.i(TAG, "Disconnected from GATT server.");
                 long currentTime = new Date().getTime();
-                if(currentTime - mStartTime > MAX_CONNECT_ATTEMPT_TIME) {
-                    for (UUID type : supportedChannels())
-                        mStatus.put(type, BroadcasterStatus.Status.OFFLINE);
-                    notifyListenersOfStatus(supportedChannels());
-                }
-                else {
+                if(currentTime - mStartTime < MAX_CONNECT_ATTEMPT_TIME) {
                     resume(mActivity);
                 }
             }
@@ -176,7 +171,7 @@ public class BluetoothBroadcaster extends FlightDataBroadcaster
                 String decoded = new String((byte[]) msg.obj, "UTF-8");
                 IFlightData btMsg = mMsgFactory.build(decoded);
                 if(btMsg != null) {
-                    notifyListenersOfData(btMsg);
+                    notifyListenersOfData(btMsg, btMsg.supportedChannels());
                 }
             }catch(Exception e){}
         }

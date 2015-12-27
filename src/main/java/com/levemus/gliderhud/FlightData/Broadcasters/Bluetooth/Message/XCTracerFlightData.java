@@ -18,7 +18,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.UUID;
 
-import com.levemus.gliderhud.FlightData.FlightDataID;
+import com.levemus.gliderhud.FlightData.FlightDataChannel;
 
 /**
  * Created by mark@levemus on 15-12-13.
@@ -42,18 +42,18 @@ class XCTracerFlightData extends BluetoothFlightData {
     protected String seperator() {return ",";}
 
     @Override
-    protected int elementOffset(UUID type) {
-        if(type == FlightDataID.VARIO)
+    protected int elementOffset(UUID channel) {
+        if(channel == FlightDataChannel.VARIO)
             return 13;
-        if (type == FlightDataID.ALTITUDE)
+        if (channel == FlightDataChannel.ALTITUDE)
             return 10;
-        if (type == FlightDataID.LONGITUDE)
+        if (channel == FlightDataChannel.LONGITUDE)
             return 9;
-        if (type == FlightDataID.LATITUDE)
+        if (channel == FlightDataChannel.LATITUDE)
             return 8;
-        if(type == FlightDataID.BEARING)
+        if(channel == FlightDataChannel.BEARING)
             return 12;
-        if (type == FlightDataID.GROUNDSPEED)
+        if (channel == FlightDataChannel.GROUNDSPEED)
             return 11;
 
         return -1;
@@ -62,12 +62,20 @@ class XCTracerFlightData extends BluetoothFlightData {
     @Override
     public HashSet<UUID> supportedChannels() {
         return new HashSet(Arrays.asList(
-                FlightDataID.LATITUDE,
-                FlightDataID.LONGITUDE,
-                FlightDataID.ALTITUDE,
-                FlightDataID.VARIO,
-                FlightDataID.BEARING,
-                FlightDataID.GROUNDSPEED));
+                FlightDataChannel.LATITUDE,
+                FlightDataChannel.LONGITUDE,
+                FlightDataChannel.ALTITUDE,
+                FlightDataChannel.VARIO,
+                FlightDataChannel.BEARING,
+                FlightDataChannel.GROUNDSPEED));
+    }
+
+    @Override
+    public double get(UUID channel) throws java.lang.UnsupportedOperationException
+    {
+        if(channel == FlightDataChannel.GROUNDSPEED)
+            return super.get(channel) * 3.6;
+        return(super.get(channel));
     }
 }
 

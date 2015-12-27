@@ -11,42 +11,40 @@ package com.levemus.gliderhud.FlightDisplay.Generic.MFD.Elements;
  (c) 2015 Levemus Software, Inc.
  */
 
-import android.app.Activity;
-import android.widget.TextView;
-
 import com.levemus.gliderhud.FlightData.Broadcasters.IFlightDataBroadcaster;
-import com.levemus.gliderhud.FlightData.Listeners.DistanceFr;
-import com.levemus.gliderhud.FlightData.Listeners.IFlightDataListener;
+import com.levemus.gliderhud.FlightData.Listeners.Factory.Builder.Listener;
+import com.levemus.gliderhud.FlightData.Listeners.Factory.ListenerID;
+import com.levemus.gliderhud.FlightData.Listeners.Factory.ListenerFactory;
 import com.levemus.gliderhud.FlightDisplay.FlightDisplay;
-
-import java.util.HashSet;
-import java.util.UUID;
 
 /**
  * Created by mark@levemus on 15-12-18.
  */
 public class DistanceFrLaunchDisplay extends MFDTextElement {
-    private final String TAG = this.getClass().getSimpleName();
 
+    // Constants
+    private final String TAG = this.getClass().getSimpleName();
+    private final double MIN_DISTANCE_FROM_LAUNCH = 5000; // meters
+
+    // Listeners
+    private Listener mDistanceFr = ListenerFactory.build(ListenerID.DISTANCEFR, this);
+
+    // Initialization/registration
     public DistanceFrLaunchDisplay(FlightDisplay parent) {
         super(parent);
-        mDistanceFr.clients().add(this);
     }
 
-    DistanceFr mDistanceFr = new DistanceFr();
+    @Override
+    public void registerWith(IFlightDataBroadcaster broadcaster) {
+        broadcaster.registerForData(mDistanceFr, mDistanceFr);
+    }
 
+    // Operation
     @Override
     protected String title() {return "Dist Fr Lnch (km)";}
 
     @Override
     protected String value() {return Double.toString((Math.round(mDistanceFr.value() / 3600) * 10) / 10);}
-
-    @Override
-    public void registerWith(IFlightDataBroadcaster broadcaster) {
-        mDistanceFr = (DistanceFr)broadcaster.register(mDistanceFr);
-    }
-
-    private double MIN_DISTANCE_FROM_LAUNCH = 5000; // meters
 
     @Override
     public DisplayPriority displayPriority() {

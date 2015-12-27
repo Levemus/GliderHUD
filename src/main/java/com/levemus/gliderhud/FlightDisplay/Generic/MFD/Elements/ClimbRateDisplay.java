@@ -11,34 +11,44 @@ package com.levemus.gliderhud.FlightDisplay.Generic.MFD.Elements;
  (c) 2015 Levemus Software, Inc.
  */
 
-import android.app.Activity;
-import android.widget.TextView;
-
 import com.levemus.gliderhud.FlightData.Broadcasters.IFlightDataBroadcaster;
-import com.levemus.gliderhud.FlightData.Listeners.ClimbRate;
-import com.levemus.gliderhud.FlightData.Listeners.TurnRate;
+import com.levemus.gliderhud.FlightData.Listeners.Factory.Builder.Listener;
+import com.levemus.gliderhud.FlightData.Listeners.Factory.ListenerID;
+import com.levemus.gliderhud.FlightData.Listeners.Factory.ListenerFactory;
 import com.levemus.gliderhud.FlightDisplay.FlightDisplay;
-
-import java.util.HashSet;
-import java.util.UUID;
 
 /**
  * Created by mark@levemus on 15-12-17.
  */
 public class ClimbRateDisplay extends MFDTextElement {
 
+    // Constants
     private final String TAG = this.getClass().getSimpleName();
+    private final double MIN_VARIO = 0.10;
+    private final double MIN_CLIMB_TURN_RATE = 10;
+    private final double HIGH_CLIMB_RATE = 3.0;
 
-    private ClimbRate mClimbRate = new ClimbRate();
-    private TurnRate mTurnRate = new TurnRate();
+    // Listeners
+    private Listener mClimbRate = ListenerFactory.build(ListenerID.VARIO, this);
+    private Listener mTurnRate = ListenerFactory.build(ListenerID.TURNRATE, this);
 
+    // Initialization/registration
     public ClimbRateDisplay(FlightDisplay parent) {
         super(parent);
-        mClimbRate.clients().add(this);
-        mTurnRate.clients().add(this);
     }
 
+    @Override
+    public void registerWith(IFlightDataBroadcaster broadcaster)
+    {
+        broadcaster.registerForData(mTurnRate, mTurnRate);
+        broadcaster.registerForData(mClimbRate, mClimbRate);
+    }
+
+    // Operation
+    @Override
     protected String title() {return "Climb (m/s)";}
+
+    @Override
     protected String value() {
         double displayVario = 0;
         if (Math.abs(mClimbRate.value()) > MIN_VARIO) {
@@ -49,26 +59,16 @@ public class ClimbRateDisplay extends MFDTextElement {
     }
 
     @Override
-    public void registerWith(IFlightDataBroadcaster broadcaster)
-    {
-        mTurnRate = (TurnRate)broadcaster.register(mTurnRate);
-        mClimbRate = (ClimbRate)broadcaster.register(mClimbRate);
-    }
-
-    private double MIN_VARIO = 0.10;
-    private double MIN_CLIMB_TURN_RATE = 10;
-    private double HIGH_CLIMB_RATE = 3.0;
-    @Override
-    public DisplayPriority displayPriority() {
+    public MFDElement.DisplayPriority displayPriority() {
         try {
             if (mTurnRate.value() < MIN_CLIMB_TURN_RATE && mClimbRate.value() < 0)
-                return DisplayPriority.LOW;
+                return MFDElement.DisplayPriority.LOW;
             else if (Math.abs(mTurnRate.value()) > HIGH_CLIMB_RATE)
-                return DisplayPriority.HIGH;
+                return MFDElement.DisplayPriority.HIGH;
             else
-                return DisplayPriority.MEDIUM;
+                return MFDElement.DisplayPriority.MEDIUM;
         }catch(Exception e) {
-            return DisplayPriority.NONE;
+            return MFDElement.DisplayPriority.NONE;
         }
     }
 }

@@ -47,11 +47,11 @@ public abstract class BluetoothFlightData implements IFlightData {
     protected abstract String frameEnd();
 
     protected abstract int elementCount();
-    protected abstract int elementOffset(UUID type);
+    protected abstract int elementOffset(UUID channel);
 
     protected abstract String seperator();
 
-    public double get(UUID type) throws java.lang.UnsupportedOperationException
+    public double get(UUID channel) throws java.lang.UnsupportedOperationException
     {
         StringBuilder builder = new StringBuilder();
 
@@ -64,7 +64,7 @@ public abstract class BluetoothFlightData implements IFlightData {
         if(tokenizedFrame.length < elementCount())
             throw new java.lang.UnsupportedOperationException();
 
-        int offset = elementOffset(type);
+        int offset = elementOffset(channel);
         if(offset>= 0) {
             try {
                 return Double.parseDouble(tokenizedFrame[offset]);

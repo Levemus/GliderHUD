@@ -15,15 +15,10 @@ import android.view.Window;
 import android.app.Activity;
 
 import com.levemus.gliderhud.FlightData.Broadcasters.IFlightDataBroadcaster;
-import com.levemus.gliderhud.FlightData.IFlightData;
-import com.levemus.gliderhud.FlightData.Listeners.IFlightDataListener;
 import com.levemus.gliderhud.FlightDisplay.Generic.AltitudeDisplay;
 import com.levemus.gliderhud.FlightDisplay.Generic.GroundSpeedDisplay;
 import com.levemus.gliderhud.FlightDisplay.Recon.CompassDisplay;
 import com.levemus.gliderhud.FlightDisplay.Generic.MFD.MultiFunctionManager;
-
-import java.util.HashSet;
-import java.util.UUID;
 
 /**
  * Created by mark@levemus on 15-11-29.

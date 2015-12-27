@@ -46,7 +46,7 @@ public class DirectionDisplayImage extends DirectionDisplay {
     @Override
     public void display()
     {
-        double angle = (mImageOffset != null ? mImageOffset.determineOffset(mCurrentDirection) : mCurrentDirection);
+        double angle = (mImageOffset != null ? mImageOffset.getDirectionOffset(mCurrentDirection) : mCurrentDirection);
         if(location.X() == -(getScreenLocation(angle).X()))
             return;
         location = new Point(-(getScreenLocation(angle).X()), 0);

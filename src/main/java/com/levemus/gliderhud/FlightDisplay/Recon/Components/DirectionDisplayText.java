@@ -37,7 +37,7 @@ public class DirectionDisplayText extends DirectionDisplay{
     @Override
     public void display()
     {
-        double angle = (mImageOffset != null ? Angle.delta(mCurrentDirection, mImageOffset.baseAngle()) : mCurrentDirection);
+        double angle = (mImageOffset != null ? Angle.delta(mCurrentDirection, mImageOffset.getParentDirection()) : mCurrentDirection);
         mTextView.setX((float)getScreenLocation(-angle).X());
     }
 

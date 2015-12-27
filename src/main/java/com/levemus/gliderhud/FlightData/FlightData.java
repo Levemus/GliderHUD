@@ -26,10 +26,10 @@ public class FlightData implements IFlightData{
     }
 
     @Override
-    public double get(UUID type) throws java.lang.UnsupportedOperationException {
+    public double get(UUID channel) throws java.lang.UnsupportedOperationException {
         try {
-            if(mValues.containsKey(type))
-                return mValues.get(type);
+            if(mValues.containsKey(channel))
+                return mValues.get(channel);
         }
         catch(Exception e) {}
         throw new java.lang.UnsupportedOperationException();

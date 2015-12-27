@@ -61,26 +61,26 @@ abstract public class DirectionDisplay implements IFlightDisplay {
     }
 
     // Offset functions
-    public void setOffsetBaseAngle( double angle)
+    public void setParentDirection(double angle)
     {
         if(mImageOffset == null)
             mImageOffset = new DirectionDisplayOffset();
-        mImageOffset.setBaseAngle(angle);
+        mImageOffset.setParentDirection(angle);
     }
 
     protected class DirectionDisplayOffset {
 
-        private double mBaseAngle = 0;
+        private double mParentDirection = 0;
 
-        public void setBaseAngle(double angle)
+        public void setParentDirection(double angle)
         {
-            mBaseAngle = angle;
+            mParentDirection = angle;
         }
-        public double baseAngle() {return mBaseAngle;}
+        public double getParentDirection() {return mParentDirection;}
 
-        public double determineOffset(double angle)
+        public double getDirectionOffset(double angle)
         {
-            return(Angle.delta(((angle + 93) % 360), mBaseAngle));
+            return(Angle.delta(((angle + 93) % 360), mParentDirection));
         }
     }
 }

@@ -15,39 +15,44 @@ import android.app.Activity;
 import android.widget.TextView;
 
 import com.levemus.gliderhud.FlightData.Broadcasters.IFlightDataBroadcaster;
-import com.levemus.gliderhud.FlightData.Listeners.GroundSpeed;
+import com.levemus.gliderhud.FlightData.Listeners.Factory.Builder.Listener;
+import com.levemus.gliderhud.FlightData.Listeners.Factory.ListenerID;
+import com.levemus.gliderhud.FlightData.Listeners.Factory.ListenerFactory;
 import com.levemus.gliderhud.FlightDisplay.FlightDisplay;
-
-import java.util.HashSet;
-import java.util.UUID;
 
 /**
  * Created by mark@levemus on 15-12-01.
  */
 public class GroundSpeedDisplay extends FlightDisplay {
 
+    // Constants
     private final String TAG = this.getClass().getSimpleName();
 
+    // Listeners
+    private Listener mGroundSpeed = ListenerFactory.build(ListenerID.GROUNDSPEED, this);
+
+    // Displays
     private TextView mGroundSpeedDisplay = null;
+
+    // Initialization/registration
     @Override
     public void init(Activity activity)
     {
         mGroundSpeedDisplay = (TextView) activity.findViewById(com.levemus.gliderhud.R.id.speedDisplay);
-        mGroundSpeed.clients().add(this);
-    }
-
-    private GroundSpeed mGroundSpeed = new GroundSpeed();
-    @Override
-    public void display() {
-        try {
-            mGroundSpeedDisplay.setText(Integer.toString((int)mGroundSpeed.value()));
-        }catch (Exception e){
-            mGroundSpeedDisplay.setText("---");
-        }
     }
 
     @Override
     public void registerWith(IFlightDataBroadcaster broadcaster) {
-        mGroundSpeed = (GroundSpeed)broadcaster.register(mGroundSpeed);
+        broadcaster.registerForData(mGroundSpeed, mGroundSpeed);
+    }
+
+    // Operation
+    @Override
+    public void display() {
+        try {
+            mGroundSpeedDisplay.setText(Integer.toString((int)(mGroundSpeed.value() / 3.6)));
+        }catch (Exception e){
+            mGroundSpeedDisplay.setText("---");
+        }
     }
 }

@@ -11,33 +11,40 @@ package com.levemus.gliderhud.FlightDisplay.Generic.MFD.Elements;
  (c) 2015 Levemus Software, Inc.
  */
 
-import android.app.Activity;
-import android.widget.TextView;
-
 import com.levemus.gliderhud.FlightData.Broadcasters.IFlightDataBroadcaster;
-import com.levemus.gliderhud.FlightData.Listeners.IFlightDataListener;
-import com.levemus.gliderhud.FlightData.Listeners.TurnRate;
-import com.levemus.gliderhud.FlightData.Listeners.Glide;
+import com.levemus.gliderhud.FlightData.Listeners.Factory.Builder.Listener;
+import com.levemus.gliderhud.FlightData.Listeners.Factory.ListenerID;
+import com.levemus.gliderhud.FlightData.Listeners.Factory.ListenerFactory;
 import com.levemus.gliderhud.FlightDisplay.FlightDisplay;
-
-import java.util.HashSet;
-import java.util.UUID;
 
 /**
  * Created by mark@levemus on 15-12-18.
  */
 public class GlideRatioDisplay extends MFDTextElement {
+
+    // Constants
     private final String TAG = this.getClass().getSimpleName();
+    private final double MIN_GLIDE = -0.01;
+    private final double CRITICAL_GLIDE = -3.0;
+    private final double MAX_TURN_RATE = 10;
 
-    private TurnRate mTurnRate = new TurnRate();
-    private Glide mGlide = new Glide();
+    // Listeners
+    private Listener mTurnRate = ListenerFactory.build(ListenerID.TURNRATE, this);
+    private Listener mGlide = ListenerFactory.build(ListenerID.GLIDERATIO, this);
 
+    // Initialization/registration
     public GlideRatioDisplay(FlightDisplay parent) {
         super(parent);
-        mTurnRate.clients().add(this);
-        mGlide.clients().add(this);
     }
 
+    @Override
+    public void registerWith(IFlightDataBroadcaster broadcaster)
+    {
+        broadcaster.registerForData(mTurnRate, mTurnRate);
+        broadcaster.registerForData(mGlide, mGlide);
+    }
+
+    // Operation
     @Override
     protected String title() {return "Glide";}
 
@@ -47,17 +54,6 @@ public class GlideRatioDisplay extends MFDTextElement {
         displayGlide /= 100;
         return Double.toString(displayGlide);
     }
-
-    @Override
-    public void registerWith(IFlightDataBroadcaster broadcaster)
-    {
-        mTurnRate = (TurnRate)broadcaster.register(mTurnRate);
-        mGlide = (Glide)broadcaster.register(mGlide);
-    }
-
-    private double MIN_GLIDE = -0.01;
-    private double CRITICAL_GLIDE = -3.0;
-    private double MAX_TURN_RATE = 10;
 
     @Override
     public MFDElement.DisplayPriority displayPriority() {

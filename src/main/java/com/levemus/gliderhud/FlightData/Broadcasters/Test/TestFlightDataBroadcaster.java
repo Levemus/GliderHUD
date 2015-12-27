@@ -21,7 +21,7 @@ import java.util.HashMap;
 import java.util.UUID;
 
 import com.levemus.gliderhud.FlightData.Broadcasters.FlightDataBroadcaster;
-import com.levemus.gliderhud.FlightData.FlightDataID;
+import com.levemus.gliderhud.FlightData.FlightDataChannel;
 import com.levemus.gliderhud.FlightData.FlightData;
 import com.levemus.gliderhud.Types.Vector;
 import com.levemus.gliderhud.Utils.Angle;
@@ -83,14 +83,14 @@ public class TestFlightDataBroadcaster extends FlightDataBroadcaster {
                     Vector combinedVelocity = new Vector(mCurrentVelocity).Add(mWindVelocity);
                     HashMap<UUID, Double> values = new HashMap<>();
 
-                    values.put(FlightDataID.GROUNDSPEED, combinedVelocity.Magnitude());
-                    values.put(FlightDataID.BEARING, combinedVelocity.Direction());
-                    values.put(FlightDataID.VARIO, mCurrentClimbRate);
-                    values.put(FlightDataID.LONGITUDE, mLongitude);
-                    values.put(FlightDataID.LATITUDE, mLatitude);
-                    values.put(FlightDataID.ALTITUDE, mCurrentAltitude);
+                    values.put(FlightDataChannel.GROUNDSPEED, combinedVelocity.Magnitude());
+                    values.put(FlightDataChannel.BEARING, combinedVelocity.Direction());
+                    values.put(FlightDataChannel.VARIO, mCurrentClimbRate);
+                    values.put(FlightDataChannel.LONGITUDE, mLongitude);
+                    values.put(FlightDataChannel.LATITUDE, mLatitude);
+                    values.put(FlightDataChannel.ALTITUDE, mCurrentAltitude);
 
-                    notifyListenersOfData(new FlightData(values));
+                    notifyListenersOfData(new FlightData(values), supportedChannels());
                 }
             });
 
@@ -112,12 +112,12 @@ public class TestFlightDataBroadcaster extends FlightDataBroadcaster {
     @Override
     public HashSet<UUID> supportedChannels() {
         return new HashSet(Arrays.asList(
-                FlightDataID.ALTITUDE,
-                FlightDataID.GROUNDSPEED,
-                FlightDataID.BEARING,
-                FlightDataID.VARIO,
-                FlightDataID.LONGITUDE,
-                FlightDataID.LATITUDE));
+                FlightDataChannel.ALTITUDE,
+                FlightDataChannel.GROUNDSPEED,
+                FlightDataChannel.BEARING,
+                FlightDataChannel.VARIO,
+                FlightDataChannel.LONGITUDE,
+                FlightDataChannel.LATITUDE));
     }
 
     private double MAX_VARIO = 10.0;

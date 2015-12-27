@@ -16,17 +16,14 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.levemus.gliderhud.FlightData.Broadcasters.IFlightDataBroadcaster;
-import com.levemus.gliderhud.FlightData.Listeners.WindDrift;
-import com.levemus.gliderhud.FlightData.Listeners.Bearing;
-import com.levemus.gliderhud.FlightData.Listeners.Orientation;
-import com.levemus.gliderhud.FlightData.Listeners.GroundSpeed;
+import com.levemus.gliderhud.FlightData.Listeners.Factory.Builder.Listener;
+import com.levemus.gliderhud.FlightData.Listeners.Factory.ListenerFactory;
+import com.levemus.gliderhud.FlightData.Listeners.Factory.ListenerID;
+import com.levemus.gliderhud.FlightData.Listeners.Custom.WindDrift;
 import com.levemus.gliderhud.FlightDisplay.Recon.Components.DirectionDisplay;
 import com.levemus.gliderhud.FlightDisplay.Recon.Components.DirectionDisplayImage;
 import com.levemus.gliderhud.FlightDisplay.Recon.Components.DirectionDisplayText;
 import com.levemus.gliderhud.FlightDisplay.FlightDisplay;
-
-import java.util.HashSet;
-import java.util.UUID;
 
 /**
  * Created by mark@levemus on 15-12-01.
@@ -35,7 +32,7 @@ public class CompassDisplay extends FlightDisplay {
 
     private final String TAG = this.getClass().getSimpleName();
 
-    private Orientation mOrientation = new Orientation();
+    private Listener mOrientation = ListenerFactory.build(ListenerID.YAW, this);
 
     private DirectionDisplayImage mHeadingDisplay = null;
     private WindDisplay mWindDisplay = null;
@@ -57,7 +54,7 @@ public class CompassDisplay extends FlightDisplay {
 
     @Override
     public void registerWith(IFlightDataBroadcaster broadcaster) {
-        broadcaster.register(mOrientation);
+        broadcaster.registerForData(mOrientation, mOrientation);
         mWindDisplay.registerWith(broadcaster);
         mBearingDisplay.registerWith(broadcaster);
     }
@@ -66,7 +63,7 @@ public class CompassDisplay extends FlightDisplay {
     public void display()
     {
         mHeadingDisplay.setCurrentDirection(
-                DirectionDisplay.smoothDirection(mOrientation.yaw(),
+                DirectionDisplay.smoothDirection(mOrientation.value(),
                         mHeadingDisplay.getCurrentDirection()));
         mBearingDisplay.setBaseAngle(mHeadingDisplay.getCurrentDirection());
         mWindDisplay.setBaseAngle(mHeadingDisplay.getCurrentDirection());
@@ -81,7 +78,7 @@ public class CompassDisplay extends FlightDisplay {
     @Override
     public long getUpdateInterval() { return 10; } // milliseconds
 
-    // this class is only applicabile within the context of the compass display
+    // this class is only applicable within the context of the compass display
     private class WindDisplay extends FlightDisplay {
 
         private WindDrift mWindDrift = new WindDrift();
@@ -98,7 +95,7 @@ public class CompassDisplay extends FlightDisplay {
 
         @Override
         public void registerWith(IFlightDataBroadcaster broadcaster) {
-            broadcaster.register(mWindDrift);
+            broadcaster.registerForData(mWindDrift, mWindDrift);
         }
 
         private double DEGREES_FULL_CIRCLE = 360;
@@ -125,24 +122,22 @@ public class CompassDisplay extends FlightDisplay {
         private double mOffsetAngle = 0;
         public void setBaseAngle(double angle) {
             mOffsetAngle = angle;
-            mWindDirectionDisplay.setOffsetBaseAngle(mOffsetAngle);
-            mWindSpeedDisplay.setOffsetBaseAngle(mOffsetAngle);
+            mWindDirectionDisplay.setParentDirection(mOffsetAngle);
+            mWindSpeedDisplay.setParentDirection(mOffsetAngle);
         }
     }
 
-    // this class is only applicabile within the context of the compass display
+    // this class is only applicable within the context of the compass display
     private class BearingDisplay extends FlightDisplay {
 
-        private Bearing mBearing = new Bearing();
-        private GroundSpeed mGroundSpeed = new GroundSpeed();
+        private Listener mBearing = ListenerFactory.build(ListenerID.BEARING, this);
+        private Listener mGroundSpeed = ListenerFactory.build(ListenerID.GROUNDSPEED, this);
 
         private DirectionDisplayImage mBearingDisplay = null;
         @Override
         public void init(Activity activity) {
             mBearingDisplay = new DirectionDisplayImage((ImageView)
                     activity.findViewById(com.levemus.gliderhud.R.id.bearing_pointer));
-            mBearing.clients().add(this);
-            mGroundSpeed.clients().add(this);
         }
 
         private double MIN_GROUND_SPEED = 1.0;
@@ -159,15 +154,15 @@ public class CompassDisplay extends FlightDisplay {
 
         @Override
         public void registerWith(IFlightDataBroadcaster broadcaster) {
-            broadcaster.register(mGroundSpeed);
-            broadcaster.register(mBearing);
+            broadcaster.registerForData(mGroundSpeed, mGroundSpeed);
+            broadcaster.registerForData(mBearing, mBearing);
         }
 
         @Override
         public void onDataReady() {}
 
         public void setBaseAngle(double angle) {
-            mBearingDisplay.setOffsetBaseAngle(angle);
+            mBearingDisplay.setParentDirection(angle);
         }
     }
 }

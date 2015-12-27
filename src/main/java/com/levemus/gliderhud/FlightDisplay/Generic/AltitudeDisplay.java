@@ -17,28 +17,37 @@ import android.widget.TextView;
 import com.levemus.gliderhud.FlightData.Broadcasters.IFlightDataBroadcaster;
 import com.levemus.gliderhud.FlightDisplay.FlightDisplay;
 
-import com.levemus.gliderhud.FlightData.Listeners.Altitude;
-
-import java.util.HashSet;
-import java.util.UUID;
+import com.levemus.gliderhud.FlightData.Listeners.Factory.ListenerFactory;
+import com.levemus.gliderhud.FlightData.Listeners.Factory.Builder.Listener;
+import com.levemus.gliderhud.FlightData.Listeners.Factory.ListenerID;
 
 /**
  * Created by mark@levemus on 15-12-01.
  */
 public class AltitudeDisplay extends FlightDisplay {
 
+    // Constants
     private final String TAG = this.getClass().getSimpleName();
+    private final double MIN_ALTITUDE = 0.0;
 
+    // Listeners
+    private Listener mAltitude = ListenerFactory.build(ListenerID.ALTITUDE, this);
+
+    // Displays
     private TextView mAltiDisplay = null;
+
+    // Initialization/registration
     @Override
     public void init(Activity activity)
     {
         mAltiDisplay = (TextView) activity.findViewById(com.levemus.gliderhud.R.id.altiDisplay);
-        mAltitude.clients().add(this);
+    }
+    @Override
+    public void registerWith(IFlightDataBroadcaster broadcaster) {
+        broadcaster.registerForData(mAltitude, mAltitude);
     }
 
-    private Altitude mAltitude = new Altitude();
-    private static final double MIN_ALTITUDE = 0.0;
+    // Operation
     @Override
     public void display() {
         try {
@@ -46,10 +55,5 @@ public class AltitudeDisplay extends FlightDisplay {
         }catch (Exception e){
             mAltiDisplay.setText("---");
         }
-    }
-
-    @Override
-    public void registerWith(IFlightDataBroadcaster broadcaster) {
-        mAltitude = (Altitude)broadcaster.register(mAltitude);
     }
 }

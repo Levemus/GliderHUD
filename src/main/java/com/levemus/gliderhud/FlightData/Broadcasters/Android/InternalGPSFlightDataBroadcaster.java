@@ -25,7 +25,7 @@ import android.app.Activity;
 import android.content.Context;
 
 import com.levemus.gliderhud.FlightData.Broadcasters.FlightDataBroadcaster;
-import com.levemus.gliderhud.FlightData.FlightDataID;
+import com.levemus.gliderhud.FlightData.FlightDataChannel;
 import com.levemus.gliderhud.FlightData.FlightData;
 
 /**
@@ -68,28 +68,28 @@ public class InternalGPSFlightDataBroadcaster extends FlightDataBroadcaster impl
     @Override
     public HashSet<UUID> supportedChannels() {
         return new HashSet(Arrays.asList(
-                FlightDataID.LATITUDE,
-                FlightDataID.LONGITUDE,
-                FlightDataID.ALTITUDE,
-                FlightDataID.GROUNDSPEED,
-                FlightDataID.BEARING,
-                FlightDataID.VARIO));
+                FlightDataChannel.LATITUDE,
+                FlightDataChannel.LONGITUDE,
+                FlightDataChannel.ALTITUDE,
+                FlightDataChannel.GROUNDSPEED,
+                FlightDataChannel.BEARING,
+                FlightDataChannel.VARIO));
     }
 
     @Override
     public void onLocationChanged(android.location.Location location) {
         HashMap<UUID, Double> values = new HashMap<>();
-        values.put(FlightDataID.LATITUDE, location.getLatitude());
-        values.put(FlightDataID.LONGITUDE, location.getLongitude());
-        values.put(FlightDataID.ALTITUDE, location.getAltitude());
-        values.put(FlightDataID.GROUNDSPEED, location.getSpeed() * 3.6);
-        values.put(FlightDataID.BEARING, (double)location.getBearing());
+        values.put(FlightDataChannel.LATITUDE, location.getLatitude());
+        values.put(FlightDataChannel.LONGITUDE, location.getLongitude());
+        values.put(FlightDataChannel.ALTITUDE, location.getAltitude());
+        values.put(FlightDataChannel.GROUNDSPEED, location.getSpeed() * 3.6);
+        values.put(FlightDataChannel.BEARING, (double)location.getBearing());
         if(mTimeOfLastUpdate != 0 && location.getTime() != mTimeOfLastUpdate) {
-            values.put(FlightDataID.VARIO,
+            values.put(FlightDataChannel.VARIO,
                     (location.getAltitude() - mLastAltitude) / (location.getTime() - mTimeOfLastUpdate) * 1000);
         }
 
-        notifyListenersOfData(new FlightData(values));
+        notifyListenersOfData(new FlightData(values), supportedChannels());
         mTimeOfLastUpdate = location.getTime();
         mLastAltitude = location.getAltitude();
     }
