@@ -16,7 +16,7 @@ import com.levemus.gliderhud.FlightData.Listeners.Factory.Builder.Operations.IAd
 import java.util.Date;
 
 /**
- * Created by markcarter on 15-12-26.
+ * Created by mark@levemus on 15-12-26.
  */
 public class TimeRateAdjuster implements IAdjuster {
     private long mPreviousTime = -1;

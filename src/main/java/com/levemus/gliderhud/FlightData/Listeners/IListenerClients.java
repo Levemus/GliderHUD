@@ -16,7 +16,7 @@ import com.levemus.gliderhud.FlightData.IFlightDataClient;
 import java.util.HashSet;
 
 /**
- * Created by markcarter on 15-12-26.
+ * Created by mark@levemus on 15-12-26.
  */
 public interface IListenerClients {
     public HashSet<IFlightDataClient> clients();

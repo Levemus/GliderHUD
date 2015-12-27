@@ -17,7 +17,7 @@ import java.util.HashMap;
 import java.util.UUID;
 
 /**
- * Created by markcarter on 15-12-26.
+ * Created by mark@levemus on 15-12-26.
  */
 public class DifferenceConverter implements IConverter {
 

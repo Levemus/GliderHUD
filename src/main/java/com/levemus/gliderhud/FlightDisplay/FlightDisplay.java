@@ -10,7 +10,7 @@ import java.util.HashSet;
 import java.util.UUID;
 
 /**
- * Created by markcarter on 15-12-20.
+ * Created by mark@levemus on 15-12-20.
  */
 public abstract class FlightDisplay implements IFlightDisplay, IFlightDataClient {
 

@@ -12,7 +12,7 @@ package com.levemus.gliderhud.FlightData.Listeners.Factory.Builder.Operations;
  */
 
 /**
- * Created by markcarter on 15-12-26.
+ * Created by mark@levemus on 15-12-26.
  */
 public interface IAdjuster {
     double adjust(double value);

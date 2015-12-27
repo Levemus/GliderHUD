@@ -14,7 +14,7 @@ package com.levemus.gliderhud.FlightData.Listeners.Factory.Builder.Operations;
 import java.util.UUID;
 import java.util.HashMap;
 /**
- * Created by markcarter on 15-12-26.
+ * Created by mark@levemus on 15-12-26.
  */
 public interface IConverter {
     double convert(HashMap<UUID, Double> values);

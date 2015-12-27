@@ -17,7 +17,7 @@ import java.util.UUID;
 import java.util.HashMap;
 
 /**
- * Created by markcarter on 15-12-26.
+ * Created by mark@levemus on 15-12-26.
  */
 public class DivideConverter implements IConverter {
 
