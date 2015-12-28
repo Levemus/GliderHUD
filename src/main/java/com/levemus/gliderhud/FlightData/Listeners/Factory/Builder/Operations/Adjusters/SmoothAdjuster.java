@@ -29,8 +29,10 @@ public class SmoothAdjuster implements IAdjuster {
     public double adjust(double value) {
         if(mPrevious == INVALID)
             mPrevious = value;
-        value += mPrevious * mWeight;
-        value /= mWeight + 1;
+
+        value += (mPrevious * mWeight);
+        value /= (mWeight + 1);
+        mPrevious = value;
 
         return value;
     }

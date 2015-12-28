@@ -11,11 +11,9 @@ package com.levemus.gliderhud.FlightDisplay.Recon.Components;
  (c) 2015 Levemus Software, Inc.
  */
 
-import android.app.Activity;
 import android.graphics.Matrix;
 import android.widget.ImageView;
 
-import com.levemus.gliderhud.FlightData.Broadcasters.IFlightDataBroadcaster;
 import com.levemus.gliderhud.Types.Point;
 
 /**
@@ -24,9 +22,6 @@ import com.levemus.gliderhud.Types.Point;
 public class DirectionDisplayImage extends DirectionDisplay {
 
     protected ImageView mImageView = null;
-
-    protected DirectionDisplayImage() {}
-    public void init(Activity activity, IFlightDataBroadcaster broadcaster) {}
 
     Point location = new Point(-1,-1);
     public DirectionDisplayImage(ImageView image)
@@ -39,9 +34,6 @@ public class DirectionDisplayImage extends DirectionDisplay {
         mImageView.setScaleType(ImageView.ScaleType.MATRIX);
         mImageView.setImageMatrix(matrix);
     }
-
-    @Override
-    public void init(Activity activity) {}
 
     @Override
     public void display()

@@ -14,7 +14,7 @@ package com.levemus.gliderhud.FlightDisplay.Generic;
 import android.app.Activity;
 import android.widget.TextView;
 
-import com.levemus.gliderhud.FlightData.Broadcasters.IFlightDataBroadcaster;
+import com.levemus.gliderhud.FlightData.Broadcasters.IRegisterListener;
 import com.levemus.gliderhud.FlightDisplay.FlightDisplay;
 
 import com.levemus.gliderhud.FlightData.Listeners.Factory.ListenerFactory;
@@ -43,8 +43,8 @@ public class AltitudeDisplay extends FlightDisplay {
         mAltiDisplay = (TextView) activity.findViewById(com.levemus.gliderhud.R.id.altiDisplay);
     }
     @Override
-    public void registerWith(IFlightDataBroadcaster broadcaster) {
-        broadcaster.registerForData(mAltitude, mAltitude);
+    public void registerWith(IRegisterListener broadcaster) {
+        broadcaster.register(mAltitude, mAltitude);
     }
 
     // Operation

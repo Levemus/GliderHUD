@@ -1,5 +1,4 @@
-package com.levemus.gliderhud.FlightData;
-
+package com.levemus.gliderhud.FlightData.Broadcasters;
 /*
  Both the author and publisher makes no representations or warranties
  about the suitability of this software, either expressed or implied, including
@@ -11,9 +10,12 @@ package com.levemus.gliderhud.FlightData;
  (c) 2015 Levemus Software, Inc.
  */
 
+import com.levemus.gliderhud.FlightData.Listeners.IListenerNotify;
+import com.levemus.gliderhud.FlightData.Listeners.IListenerConfig;
+
 /**
- * Created by mark@levemus on 15-12-20.
+ * Created by mark@levemus on 15-11-23.
  */
-public interface IFlightDataClient {
-    public void onDataReady();
+public interface IRegisterListener  {
+    public void register(IListenerConfig config, IListenerNotify listener );
 }

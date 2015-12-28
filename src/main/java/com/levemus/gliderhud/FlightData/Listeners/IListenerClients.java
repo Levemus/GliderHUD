@@ -11,13 +11,11 @@ package com.levemus.gliderhud.FlightData.Listeners;
  (c) 2015 Levemus Software, Inc.
  */
 
-import com.levemus.gliderhud.FlightData.IFlightDataClient;
-
 import java.util.HashSet;
 
 /**
  * Created by mark@levemus on 15-12-26.
  */
 public interface IListenerClients {
-    public HashSet<IFlightDataClient> clients();
+    public HashSet<IListenerClient> clients();
 }

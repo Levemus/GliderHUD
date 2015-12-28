@@ -13,7 +13,6 @@ package com.levemus.gliderhud.FlightDisplay.Recon.Components;
 
 import android.app.Activity;
 import android.widget.TextView;
-import com.levemus.gliderhud.FlightData.Broadcasters.IFlightDataBroadcaster;
 import com.levemus.gliderhud.Utils.Angle;
 
 /**
@@ -22,9 +21,6 @@ import com.levemus.gliderhud.Utils.Angle;
 public class DirectionDisplayText extends DirectionDisplay{
     private final String TAG = this.getClass().getSimpleName();
     protected TextView mTextView = null;
-
-    protected DirectionDisplayText() {}
-    public void init(Activity activity, IFlightDataBroadcaster broadcaster) {}
 
     public DirectionDisplayText(TextView view)
     {

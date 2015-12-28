@@ -23,4 +23,9 @@ public class BroadcasterStatus {
     public enum Status {
         OFFLINE, ONLINE
     };
+
+    private Status mStatus = Status.OFFLINE;
+    public Status value() {
+        return mStatus;
+    }
 }

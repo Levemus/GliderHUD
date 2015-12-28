@@ -11,7 +11,7 @@ package com.levemus.gliderhud.FlightDisplay.Generic.MFD.Elements;
  (c) 2015 Levemus Software, Inc.
  */
 
-import com.levemus.gliderhud.FlightData.Broadcasters.IFlightDataBroadcaster;
+import com.levemus.gliderhud.FlightData.Broadcasters.IRegisterListener;
 import com.levemus.gliderhud.FlightData.Listeners.Factory.Builder.Listener;
 import com.levemus.gliderhud.FlightData.Listeners.Factory.ListenerID;
 import com.levemus.gliderhud.FlightData.Listeners.Factory.ListenerFactory;
@@ -35,8 +35,8 @@ public class DistanceFrLaunchDisplay extends MFDTextElement {
     }
 
     @Override
-    public void registerWith(IFlightDataBroadcaster broadcaster) {
-        broadcaster.registerForData(mDistanceFr, mDistanceFr);
+    public void registerWith(IRegisterListener broadcaster) {
+        broadcaster.register(mDistanceFr, mDistanceFr);
     }
 
     // Operation

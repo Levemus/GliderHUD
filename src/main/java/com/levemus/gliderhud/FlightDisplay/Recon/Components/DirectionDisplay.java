@@ -11,6 +11,8 @@ package com.levemus.gliderhud.FlightDisplay.Recon.Components;
  (c) 2015 Levemus Software, Inc.
  */
 
+import android.app.Activity;
+
 import com.levemus.gliderhud.FlightDisplay.IFlightDisplay;
 import com.levemus.gliderhud.Types.Point;
 import com.levemus.gliderhud.Utils.Angle;
@@ -25,8 +27,10 @@ abstract public class DirectionDisplay implements IFlightDisplay {
     protected DirectionDisplayOffset mImageOffset = null;
     protected DirectionDisplay() {}
 
+    // IFlightDisplay
     public void display(boolean refresh) {}
     public void hide() {}
+    public void init(Activity activity) {}
 
     public static double smoothDirection(double newHeading, double oldHeading) {
 

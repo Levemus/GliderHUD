@@ -12,9 +12,11 @@ package com.levemus.gliderhud.FlightDisplay.Generic;
  */
 
 import android.app.Activity;
+import android.util.Log;
 import android.widget.TextView;
 
-import com.levemus.gliderhud.FlightData.Broadcasters.IFlightDataBroadcaster;
+import com.levemus.gliderhud.FlightData.Broadcasters.IRegisterListener;
+import com.levemus.gliderhud.FlightData.FlightDataChannel;
 import com.levemus.gliderhud.FlightData.Listeners.Factory.Builder.Listener;
 import com.levemus.gliderhud.FlightData.Listeners.Factory.ListenerID;
 import com.levemus.gliderhud.FlightData.Listeners.Factory.ListenerFactory;
@@ -42,15 +44,15 @@ public class GroundSpeedDisplay extends FlightDisplay {
     }
 
     @Override
-    public void registerWith(IFlightDataBroadcaster broadcaster) {
-        broadcaster.registerForData(mGroundSpeed, mGroundSpeed);
+    public void registerWith(IRegisterListener broadcaster) {
+        broadcaster.register(mGroundSpeed, mGroundSpeed);
     }
 
     // Operation
     @Override
     public void display() {
         try {
-            mGroundSpeedDisplay.setText(Integer.toString((int)(mGroundSpeed.value() / 3.6)));
+            mGroundSpeedDisplay.setText(Integer.toString((int)(mGroundSpeed.value() * 3.6)));
         }catch (Exception e){
             mGroundSpeedDisplay.setText("---");
         }

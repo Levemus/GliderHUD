@@ -1,18 +1,14 @@
 package com.levemus.gliderhud.FlightDisplay;
 
-import android.app.Activity;
-
-import com.levemus.gliderhud.FlightData.Broadcasters.IFlightDataBroadcaster;
-import com.levemus.gliderhud.FlightData.IFlightDataClient;
+import com.levemus.gliderhud.FlightData.Broadcasters.IRegisterListener;
+import com.levemus.gliderhud.FlightData.Listeners.IListenerClient;
 
 import java.util.Date;
-import java.util.HashSet;
-import java.util.UUID;
 
 /**
  * Created by mark@levemus on 15-12-20.
  */
-public abstract class FlightDisplay implements IFlightDisplay, IFlightDataClient {
+public abstract class FlightDisplay implements IFlightDisplay, IListenerClient {
 
     // IFlightDataNotification
     private long mTimeOfLastUpdate = -1;
@@ -28,7 +24,7 @@ public abstract class FlightDisplay implements IFlightDisplay, IFlightDataClient
         }
     }
 
-    public abstract void registerWith(IFlightDataBroadcaster broadcaster);
+    public abstract void registerWith(IRegisterListener broadcaster);
     public long getUpdateInterval() { return 500; } // milliseconds
 
     @Override

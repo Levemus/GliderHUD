@@ -15,7 +15,9 @@ import android.app.Activity;
 import android.os.Bundle;
 import android.util.Log;
 
-import com.levemus.gliderhud.FlightData.Broadcasters.IFlightDataBroadcaster;
+import com.levemus.gliderhud.FlightData.Broadcasters.Broadcaster;
+import com.levemus.gliderhud.FlightData.Broadcasters.IBroadcaster;
+import com.levemus.gliderhud.FlightData.Broadcasters.IRegisterListener;
 import com.levemus.gliderhud.FlightData.Broadcasters.Recon.HeadLocationDataBroadcaster;
 import com.levemus.gliderhud.FlightData.Broadcasters.Test.TestFlightDataBroadcaster;
 import com.levemus.gliderhud.FlightData.Broadcasters.Bluetooth.BluetoothBroadcaster;
@@ -29,9 +31,9 @@ import com.levemus.gliderhud.FlightDisplay.MainDisplay;
 public class HUDActivity extends Activity {
 	private final String TAG = this.getClass().getSimpleName();
 
-	private IFlightDataBroadcaster[] mBroadcasterList = {
+	private Broadcaster[] mBroadcasterList = {
 			new HeadLocationDataBroadcaster(),
-			new BluetoothBroadcaster(),
+			//new BluetoothBroadcaster(),
 			//new InternalGPSFlightDataBroadcaster(),
 			new TestFlightDataBroadcaster()
 	};
@@ -48,11 +50,12 @@ public class HUDActivity extends Activity {
 		for(FlightDisplay display : mDisplayList)
 		{
 			display.init(this);
-			for(IFlightDataBroadcaster broadcaster : mBroadcasterList) {
+			for(IRegisterListener broadcaster : mBroadcasterList) {
 				display.registerWith(broadcaster);
 			}
 		}
-		for(IFlightDataBroadcaster broadcaster : mBroadcasterList) {
+
+		for(IBroadcaster broadcaster : mBroadcasterList) {
 			broadcaster.init(this);
 		}
 	}
@@ -61,7 +64,7 @@ public class HUDActivity extends Activity {
 	public void onResume() {
 		Log.i(TAG, "onResume");
 		super.onResume();
-		for(IFlightDataBroadcaster broadcaster : mBroadcasterList) {
+		for(IBroadcaster broadcaster : mBroadcasterList) {
 			broadcaster.resume(this);
 		}
 	}
@@ -70,7 +73,7 @@ public class HUDActivity extends Activity {
 	public void onPause()  {
 		Log.d(TAG, "onPause");
 		super.onPause();
-		for(IFlightDataBroadcaster broadcaster : mBroadcasterList) {
+		for(IBroadcaster broadcaster : mBroadcasterList) {
 			broadcaster.pause(this);
 		}
 	}

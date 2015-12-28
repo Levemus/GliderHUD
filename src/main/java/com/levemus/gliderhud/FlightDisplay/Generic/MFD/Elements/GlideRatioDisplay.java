@@ -11,7 +11,10 @@ package com.levemus.gliderhud.FlightDisplay.Generic.MFD.Elements;
  (c) 2015 Levemus Software, Inc.
  */
 
-import com.levemus.gliderhud.FlightData.Broadcasters.IFlightDataBroadcaster;
+import android.util.Log;
+
+import com.levemus.gliderhud.FlightData.Broadcasters.IRegisterListener;
+import com.levemus.gliderhud.FlightData.FlightDataChannel;
 import com.levemus.gliderhud.FlightData.Listeners.Factory.Builder.Listener;
 import com.levemus.gliderhud.FlightData.Listeners.Factory.ListenerID;
 import com.levemus.gliderhud.FlightData.Listeners.Factory.ListenerFactory;
@@ -38,10 +41,10 @@ public class GlideRatioDisplay extends MFDTextElement {
     }
 
     @Override
-    public void registerWith(IFlightDataBroadcaster broadcaster)
+    public void registerWith(IRegisterListener broadcaster)
     {
-        broadcaster.registerForData(mTurnRate, mTurnRate);
-        broadcaster.registerForData(mGlide, mGlide);
+        broadcaster.register(mTurnRate, mTurnRate);
+        broadcaster.register(mGlide, mGlide);
     }
 
     // Operation

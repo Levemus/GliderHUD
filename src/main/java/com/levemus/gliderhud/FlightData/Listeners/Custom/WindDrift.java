@@ -11,12 +11,13 @@ package com.levemus.gliderhud.FlightData.Listeners.Custom;
  (c) 2015 Levemus Software, Inc.
  */
 
+import com.levemus.gliderhud.FlightData.Broadcasters.BroadcasterStatus;
 import com.levemus.gliderhud.FlightData.FlightDataChannel;
 import com.levemus.gliderhud.FlightData.IFlightData;
-import com.levemus.gliderhud.FlightData.IFlightDataClient;
+import com.levemus.gliderhud.FlightData.Listeners.IListenerClient;
+import com.levemus.gliderhud.FlightData.Listeners.IListenerNotify;
 import com.levemus.gliderhud.FlightData.Listeners.IListenerClients;
 import com.levemus.gliderhud.FlightData.Listeners.IListenerConfig;
-import com.levemus.gliderhud.FlightData.Listeners.IListenerData;
 import com.levemus.gliderhud.Types.OffsetCircle;
 import com.levemus.gliderhud.Types.Vector;
 import com.levemus.gliderhud.Utils.Angle;
@@ -30,21 +31,21 @@ import java.util.UUID;
 /**
  * Created by mark@levemus on 15-12-20.
  */
-public class WindDrift implements IListenerData, IListenerConfig, IListenerClients {
+public class WindDrift implements IListenerNotify,IListenerConfig, IListenerClients {
 
-    private HashSet<IFlightDataClient> mClients;
+    private HashSet<IListenerClient> mClients = new HashSet<>();
 
     @Override
-    public HashSet<IFlightDataClient> clients() {return mClients;}
+    public HashSet<IListenerClient> clients() {return mClients;}
 
-    HashSet<UUID> mRequiredChannels = new HashSet(Arrays.asList(
+    HashSet<UUID> mChannels = new HashSet(Arrays.asList(
             FlightDataChannel.GROUNDSPEED,
             FlightDataChannel.BEARING
     ));
 
     @Override
     public HashSet<UUID> requiredChannels() {
-        return mRequiredChannels;
+        return mChannels;
     }
 
     @Override
@@ -112,10 +113,21 @@ public class WindDrift implements IListenerData, IListenerConfig, IListenerClien
             }
         } catch (java.lang.UnsupportedOperationException e) {}
 
-        for(IFlightDataClient client : mClients)
+        for(IListenerClient client : mClients)
             client.onDataReady();
     }
 
+    @Override
+    public void onStatus(HashSet<UUID> channels, BroadcasterStatus status) {
+        HashSet<UUID> intersection = new HashSet<>(channels);
+        intersection.retainAll(mChannels);
+
+        if(intersection.size() > 0 && status.value() == BroadcasterStatus.Status.OFFLINE) {
+            mWind = null;
+            for(IListenerClient client : mClients)
+                client.onDataReady();
+        }
+    }
     @Override
     public UUID id() { return UUID.fromString("fe351c72-7eea-4b53-94e4-1bb91f78725f");}
 }

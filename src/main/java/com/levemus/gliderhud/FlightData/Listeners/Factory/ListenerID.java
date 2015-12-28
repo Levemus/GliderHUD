@@ -23,7 +23,7 @@ public class ListenerID {
     public static final UUID GROUNDSPEED = UUID.fromString("b75ae181-3229-4954-9915-690ef468b519");
     public static final UUID YAW = UUID.fromString("d45f0ed7-6e75-4bdf-b9c3-a559b1709e43");
     public static final UUID TURNRATE = UUID.fromString("1332c47b-06de-4c0d-b663-c278b4b28414");
-    public static final UUID DISTANCEFR = UUID.fromString("1332c47b-06de-4c0d-b663-c278b4b28414");
+    public static final UUID DISTANCEFR = UUID.fromString("d6805829-2267-4bf8-a230-bb09c4ea9997");
     public static final UUID GLIDERATIO = UUID.fromString("ab21d131-10aa-4f3d-9b6c-51d8b0b198bf");
     public static final UUID HEIGHTABV = UUID.fromString("4510d202-b436-47ad-9e75-e43fec54bb2c");
 }

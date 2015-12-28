@@ -15,7 +15,7 @@ import android.app.Activity;
 import android.widget.RelativeLayout;
 import android.view.View;
 
-import com.levemus.gliderhud.FlightData.Broadcasters.IFlightDataBroadcaster;
+import com.levemus.gliderhud.FlightData.Broadcasters.IRegisterListener;
 import com.levemus.gliderhud.FlightDisplay.FlightDisplay;
 import com.levemus.gliderhud.FlightDisplay.Generic.MFD.Elements.ClimbRateDisplay;
 import com.levemus.gliderhud.FlightDisplay.Generic.MFD.Elements.DistanceFrLaunchDisplay;
@@ -51,7 +51,7 @@ public class MultiFunctionManager extends FlightDisplay {
     }
 
     @Override
-    public void registerWith(IFlightDataBroadcaster broadcaster) {
+    public void registerWith(IRegisterListener broadcaster) {
         for(MFDElement element : mDisplayElements) {
             element.registerWith(broadcaster);
         }

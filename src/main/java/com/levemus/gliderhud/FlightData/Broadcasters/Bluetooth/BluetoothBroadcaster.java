@@ -33,8 +33,7 @@ import java.util.UUID;
 
 import android.util.Log;
 
-import com.levemus.gliderhud.FlightData.Broadcasters.BroadcasterStatus;
-import com.levemus.gliderhud.FlightData.Broadcasters.FlightDataBroadcaster;
+import com.levemus.gliderhud.FlightData.Broadcasters.Broadcaster;
 import com.levemus.gliderhud.FlightData.IFlightData;
 
 import android.content.Context;
@@ -48,7 +47,7 @@ import android.annotation.SuppressLint;
  */
 
 @SuppressLint("NewApi")
-public class BluetoothBroadcaster extends FlightDataBroadcaster
+public class BluetoothBroadcaster extends Broadcaster
 {
     private final String TAG = this.getClass().getSimpleName();
 
@@ -171,7 +170,8 @@ public class BluetoothBroadcaster extends FlightDataBroadcaster
                 String decoded = new String((byte[]) msg.obj, "UTF-8");
                 IFlightData btMsg = mMsgFactory.build(decoded);
                 if(btMsg != null) {
-                    notifyListenersOfData(btMsg, btMsg.supportedChannels());
+                    mDataListeners.notifyListeners(BluetoothBroadcaster.this, btMsg.supportedChannels(),
+                            btMsg);
                 }
             }catch(Exception e){}
         }

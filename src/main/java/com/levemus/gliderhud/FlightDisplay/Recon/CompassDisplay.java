@@ -15,7 +15,7 @@ import android.app.Activity;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.levemus.gliderhud.FlightData.Broadcasters.IFlightDataBroadcaster;
+import com.levemus.gliderhud.FlightData.Broadcasters.IRegisterListener;
 import com.levemus.gliderhud.FlightData.Listeners.Factory.Builder.Listener;
 import com.levemus.gliderhud.FlightData.Listeners.Factory.ListenerFactory;
 import com.levemus.gliderhud.FlightData.Listeners.Factory.ListenerID;
@@ -53,8 +53,8 @@ public class CompassDisplay extends FlightDisplay {
     }
 
     @Override
-    public void registerWith(IFlightDataBroadcaster broadcaster) {
-        broadcaster.registerForData(mOrientation, mOrientation);
+    public void registerWith(IRegisterListener broadcaster) {
+        broadcaster.register(mOrientation, mOrientation);
         mWindDisplay.registerWith(broadcaster);
         mBearingDisplay.registerWith(broadcaster);
     }
@@ -94,8 +94,8 @@ public class CompassDisplay extends FlightDisplay {
         }
 
         @Override
-        public void registerWith(IFlightDataBroadcaster broadcaster) {
-            broadcaster.registerForData(mWindDrift, mWindDrift);
+        public void registerWith(IRegisterListener broadcaster) {
+            broadcaster.register(mWindDrift, mWindDrift);
         }
 
         private double DEGREES_FULL_CIRCLE = 360;
@@ -112,7 +112,7 @@ public class CompassDisplay extends FlightDisplay {
             mWindDirectionDisplay.display();
 
             mWindSpeedDisplay.setCurrentDirection(mWindDirection);
-            mWindSpeedDisplay.setText(Double.toString(Math.round(windSpeed)));
+            mWindSpeedDisplay.setText(Double.toString(Math.round(windSpeed * 3.6)));
             mWindSpeedDisplay.display();
         }
 
@@ -140,7 +140,7 @@ public class CompassDisplay extends FlightDisplay {
                     activity.findViewById(com.levemus.gliderhud.R.id.bearing_pointer));
         }
 
-        private double MIN_GROUND_SPEED = 1.0;
+        private double MIN_GROUND_SPEED = 0.3;
 
         @Override
         public void display() {
@@ -153,9 +153,9 @@ public class CompassDisplay extends FlightDisplay {
         }
 
         @Override
-        public void registerWith(IFlightDataBroadcaster broadcaster) {
-            broadcaster.registerForData(mGroundSpeed, mGroundSpeed);
-            broadcaster.registerForData(mBearing, mBearing);
+        public void registerWith(IRegisterListener broadcaster) {
+            broadcaster.register(mGroundSpeed, mGroundSpeed);
+            broadcaster.register(mBearing, mBearing);
         }
 
         @Override

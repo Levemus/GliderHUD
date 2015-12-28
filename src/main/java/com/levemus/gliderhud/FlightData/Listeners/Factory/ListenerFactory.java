@@ -12,7 +12,7 @@ package com.levemus.gliderhud.FlightData.Listeners.Factory;
  */
 
 import com.levemus.gliderhud.FlightData.FlightDataChannel;
-import com.levemus.gliderhud.FlightData.IFlightDataClient;
+import com.levemus.gliderhud.FlightData.Listeners.IListenerClient;
 import com.levemus.gliderhud.FlightData.Listeners.Factory.Builder.Listener;
 import com.levemus.gliderhud.FlightData.Listeners.Factory.Builder.ListenerBuilder;
 import com.levemus.gliderhud.FlightData.Listeners.Factory.Builder.Operations.Adjusters.SmoothAdjuster;
@@ -31,7 +31,7 @@ import java.util.UUID;
  * Created by mark@levemus on 15-12-27.
  */
 public class ListenerFactory {
-    public static Listener build(UUID id, IFlightDataClient client) {
+    public static Listener build(UUID id, IListenerClient client) {
         if(id == ListenerID.ALTITUDE)
             return new ListenerBuilder()
                     .channels(new HashSet<>(Arrays.asList(FlightDataChannel.ALTITUDE)))
@@ -50,7 +50,6 @@ public class ListenerFactory {
             return new ListenerBuilder()
                     .channels(new HashSet<>(Arrays.asList(FlightDataChannel.GROUNDSPEED)))
                     .id(id)
-                    .adjusters(new ArrayList<IAdjuster>(Arrays.asList(new SmoothAdjuster(5))))
                     .client(client)
                     .build();
 

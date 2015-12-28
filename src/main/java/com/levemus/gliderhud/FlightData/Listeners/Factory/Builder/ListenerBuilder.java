@@ -11,7 +11,7 @@ package com.levemus.gliderhud.FlightData.Listeners.Factory.Builder;
  (c) 2015 Levemus Software, Inc.
  */
 
-import com.levemus.gliderhud.FlightData.IFlightDataClient;
+import com.levemus.gliderhud.FlightData.Listeners.IListenerClient;
 import com.levemus.gliderhud.FlightData.Listeners.Factory.Builder.Operations.IConverter;
 import com.levemus.gliderhud.FlightData.Listeners.Factory.Builder.Operations.IAdjuster;
 
@@ -28,7 +28,7 @@ public class ListenerBuilder {
     private long mNotificationInterval = 500;
     private IConverter mConverter = null;
     private List<IAdjuster> mAdjusters = null;
-    HashSet<IFlightDataClient> mClients = new HashSet<IFlightDataClient>();
+    HashSet<IListenerClient> mClients = new HashSet<IListenerClient>();
 
     public ListenerBuilder id(UUID id) {
         mId = id;
@@ -55,7 +55,7 @@ public class ListenerBuilder {
         return this;
     }
 
-    public ListenerBuilder client(IFlightDataClient client) {
+    public ListenerBuilder client(IListenerClient client) {
         if(mClients == null)
             mClients = new HashSet<>();
         mClients.add(client);
@@ -79,7 +79,7 @@ public class ListenerBuilder {
         mNotificationInterval = 500;
         mConverter = null;
         mAdjusters = null;
-        mClients = new HashSet<IFlightDataClient>();
+        mClients = new HashSet<IListenerClient>();
         return result;
     }
 }

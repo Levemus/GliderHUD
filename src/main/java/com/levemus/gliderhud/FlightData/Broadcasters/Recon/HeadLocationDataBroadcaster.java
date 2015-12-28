@@ -13,7 +13,7 @@ package com.levemus.gliderhud.FlightData.Broadcasters.Recon;
 
 import android.app.Activity;
 
-import com.levemus.gliderhud.FlightData.Broadcasters.FlightDataBroadcaster;
+import com.levemus.gliderhud.FlightData.Broadcasters.Broadcaster;
 import com.levemus.gliderhud.FlightData.FlightData;
 import com.levemus.gliderhud.FlightData.FlightDataChannel;
 import com.reconinstruments.os.HUDOS;
@@ -27,7 +27,7 @@ import java.util.UUID;
 /**
  * Created by mark@levemus on 15-12-06.
  */
-public class HeadLocationDataBroadcaster extends FlightDataBroadcaster implements HeadLocationListener {
+public class HeadLocationDataBroadcaster extends Broadcaster implements HeadLocationListener {
 
     // logcat class id
     private final String TAG = this.getClass().getSimpleName();
@@ -64,6 +64,6 @@ public class HeadLocationDataBroadcaster extends FlightDataBroadcaster implement
         HashMap<UUID, Double> values = new HashMap<>();
         values.put(FlightDataChannel.YAW, (double)yaw);
 
-        notifyListenersOfData(new FlightData(values), supportedChannels());
+        mDataListeners.notifyListeners(this, supportedChannels(), new FlightData(values));
     }
 }

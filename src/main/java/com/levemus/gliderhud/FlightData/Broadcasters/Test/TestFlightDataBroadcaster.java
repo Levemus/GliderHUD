@@ -13,14 +13,14 @@ package com.levemus.gliderhud.FlightData.Broadcasters.Test;
 
 import android.app.Activity;
 import android.os.Handler;
-
+import android.util.Log;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.HashMap;
 import java.util.UUID;
 
-import com.levemus.gliderhud.FlightData.Broadcasters.FlightDataBroadcaster;
+import com.levemus.gliderhud.FlightData.Broadcasters.Broadcaster;
 import com.levemus.gliderhud.FlightData.FlightDataChannel;
 import com.levemus.gliderhud.FlightData.FlightData;
 import com.levemus.gliderhud.Types.Vector;
@@ -29,7 +29,7 @@ import com.levemus.gliderhud.Utils.Angle;
 /**
  * Created by mark@levemus on 15-11-23.
  */
-public class TestFlightDataBroadcaster extends FlightDataBroadcaster {
+public class TestFlightDataBroadcaster extends Broadcaster {
 
     // logcat class id
     private final String TAG = this.getClass().getSimpleName();
@@ -52,8 +52,8 @@ public class TestFlightDataBroadcaster extends FlightDataBroadcaster {
     private long timeOfLastUpdate = 0;
 
     private class DataNotifier implements Runnable {
-        private FlightDataBroadcaster broadcaster;
-        public DataNotifier(FlightDataBroadcaster broadcaster) {
+        private Broadcaster broadcaster;
+        public DataNotifier(Broadcaster broadcaster) {
             this.broadcaster = broadcaster;
         }
         public void run() {
@@ -83,14 +83,14 @@ public class TestFlightDataBroadcaster extends FlightDataBroadcaster {
                     Vector combinedVelocity = new Vector(mCurrentVelocity).Add(mWindVelocity);
                     HashMap<UUID, Double> values = new HashMap<>();
 
-                    values.put(FlightDataChannel.GROUNDSPEED, combinedVelocity.Magnitude());
+                    values.put(FlightDataChannel.GROUNDSPEED, combinedVelocity.Magnitude() / 3.6);
                     values.put(FlightDataChannel.BEARING, combinedVelocity.Direction());
                     values.put(FlightDataChannel.VARIO, mCurrentClimbRate);
                     values.put(FlightDataChannel.LONGITUDE, mLongitude);
                     values.put(FlightDataChannel.LATITUDE, mLatitude);
                     values.put(FlightDataChannel.ALTITUDE, mCurrentAltitude);
 
-                    notifyListenersOfData(new FlightData(values), supportedChannels());
+                    mDataListeners.notifyListeners(TestFlightDataBroadcaster.this, supportedChannels(), new FlightData(values));
                 }
             });
 

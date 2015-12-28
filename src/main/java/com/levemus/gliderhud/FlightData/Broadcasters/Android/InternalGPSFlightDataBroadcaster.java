@@ -24,14 +24,14 @@ import java.util.UUID;
 import android.app.Activity;
 import android.content.Context;
 
-import com.levemus.gliderhud.FlightData.Broadcasters.FlightDataBroadcaster;
+import com.levemus.gliderhud.FlightData.Broadcasters.Broadcaster;
 import com.levemus.gliderhud.FlightData.FlightDataChannel;
 import com.levemus.gliderhud.FlightData.FlightData;
 
 /**
  * Created by flyinorange on 15-11-23.
  */
-public class InternalGPSFlightDataBroadcaster extends FlightDataBroadcaster implements LocationListener {
+public class InternalGPSFlightDataBroadcaster extends Broadcaster implements LocationListener {
 
     private final String TAG = this.getClass().getSimpleName();
 
@@ -89,7 +89,7 @@ public class InternalGPSFlightDataBroadcaster extends FlightDataBroadcaster impl
                     (location.getAltitude() - mLastAltitude) / (location.getTime() - mTimeOfLastUpdate) * 1000);
         }
 
-        notifyListenersOfData(new FlightData(values), supportedChannels());
+        mDataListeners.notifyListeners(this, supportedChannels(), new FlightData(values));
         mTimeOfLastUpdate = location.getTime();
         mLastAltitude = location.getAltitude();
     }

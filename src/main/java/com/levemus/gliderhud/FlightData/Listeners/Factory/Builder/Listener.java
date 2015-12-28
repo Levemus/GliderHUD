@@ -13,14 +13,13 @@ package com.levemus.gliderhud.FlightData.Listeners.Factory.Builder;
 
 import com.levemus.gliderhud.FlightData.Broadcasters.BroadcasterStatus;
 import com.levemus.gliderhud.FlightData.IFlightData;
-import com.levemus.gliderhud.FlightData.IFlightDataClient;
+import com.levemus.gliderhud.FlightData.Listeners.IListenerClient;
 import com.levemus.gliderhud.FlightData.Listeners.Factory.Builder.Operations.IConverter;
 import com.levemus.gliderhud.FlightData.Listeners.Factory.Builder.Operations.IAdjuster;
 import com.levemus.gliderhud.FlightData.Listeners.Factory.Builder.Operations.Converters.SelectConverter;
 import com.levemus.gliderhud.FlightData.Listeners.IListenerClients;
 import com.levemus.gliderhud.FlightData.Listeners.IListenerConfig;
-import com.levemus.gliderhud.FlightData.Listeners.IListenerData;
-import com.levemus.gliderhud.FlightData.Listeners.IListenerStatus;
+import com.levemus.gliderhud.FlightData.Listeners.IListenerNotify;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -30,11 +29,11 @@ import java.util.List;
 /**
  * Created by mark@levemus on 15-12-26.
  */
-public class Listener implements IListenerData, IListenerStatus, IListenerConfig, IListenerClients {
+public class Listener implements IListenerNotify, IListenerConfig, IListenerClients {
 
-    HashSet<IFlightDataClient> mClients = new HashSet<>();
+    HashSet<IListenerClient> mClients = new HashSet<>();
     @Override
-    public HashSet<IFlightDataClient> clients() {return mClients;}
+    public HashSet<IListenerClient> clients() {return mClients;}
 
     HashSet<UUID> mChannels = new HashSet();
     @Override
@@ -50,9 +49,7 @@ public class Listener implements IListenerData, IListenerStatus, IListenerConfig
     public void onData(HashSet<UUID> channels, IFlightData data) {
         try {
             for (UUID channel : channels) {
-                if (mChannels.contains(channel)) {
-                    mValues.put(channel, data.get(channel));
-                }
+                mValues.put(channel, data.get(channel));
             }
 
             if(mConverter == null) {
@@ -67,26 +64,28 @@ public class Listener implements IListenerData, IListenerStatus, IListenerConfig
                 }
             }
 
-            for(IFlightDataClient client : mClients)
+            mValue = value;
+
+            for(IListenerClient client : mClients)
                 client.onDataReady();
         } catch (Exception e){}
+    }
+
+    @Override
+    public void onStatus(HashSet<UUID> channels, BroadcasterStatus status) {
+        HashSet<UUID> intersection = new HashSet<>(channels);
+        intersection.retainAll(mChannels);
+
+        if(intersection.size() > 0 && status.value() == BroadcasterStatus.Status.OFFLINE) {
+            mValue = INVALID;
+            for(IListenerClient client : mClients)
+                client.onDataReady();
+        }
     }
 
     private double INVALID = Double.MIN_VALUE;
     private double mValue = INVALID;
     public double value() {return mValue;}
-
-    @Override
-    public void onStatus(HashSet<UUID> channels, BroadcasterStatus.Status status) {
-        HashSet<UUID> intersection = new HashSet<>(channels);
-        intersection.retainAll(mChannels);
-
-        if(intersection.size() > 0 && status == BroadcasterStatus.Status.OFFLINE) {
-            mValue = INVALID;
-            for(IFlightDataClient client : mClients)
-                client.onDataReady();
-        }
-    }
 
     UUID mId;
     @Override

@@ -11,14 +11,9 @@ package com.levemus.gliderhud.FlightData.Listeners;
  (c) 2015 Levemus Software, Inc.
  */
 
-import com.levemus.gliderhud.FlightData.Broadcasters.BroadcasterStatus;
-
-import java.util.HashSet;
-import java.util.UUID;
-
 /**
- * Created by mark@levemus on 15-12-26.
+ * Created by mark@levemus on 15-12-20.
  */
-public interface IListenerStatus {
-    void onStatus(HashSet<UUID> channels, BroadcasterStatus.Status status);
+public interface IListenerClient {
+    public void onDataReady();
 }
