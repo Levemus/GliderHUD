@@ -17,10 +17,9 @@ import android.util.Log;
 
 import com.levemus.gliderhud.FlightData.Broadcasters.Broadcaster;
 import com.levemus.gliderhud.FlightData.Broadcasters.IBroadcaster;
-import com.levemus.gliderhud.FlightData.Broadcasters.IRegisterListener;
 import com.levemus.gliderhud.FlightData.Broadcasters.Recon.HeadLocationDataBroadcaster;
 import com.levemus.gliderhud.FlightData.Broadcasters.Test.TestFlightDataBroadcaster;
-import com.levemus.gliderhud.FlightData.Broadcasters.Bluetooth.BluetoothBroadcaster;
+import com.levemus.gliderhud.FlightData.Broadcasters.Multiplexer;
 import com.levemus.gliderhud.FlightDisplay.FlightDisplay;
 import com.levemus.gliderhud.FlightDisplay.MainDisplay;
 
@@ -42,21 +41,22 @@ public class HUDActivity extends Activity {
 			new MainDisplay()
 	};
 
+	private Multiplexer mMultiplexer = new Multiplexer();
+
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		Log.i(TAG, "onCreate");
 		super.onCreate(savedInstanceState);
 
+		for(Broadcaster broadcaster : mBroadcasterList) {
+			broadcaster.init(this);
+			mMultiplexer.registerWith(broadcaster);
+		}
+
 		for(FlightDisplay display : mDisplayList)
 		{
 			display.init(this);
-			for(IRegisterListener broadcaster : mBroadcasterList) {
-				display.registerWith(broadcaster);
-			}
-		}
-
-		for(IBroadcaster broadcaster : mBroadcasterList) {
-			broadcaster.init(this);
+			display.registerWith(mMultiplexer);
 		}
 	}
 

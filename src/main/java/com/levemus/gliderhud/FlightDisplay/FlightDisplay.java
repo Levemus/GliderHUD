@@ -1,14 +1,13 @@
 package com.levemus.gliderhud.FlightDisplay;
 
-import com.levemus.gliderhud.FlightData.Broadcasters.IRegisterListener;
-import com.levemus.gliderhud.FlightData.Listeners.IListenerClient;
+import com.levemus.gliderhud.FlightData.Broadcasters.IBroadcaster;
 
 import java.util.Date;
 
 /**
  * Created by mark@levemus on 15-12-20.
  */
-public abstract class FlightDisplay implements IFlightDisplay, IListenerClient {
+public abstract class FlightDisplay implements IFlightDisplay, IClient {
 
     // IFlightDataNotification
     private long mTimeOfLastUpdate = -1;
@@ -24,7 +23,7 @@ public abstract class FlightDisplay implements IFlightDisplay, IListenerClient {
         }
     }
 
-    public abstract void registerWith(IRegisterListener broadcaster);
+    public abstract void registerWith(IBroadcaster broadcaster);
     public long getUpdateInterval() { return 500; } // milliseconds
 
     @Override

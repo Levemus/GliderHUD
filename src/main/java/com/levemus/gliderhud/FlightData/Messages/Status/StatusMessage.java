@@ -1,4 +1,4 @@
-package com.levemus.gliderhud.FlightData;
+package com.levemus.gliderhud.FlightData.Messages.Status;
 
 /*
  Both the author and publisher makes no representations or warranties
@@ -11,32 +11,28 @@ package com.levemus.gliderhud.FlightData;
  (c) 2015 Levemus Software, Inc.
  */
 
+import com.levemus.gliderhud.FlightData.Messages.Message;
+
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.UUID;
+import java.util.HashSet;
 
 /**
  * Created by mark@levemus on 15-12-20.
  */
-public class FlightData implements IFlightData{
+public class StatusMessage extends Message<ChannelStatus.Status> {
 
-    protected HashMap<UUID, Double> mValues;
-    public FlightData(HashMap<UUID, Double> values) {
+    public StatusMessage() {}
+    public StatusMessage( HashMap<UUID, ChannelStatus.Status> values) {
         mValues = values;
     }
-
-    @Override
-    public double get(UUID channel) throws java.lang.UnsupportedOperationException {
-        try {
-            if(mValues.containsKey(channel))
-                return mValues.get(channel);
+    public StatusMessage( HashSet<UUID> channels,  ChannelStatus.Status status) {
+        mValues = new HashMap<UUID, ChannelStatus.Status>();
+        for(UUID channel : channels) {
+            mValues.put(channel, status);
         }
-        catch(Exception e) {}
-        throw new java.lang.UnsupportedOperationException();
     }
 
     @Override
-    public HashSet<UUID> supportedChannels() {
-        return(new HashSet<UUID>(mValues.keySet()));
-    }
+    public Type getType() { return Type.STATUS; }
 }

@@ -1,4 +1,4 @@
-package com.levemus.gliderhud.FlightData.Listeners;
+package com.levemus.gliderhud.FlightData.Messages;
 
 /*
  Both the author and publisher makes no representations or warranties
@@ -15,10 +15,15 @@ import java.util.HashSet;
 import java.util.UUID;
 
 /**
- * Created by mark@levemus on 15-12-26.
+ * Created by mark@levemus on 15-12-05.
  */
-public interface IListenerConfig {
-    UUID id();
-    HashSet<UUID> requiredChannels();
-    long notificationInterval();
+
+public interface IMessage <E> {
+
+    enum Type { DATA, STATUS };
+    Type getType();
+
+    HashSet<UUID> channels();
+
+    E get(UUID channel) throws java.lang.UnsupportedOperationException;
 }

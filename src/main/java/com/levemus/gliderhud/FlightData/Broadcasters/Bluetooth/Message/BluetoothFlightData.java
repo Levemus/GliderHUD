@@ -14,7 +14,7 @@ package com.levemus.gliderhud.FlightData.Broadcasters.Bluetooth.Message;
  https://github.com/ReconInstruments/sdk/tree/master/Samples/BluetoothLEDemo
  */
 
-import com.levemus.gliderhud.FlightData.IFlightData;
+import com.levemus.gliderhud.FlightData.Messages.IMessage;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -23,7 +23,7 @@ import java.util.UUID;
 /**
  * Created by mark@levemus on 15-12-15.
  */
-public abstract class BluetoothFlightData implements IFlightData {
+public abstract class BluetoothFlightData implements IMessage<Double> {
 
     private final String TAG = this.getClass().getSimpleName();
 
@@ -51,7 +51,7 @@ public abstract class BluetoothFlightData implements IFlightData {
 
     protected abstract String seperator();
 
-    public double get(UUID channel) throws java.lang.UnsupportedOperationException
+    public Double get(UUID channel) throws java.lang.UnsupportedOperationException
     {
         StringBuilder builder = new StringBuilder();
 
@@ -75,5 +75,8 @@ public abstract class BluetoothFlightData implements IFlightData {
     }
 
     @Override
-    public abstract HashSet<UUID> supportedChannels();
+    public abstract HashSet<UUID> channels();
+
+    @Override
+    public Type getType() { return Type.DATA; }
 }

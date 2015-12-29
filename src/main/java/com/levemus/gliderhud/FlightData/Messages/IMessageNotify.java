@@ -1,4 +1,4 @@
-package com.levemus.gliderhud.FlightData.Broadcasters;
+package com.levemus.gliderhud.FlightData.Messages;
 
 /*
  Both the author and publisher makes no representations or warranties
@@ -11,21 +11,11 @@ package com.levemus.gliderhud.FlightData.Broadcasters;
  (c) 2015 Levemus Software, Inc.
  */
 
-import java.util.HashSet;
-import java.util.UUID;
-import java.util.HashMap;
-import java.util.Iterator;
+import com.levemus.gliderhud.FlightData.Configuration.IConfiguration;
 
 /**
- * Created by mark@levemus on 15-12-16.
+ * Created by mark@levemus on 15-12-27.
  */
-public class BroadcasterStatus {
-    public enum Status {
-        OFFLINE, ONLINE
-    };
-
-    private Status mStatus = Status.OFFLINE;
-    public Status value() {
-        return mStatus;
-    }
+public interface IMessageNotify {
+    void onMessage(IConfiguration config, IMessage value);
 }

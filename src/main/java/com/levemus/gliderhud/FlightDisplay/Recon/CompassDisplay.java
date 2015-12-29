@@ -15,8 +15,8 @@ import android.app.Activity;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.levemus.gliderhud.FlightData.Broadcasters.IRegisterListener;
-import com.levemus.gliderhud.FlightData.Listeners.Factory.Builder.Listener;
+import com.levemus.gliderhud.FlightData.Broadcasters.IBroadcaster;
+import com.levemus.gliderhud.FlightData.Listeners.Listener;
 import com.levemus.gliderhud.FlightData.Listeners.Factory.ListenerFactory;
 import com.levemus.gliderhud.FlightData.Listeners.Factory.ListenerID;
 import com.levemus.gliderhud.FlightData.Listeners.Custom.WindDrift;
@@ -48,13 +48,11 @@ public class CompassDisplay extends FlightDisplay {
 
         mBearingDisplay = new BearingDisplay();
         mBearingDisplay.init(activity);
-
-        mOrientation.clients().add(this);
     }
 
     @Override
-    public void registerWith(IRegisterListener broadcaster) {
-        broadcaster.register(mOrientation, mOrientation);
+    public void registerWith(IBroadcaster broadcaster) {
+        broadcaster.registerWith(mOrientation, mOrientation);
         mWindDisplay.registerWith(broadcaster);
         mBearingDisplay.registerWith(broadcaster);
     }
@@ -70,6 +68,7 @@ public class CompassDisplay extends FlightDisplay {
         mHeadingDisplay.display();
         mBearingDisplay.display();
         mWindDisplay.display();
+
     }
 
     @Override
@@ -90,12 +89,12 @@ public class CompassDisplay extends FlightDisplay {
         public void init(Activity activity) {
             mWindDirectionDisplay = new DirectionDisplayImage((ImageView) activity.findViewById(com.levemus.gliderhud.R.id.wind_pointer));
             mWindSpeedDisplay = new DirectionDisplayText((TextView) activity.findViewById(com.levemus.gliderhud.R.id.windSpeed));
-            mWindDrift.clients().add(this);
+            mWindDrift.setClient(this);
         }
 
         @Override
-        public void registerWith(IRegisterListener broadcaster) {
-            broadcaster.register(mWindDrift, mWindDrift);
+        public void registerWith(IBroadcaster broadcaster) {
+            broadcaster.registerWith(mWindDrift, mWindDrift);
         }
 
         private double DEGREES_FULL_CIRCLE = 360;
@@ -153,9 +152,9 @@ public class CompassDisplay extends FlightDisplay {
         }
 
         @Override
-        public void registerWith(IRegisterListener broadcaster) {
-            broadcaster.register(mGroundSpeed, mGroundSpeed);
-            broadcaster.register(mBearing, mBearing);
+        public void registerWith(IBroadcaster broadcaster) {
+            broadcaster.registerWith(mGroundSpeed, mGroundSpeed);
+            broadcaster.registerWith(mBearing, mBearing);
         }
 
         @Override

@@ -13,7 +13,7 @@ package com.levemus.gliderhud.FlightData.Broadcasters.Test;
 
 import android.app.Activity;
 import android.os.Handler;
-import android.util.Log;
+
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashSet;
@@ -21,8 +21,8 @@ import java.util.HashMap;
 import java.util.UUID;
 
 import com.levemus.gliderhud.FlightData.Broadcasters.Broadcaster;
-import com.levemus.gliderhud.FlightData.FlightDataChannel;
-import com.levemus.gliderhud.FlightData.FlightData;
+import com.levemus.gliderhud.FlightData.Messages.MessageChannels;
+import com.levemus.gliderhud.FlightData.Messages.Data.DataMessage;
 import com.levemus.gliderhud.Types.Vector;
 import com.levemus.gliderhud.Utils.Angle;
 
@@ -76,23 +76,18 @@ public class TestFlightDataBroadcaster extends Broadcaster {
             updateVelocity(deltaTime);
             updateAltitude(deltaTime);
             updateLocation(deltaTime);
-            mActivity.runOnUiThread(new Runnable()
-            {
-                public void run()
-                {
-                    Vector combinedVelocity = new Vector(mCurrentVelocity).Add(mWindVelocity);
-                    HashMap<UUID, Double> values = new HashMap<>();
 
-                    values.put(FlightDataChannel.GROUNDSPEED, combinedVelocity.Magnitude() / 3.6);
-                    values.put(FlightDataChannel.BEARING, combinedVelocity.Direction());
-                    values.put(FlightDataChannel.VARIO, mCurrentClimbRate);
-                    values.put(FlightDataChannel.LONGITUDE, mLongitude);
-                    values.put(FlightDataChannel.LATITUDE, mLatitude);
-                    values.put(FlightDataChannel.ALTITUDE, mCurrentAltitude);
+            Vector combinedVelocity = new Vector(mCurrentVelocity).Add(mWindVelocity);
+            HashMap<UUID, Double> values = new HashMap<>();
 
-                    mDataListeners.notifyListeners(TestFlightDataBroadcaster.this, supportedChannels(), new FlightData(values));
-                }
-            });
+            values.put(MessageChannels.GROUNDSPEED, combinedVelocity.Magnitude() / 3.6);
+            values.put(MessageChannels.BEARING, combinedVelocity.Direction());
+            values.put(MessageChannels.VARIO, mCurrentClimbRate);
+            values.put(MessageChannels.LONGITUDE, mLongitude);
+            values.put(MessageChannels.LATITUDE, mLatitude);
+            values.put(MessageChannels.ALTITUDE, mCurrentAltitude);
+
+            notifyListeners(new DataMessage(values));
 
             mHandler.postDelayed(this, mInterval);
             timeOfLastUpdate = currentTime;
@@ -110,14 +105,19 @@ public class TestFlightDataBroadcaster extends Broadcaster {
     }
 
     @Override
-    public HashSet<UUID> supportedChannels() {
+    public HashSet<UUID> allChannels() {
         return new HashSet(Arrays.asList(
-                FlightDataChannel.ALTITUDE,
-                FlightDataChannel.GROUNDSPEED,
-                FlightDataChannel.BEARING,
-                FlightDataChannel.VARIO,
-                FlightDataChannel.LONGITUDE,
-                FlightDataChannel.LATITUDE));
+                MessageChannels.ALTITUDE,
+                MessageChannels.GROUNDSPEED,
+                MessageChannels.BEARING,
+                MessageChannels.VARIO,
+                MessageChannels.LONGITUDE,
+                MessageChannels.LATITUDE));
+    }
+
+    @Override
+    public UUID id() {
+        return UUID.fromString("39e961ed-3eb5-46a8-9eb4-5ee70d09219b");
     }
 
     private double MAX_VARIO = 10.0;

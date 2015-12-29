@@ -18,7 +18,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.UUID;
 
-import com.levemus.gliderhud.FlightData.FlightDataChannel;
+import com.levemus.gliderhud.FlightData.Messages.MessageChannels;
 
 /**
  * Created by mark@levemus on 15-12-13.
@@ -43,37 +43,37 @@ class XCTracerFlightData extends BluetoothFlightData {
 
     @Override
     protected int elementOffset(UUID channel) {
-        if(channel == FlightDataChannel.VARIO)
+        if(channel == MessageChannels.VARIO)
             return 13;
-        if (channel == FlightDataChannel.ALTITUDE)
+        if (channel == MessageChannels.ALTITUDE)
             return 10;
-        if (channel == FlightDataChannel.LONGITUDE)
+        if (channel == MessageChannels.LONGITUDE)
             return 9;
-        if (channel == FlightDataChannel.LATITUDE)
+        if (channel == MessageChannels.LATITUDE)
             return 8;
-        if(channel == FlightDataChannel.BEARING)
+        if(channel == MessageChannels.BEARING)
             return 12;
-        if (channel == FlightDataChannel.GROUNDSPEED)
+        if (channel == MessageChannels.GROUNDSPEED)
             return 11;
 
         return -1;
     }
 
     @Override
-    public HashSet<UUID> supportedChannels() {
+    public HashSet<UUID> channels() {
         return new HashSet(Arrays.asList(
-                FlightDataChannel.LATITUDE,
-                FlightDataChannel.LONGITUDE,
-                FlightDataChannel.ALTITUDE,
-                FlightDataChannel.VARIO,
-                FlightDataChannel.BEARING,
-                FlightDataChannel.GROUNDSPEED));
+                MessageChannels.LATITUDE,
+                MessageChannels.LONGITUDE,
+                MessageChannels.ALTITUDE,
+                MessageChannels.VARIO,
+                MessageChannels.BEARING,
+                MessageChannels.GROUNDSPEED));
     }
 
     @Override
-    public double get(UUID channel) throws java.lang.UnsupportedOperationException
+    public Double get(UUID channel) throws java.lang.UnsupportedOperationException
     {
-        if(channel == FlightDataChannel.GROUNDSPEED)
+        if(channel == MessageChannels.GROUNDSPEED)
             return super.get(channel) * 3.6;
         return(super.get(channel));
     }

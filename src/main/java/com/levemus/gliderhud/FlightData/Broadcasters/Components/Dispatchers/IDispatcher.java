@@ -1,4 +1,4 @@
-package com.levemus.gliderhud.FlightData.Broadcasters;
+package com.levemus.gliderhud.FlightData.Broadcasters.Components.Dispatchers;
 
 /*
  Both the author and publisher makes no representations or warranties
@@ -11,18 +11,20 @@ package com.levemus.gliderhud.FlightData.Broadcasters;
  (c) 2015 Levemus Software, Inc.
  */
 
-import android.app.Activity;
-
 import com.levemus.gliderhud.FlightData.Configuration.IConfiguration;
+import com.levemus.gliderhud.FlightData.Messages.IMessage;
 import com.levemus.gliderhud.FlightData.Messages.IMessageNotify;
 
 /**
- * Created by mark@levemus on 15-12-27.
+ * Created by mark@levemus on 15-12-28.
  */
-public interface IBroadcaster {
-    void init(Activity activity);
-    void pause(Activity activity);
-    void resume(Activity activity);
+
+public interface IDispatcher {
+
+    // Subscriber registration
     void registerWith(IConfiguration config, IMessageNotify subscriber );
     void deregisterFrom(IConfiguration config, IMessageNotify subscriber );
+
+    // Send message to subscriber
+    void postMessage(IConfiguration config, IMessage message);
 }

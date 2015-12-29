@@ -13,7 +13,7 @@ package com.levemus.gliderhud.FlightData.Listeners.Factory.Builder.Operations.Co
 
 import android.location.Location;
 
-import com.levemus.gliderhud.FlightData.FlightDataChannel;
+import com.levemus.gliderhud.FlightData.Messages.MessageChannels;
 import com.levemus.gliderhud.FlightData.Listeners.Factory.Builder.Operations.IConverter;
 
 import java.util.HashMap;
@@ -36,8 +36,8 @@ public class DistanceFromConverter implements IConverter {
 
     @Override
     public double convert(HashMap<UUID, Double> values) {
-        double latitude = values.get(FlightDataChannel.LATITUDE);
-        double longtitude = values.get(FlightDataChannel.LONGITUDE);
+        double latitude = values.get(MessageChannels.LATITUDE);
+        double longtitude = values.get(MessageChannels.LONGITUDE);
 
         if (mStartLongitude == INVALID ||
                 mStartLatitude == INVALID) {

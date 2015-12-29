@@ -28,7 +28,7 @@ abstract public class DirectionDisplay implements IFlightDisplay {
     protected DirectionDisplay() {}
 
     // IFlightDisplay
-    public void display(boolean refresh) {}
+    public void display() {}
     public void hide() {}
     public void init(Activity activity) {}
 

@@ -14,7 +14,7 @@ package com.levemus.gliderhud.FlightDisplay;
 import android.view.Window;
 import android.app.Activity;
 
-import com.levemus.gliderhud.FlightData.Broadcasters.IRegisterListener;
+import com.levemus.gliderhud.FlightData.Broadcasters.IBroadcaster;
 import com.levemus.gliderhud.FlightDisplay.Generic.AltitudeDisplay;
 import com.levemus.gliderhud.FlightDisplay.Generic.GroundSpeedDisplay;
 import com.levemus.gliderhud.FlightDisplay.Recon.CompassDisplay;
@@ -47,7 +47,7 @@ public class MainDisplay extends FlightDisplay {
     }
 
     @Override
-    public void registerWith(IRegisterListener broadcaster)
+    public void registerWith(IBroadcaster broadcaster)
     {
         for(FlightDisplay display : mDisplays ) {
             display.registerWith(broadcaster);

@@ -12,10 +12,12 @@ package com.levemus.gliderhud.FlightData.Broadcasters.Recon;
  */
 
 import android.app.Activity;
+import android.os.Handler;
 
 import com.levemus.gliderhud.FlightData.Broadcasters.Broadcaster;
-import com.levemus.gliderhud.FlightData.FlightData;
-import com.levemus.gliderhud.FlightData.FlightDataChannel;
+import com.levemus.gliderhud.FlightData.Messages.Data.DataMessage;
+import com.levemus.gliderhud.FlightData.Messages.MessageChannels;
+import com.levemus.gliderhud.FlightData.Messages.IMessage;
 import com.reconinstruments.os.HUDOS;
 import com.reconinstruments.os.hardware.sensors.HUDHeadingManager;
 import com.reconinstruments.os.hardware.sensors.HeadLocationListener;
@@ -50,9 +52,14 @@ public class HeadLocationDataBroadcaster extends Broadcaster implements HeadLoca
         }
 
     @Override
-    public HashSet<UUID> supportedChannels() {
+    public HashSet<UUID> allChannels() {
         return new HashSet(Arrays.asList(
-                FlightDataChannel.YAW));
+                MessageChannels.YAW));
+    }
+
+    @Override
+    public UUID id() {
+        return UUID.fromString("28ca23b9-c1c7-4419-92b9-2afd940f1d5d");
     }
 
     @Override
@@ -60,10 +67,22 @@ public class HeadLocationDataBroadcaster extends Broadcaster implements HeadLoca
         if (Float.isNaN(yaw)) {
             return;
         }
-
         HashMap<UUID, Double> values = new HashMap<>();
-        values.put(FlightDataChannel.YAW, (double)yaw);
+        values.put(MessageChannels.YAW, (double)yaw);
 
-        mDataListeners.notifyListeners(this, supportedChannels(), new FlightData(values));
+        android.os.Message dataMsg = new android.os.Message();
+        dataMsg.obj = new DataMessage(values);
+        messageHandler.sendMessage(dataMsg);
     }
+
+    private Handler messageHandler = new Handler()
+    {
+        public void handleMessage(android.os.Message msg)
+        {
+            super.handleMessage(msg);
+            try {
+                notifyListeners((IMessage)msg.obj);
+            }catch(Exception e){}
+        }
+    };
 }

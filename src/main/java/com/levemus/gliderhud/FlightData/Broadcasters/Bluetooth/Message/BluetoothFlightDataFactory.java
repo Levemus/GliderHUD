@@ -11,7 +11,7 @@ package com.levemus.gliderhud.FlightData.Broadcasters.Bluetooth.Message;
  (c) 2015 Levemus Software, Inc.
 
  */
-import com.levemus.gliderhud.FlightData.IFlightData;
+import com.levemus.gliderhud.FlightData.Messages.IMessage;
 
 import java.util.HashSet;
 import java.util.UUID;
@@ -28,7 +28,7 @@ public class BluetoothFlightDataFactory {
 
     private BluetoothFlightData mCurrentMessage;
 
-    public IFlightData build(String buffer)  {
+    public IMessage build(String buffer)  {
         for(BluetoothFlightData msg: mSupportedMessages) {
             if(buffer.startsWith(msg.frameStart())) {
                 Class<? extends BluetoothFlightData> c = msg.getClass();
@@ -46,9 +46,12 @@ public class BluetoothFlightDataFactory {
     }
 
     public HashSet<UUID> supportedTypes() {
+        if(mCurrentMessage != null)
+            return mCurrentMessage.channels();
+
         HashSet<UUID> result = new HashSet<>();
         for(BluetoothFlightData msg: mSupportedMessages) {
-            result.addAll(msg.supportedChannels());
+            result.addAll(msg.channels());
         }
         return result;
     }

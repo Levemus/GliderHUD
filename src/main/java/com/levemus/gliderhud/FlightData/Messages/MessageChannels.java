@@ -1,4 +1,4 @@
-package com.levemus.gliderhud.FlightData;
+package com.levemus.gliderhud.FlightData.Messages;
 
 /*
  Both the author and publisher makes no representations or warranties
@@ -11,14 +11,13 @@ package com.levemus.gliderhud.FlightData;
  (c) 2015 Levemus Software, Inc.
  */
 
-import java.util.Arrays;
 import java.util.UUID;
 import java.util.HashSet;
 
 /**
  * Created by mark@levemus on 15-12-16.
  */
-public class FlightDataChannel {
+public class MessageChannels {
     public static final UUID ALTITUDE = UUID.fromString("495a2826-1c5c-4d59-a101-86c2c78b1a6e"); // m
     public static final UUID GROUNDSPEED = UUID.fromString("b7122024-efb5-40e1-b730-3e956551a234"); // m/s
     public static final UUID BEARING = UUID.fromString("b9605f3d-0a75-4796-b6c7-f410dd569a3a"); // degrees

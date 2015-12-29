@@ -11,9 +11,9 @@ package com.levemus.gliderhud.FlightData.Listeners.Factory;
  (c) 2015 Levemus Software, Inc.
  */
 
-import com.levemus.gliderhud.FlightData.FlightDataChannel;
-import com.levemus.gliderhud.FlightData.Listeners.IListenerClient;
-import com.levemus.gliderhud.FlightData.Listeners.Factory.Builder.Listener;
+import com.levemus.gliderhud.FlightData.Listeners.Listener;
+import com.levemus.gliderhud.FlightData.Messages.MessageChannels;
+import com.levemus.gliderhud.FlightDisplay.IClient;
 import com.levemus.gliderhud.FlightData.Listeners.Factory.Builder.ListenerBuilder;
 import com.levemus.gliderhud.FlightData.Listeners.Factory.Builder.Operations.Adjusters.SmoothAdjuster;
 import com.levemus.gliderhud.FlightData.Listeners.Factory.Builder.Operations.Adjusters.TimeRateAdjuster;
@@ -31,31 +31,31 @@ import java.util.UUID;
  * Created by mark@levemus on 15-12-27.
  */
 public class ListenerFactory {
-    public static Listener build(UUID id, IListenerClient client) {
+    public static Listener build(UUID id, IClient client) {
         if(id == ListenerID.ALTITUDE)
             return new ListenerBuilder()
-                    .channels(new HashSet<>(Arrays.asList(FlightDataChannel.ALTITUDE)))
+                    .channels(new HashSet<>(Arrays.asList(MessageChannels.ALTITUDE)))
                     .id(id)
                     .client(client)
                     .build();
 
         if(id == ListenerID.BEARING)
             return new ListenerBuilder()
-                    .channels(new HashSet<>(Arrays.asList(FlightDataChannel.BEARING)))
+                    .channels(new HashSet<>(Arrays.asList(MessageChannels.BEARING)))
                     .id(id)
                     .client(client)
                     .build();
 
         if(id == ListenerID.GROUNDSPEED)
             return new ListenerBuilder()
-                    .channels(new HashSet<>(Arrays.asList(FlightDataChannel.GROUNDSPEED)))
+                    .channels(new HashSet<>(Arrays.asList(MessageChannels.GROUNDSPEED)))
                     .id(id)
                     .client(client)
                     .build();
 
         if(id == ListenerID.VARIO)
             return new ListenerBuilder()
-                    .channels(new HashSet<>(Arrays.asList(FlightDataChannel.VARIO)))
+                    .channels(new HashSet<>(Arrays.asList(MessageChannels.VARIO)))
                     .id(id)
                     .notificationInterval(100)
                     .adjusters(new ArrayList<IAdjuster>(Arrays.asList(new SmoothAdjuster(5))))
@@ -64,15 +64,15 @@ public class ListenerFactory {
 
         if(id == ListenerID.YAW)
             return new ListenerBuilder()
-                    .channels(new HashSet<>(Arrays.asList(FlightDataChannel.YAW)))
+                    .channels(new HashSet<>(Arrays.asList(MessageChannels.YAW)))
                     .id(id)
-                    .notificationInterval(10)
+                    .notificationInterval(30)
                     .client(client)
                     .build();
 
         if(id == ListenerID.TURNRATE)
             return new ListenerBuilder()
-                    .channels(new HashSet<>(Arrays.asList(FlightDataChannel.BEARING)))
+                    .channels(new HashSet<>(Arrays.asList(MessageChannels.BEARING)))
                     .id(id)
                     .adjusters(new ArrayList<>(Arrays.asList(
                             new TimeRateAdjuster(),
@@ -82,24 +82,24 @@ public class ListenerFactory {
 
         if(id == ListenerID.DISTANCEFR)
             return new ListenerBuilder()
-                    .channels(new HashSet<>(Arrays.asList(FlightDataChannel.LONGITUDE, FlightDataChannel.LATITUDE)))
+                    .channels(new HashSet<>(Arrays.asList(MessageChannels.LONGITUDE, MessageChannels.LATITUDE)))
                     .converter(new DistanceFromConverter())
                     .client(client)
                     .build();
 
         if(id == ListenerID.GLIDERATIO)
             return new ListenerBuilder()
-                    .channels(new HashSet<>(Arrays.asList(FlightDataChannel.VARIO, FlightDataChannel.GROUNDSPEED)))
+                    .channels(new HashSet<>(Arrays.asList(MessageChannels.VARIO, MessageChannels.GROUNDSPEED)))
                     .id(id)
-                    .converter(new DivideConverter(FlightDataChannel.GROUNDSPEED, FlightDataChannel.VARIO))
+                    .converter(new DivideConverter(MessageChannels.GROUNDSPEED, MessageChannels.VARIO))
                     .adjusters(new ArrayList<IAdjuster>(Arrays.asList(new SmoothAdjuster(5))))
                     .client(client)
                     .build();
 
         if(id == ListenerID.HEIGHTABV)
             return new ListenerBuilder()
-                    .channels(new HashSet<>(Arrays.asList(FlightDataChannel.ALTITUDE)))
-                    .converter(new DifferenceConverter(FlightDataChannel.ALTITUDE))
+                    .channels(new HashSet<>(Arrays.asList(MessageChannels.ALTITUDE)))
+                    .converter(new DifferenceConverter(MessageChannels.ALTITUDE))
                     .client(client)
                     .build();
 

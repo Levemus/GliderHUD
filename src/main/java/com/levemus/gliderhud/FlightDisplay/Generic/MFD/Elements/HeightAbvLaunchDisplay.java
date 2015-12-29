@@ -11,8 +11,8 @@ package com.levemus.gliderhud.FlightDisplay.Generic.MFD.Elements;
  (c) 2015 Levemus Software, Inc.
  */
 
-import com.levemus.gliderhud.FlightData.Broadcasters.IRegisterListener;
-import com.levemus.gliderhud.FlightData.Listeners.Factory.Builder.Listener;
+import com.levemus.gliderhud.FlightData.Broadcasters.IBroadcaster;
+import com.levemus.gliderhud.FlightData.Listeners.Listener;
 import com.levemus.gliderhud.FlightData.Listeners.Factory.ListenerID;
 import com.levemus.gliderhud.FlightData.Listeners.Factory.ListenerFactory;
 import com.levemus.gliderhud.FlightDisplay.FlightDisplay;
@@ -39,11 +39,11 @@ public class HeightAbvLaunchDisplay extends MFDTextElement {
     }
 
     @Override
-    public void registerWith(IRegisterListener broadcaster)
+    public void registerWith(IBroadcaster broadcaster)
     {
-        broadcaster.register(mDistanceFr, mDistanceFr);
-        broadcaster.register(mHeightAbv, mHeightAbv);
-        broadcaster.register(mTurnRate, mTurnRate);
+        broadcaster.registerWith(mDistanceFr, mDistanceFr);
+        broadcaster.registerWith(mHeightAbv, mHeightAbv);
+        broadcaster.registerWith(mTurnRate, mTurnRate);
     }
 
     // Operation

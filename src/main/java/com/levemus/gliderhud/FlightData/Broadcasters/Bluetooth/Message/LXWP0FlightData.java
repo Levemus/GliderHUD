@@ -17,7 +17,7 @@ package com.levemus.gliderhud.FlightData.Broadcasters.Bluetooth.Message;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.UUID;
-import com.levemus.gliderhud.FlightData.FlightDataChannel;
+import com.levemus.gliderhud.FlightData.Messages.MessageChannels;
 /**
  * Created by mark@levemus on 15-12-13.
  */
@@ -41,19 +41,19 @@ class LXWP0FlightData extends BluetoothFlightData {
 
     @Override
     protected int elementOffset(UUID channel) {
-        if(channel == FlightDataChannel.VARIO)
+        if(channel == MessageChannels.VARIO)
             return 4;
-        if (channel == FlightDataChannel.ALTITUDE)
+        if (channel == MessageChannels.ALTITUDE)
             return 3;
 
         return -1;
     }
 
     @Override
-    public HashSet<UUID> supportedChannels() {
+    public HashSet<UUID> channels() {
         return new HashSet(Arrays.asList(
-                FlightDataChannel.ALTITUDE,
-                FlightDataChannel.VARIO));
+                MessageChannels.ALTITUDE,
+                MessageChannels.VARIO));
     }
 }
 

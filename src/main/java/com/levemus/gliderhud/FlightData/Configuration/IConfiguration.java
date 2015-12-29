@@ -1,4 +1,4 @@
-package com.levemus.gliderhud.FlightData.Listeners;
+package com.levemus.gliderhud.FlightData.Configuration;
 
 /*
  Both the author and publisher makes no representations or warranties
@@ -12,10 +12,14 @@ package com.levemus.gliderhud.FlightData.Listeners;
  */
 
 import java.util.HashSet;
+import java.util.UUID;
 
 /**
  * Created by mark@levemus on 15-12-26.
  */
-public interface IListenerClients {
-    public HashSet<IListenerClient> clients();
+public interface IConfiguration {
+    UUID id();
+    HashSet<UUID> allChannels();
+    HashSet<UUID> orphanedChannels();
+    long notificationInterval();
 }

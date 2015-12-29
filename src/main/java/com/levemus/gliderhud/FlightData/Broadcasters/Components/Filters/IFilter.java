@@ -1,4 +1,4 @@
-package com.levemus.gliderhud.FlightData.Listeners;
+package com.levemus.gliderhud.FlightData.Broadcasters.Components.Filters;
 
 /*
  Both the author and publisher makes no representations or warranties
@@ -11,9 +11,15 @@ package com.levemus.gliderhud.FlightData.Listeners;
  (c) 2015 Levemus Software, Inc.
  */
 
+import com.levemus.gliderhud.FlightData.Configuration.IConfiguration;
+import com.levemus.gliderhud.FlightData.Messages.IMessageNotify;
+
 /**
- * Created by mark@levemus on 15-12-20.
+ * Created by mark@levemus on 15-12-28.
  */
-public interface IListenerClient {
-    public void onDataReady();
+public interface IFilter {
+
+    // Subscriber registration
+    void registerWith(IConfiguration config, IMessageNotify subscriber );
+    void deregisterFrom(IConfiguration config, IMessageNotify subscriber );
 }

@@ -11,13 +11,16 @@ package com.levemus.gliderhud.FlightData.Listeners.Custom;
  (c) 2015 Levemus Software, Inc.
  */
 
-import com.levemus.gliderhud.FlightData.Broadcasters.BroadcasterStatus;
-import com.levemus.gliderhud.FlightData.FlightDataChannel;
-import com.levemus.gliderhud.FlightData.IFlightData;
-import com.levemus.gliderhud.FlightData.Listeners.IListenerClient;
-import com.levemus.gliderhud.FlightData.Listeners.IListenerNotify;
-import com.levemus.gliderhud.FlightData.Listeners.IListenerClients;
-import com.levemus.gliderhud.FlightData.Listeners.IListenerConfig;
+import com.levemus.gliderhud.FlightData.Listeners.Listener;
+import com.levemus.gliderhud.FlightData.Messages.IMessage;
+import com.levemus.gliderhud.FlightData.Messages.MessageChannels;
+import com.levemus.gliderhud.FlightData.Messages.Data.DataMessage;
+import com.levemus.gliderhud.FlightDisplay.IClient;
+import com.levemus.gliderhud.FlightData.Messages.IMessageNotify;
+import com.levemus.gliderhud.FlightData.Listeners.IListener;
+import com.levemus.gliderhud.FlightData.Configuration.IConfiguration;
+import com.levemus.gliderhud.FlightData.Messages.Status.ChannelStatus;
+import com.levemus.gliderhud.FlightData.Messages.Status.StatusMessage;
 import com.levemus.gliderhud.Types.OffsetCircle;
 import com.levemus.gliderhud.Types.Vector;
 import com.levemus.gliderhud.Utils.Angle;
@@ -31,26 +34,84 @@ import java.util.UUID;
 /**
  * Created by mark@levemus on 15-12-20.
  */
-public class WindDrift implements IListenerNotify,IListenerConfig, IListenerClients {
+public class WindDrift extends Listener implements IMessageNotify, IConfiguration, IListener {
 
-    private HashSet<IListenerClient> mClients = new HashSet<>();
-
-    @Override
-    public HashSet<IListenerClient> clients() {return mClients;}
-
+    // IConfiguration
     HashSet<UUID> mChannels = new HashSet(Arrays.asList(
-            FlightDataChannel.GROUNDSPEED,
-            FlightDataChannel.BEARING
-    ));
-
+            MessageChannels.GROUNDSPEED,
+            MessageChannels.BEARING));
     @Override
-    public HashSet<UUID> requiredChannels() {
+    public HashSet<UUID> allChannels() {
         return mChannels;
     }
 
+    HashSet<UUID> mOrphanedChannels = new HashSet(mChannels);
     @Override
-    public long notificationInterval() { return 5000; }
+    public HashSet<UUID> orphanedChannels() {
+        return mOrphanedChannels;
+    }
 
+    @Override
+    public UUID id() { return UUID.fromString("fe351c72-7eea-4b53-94e4-1bb91f78725f"); }
+
+    @Override
+    public long notificationInterval() {
+        if(mWind != null) {
+            return 60000;
+        }
+        return 20000;
+    }
+
+    // IMessageNotify
+
+    private ArrayList<Vector> mGrndSpdVelocities = new ArrayList<Vector>();
+    private final int MAX_NUM_GRND_VELOCITIES = 2;
+    private final double MIN_SEPERATING_ANGLE = 45;
+
+    protected void onData(IConfiguration config, DataMessage data) {
+        Vector velocity = new Vector();
+        try {
+            if (data.get(MessageChannels.GROUNDSPEED) == 0)
+                return;
+            velocity.SetDirectionAndMagnitude(data.get(
+                    MessageChannels.BEARING), data.get(MessageChannels.GROUNDSPEED));
+
+            mGrndSpdVelocities.add(velocity);
+            if (mGrndSpdVelocities.size() > MAX_NUM_GRND_VELOCITIES) {
+                mGrndSpdVelocities.remove(0);
+            }
+            int count = mGrndSpdVelocities.size();
+            for( int i = count - 1; i > 0; i--) {
+                if (Angle.delta(mGrndSpdVelocities.get(0).Direction(),
+                        mGrndSpdVelocities.get(1).Direction()) < MIN_SEPERATING_ANGLE)
+                    mGrndSpdVelocities.remove(0);
+            }
+
+            if(mGrndSpdVelocities.size() < 3)
+                return;
+
+            OffsetCircle result = TaubinNewtonFitCircle.FitCircle(mGrndSpdVelocities);
+            if(result != null) {
+                mPreviousWindResults.add(result);
+                if(mPreviousWindResults.size() > 1) {
+                    if(mPreviousWindResults.size() > MAX_NUM_WIND_RESULT)
+                        mPreviousWindResults.remove(0);
+                    for(OffsetCircle previous : mPreviousWindResults){
+                        if(Math.abs(previous.mRadius - result.mRadius) > MAX_WIND_RESULT_SPEED_VARIATION)
+                            return;
+                    }
+                }
+
+                if(mPreviousWindResults.size() == MAX_NUM_GRND_VELOCITIES)
+                    mWind = result;
+            }
+        } catch (java.lang.UnsupportedOperationException e) {}
+
+        if(mClient != null)
+            mClient.onDataReady();
+    }
+
+    // Value
     private OffsetCircle mWind;
 
     private final int MAX_NUM_WIND_RESULT = 3;
@@ -69,65 +130,5 @@ public class WindDrift implements IListenerNotify,IListenerConfig, IListenerClie
         return 0;
     }
 
-    private ArrayList<Vector> mGrndSpdVelocities = new ArrayList<Vector>();
-    private final int MAX_NUM_GRND_VELOCITIES = 3;
-    private final double MIN_SEPERATING_ANGLE = 45;
-
-    @Override
-    public void onData(HashSet<UUID> channels, IFlightData data) {
-        Vector velocity = new Vector();
-        try {
-            if (data.get(FlightDataChannel.GROUNDSPEED) == 0)
-                return;
-            velocity.SetDirectionAndMagnitude(data.get(
-                    FlightDataChannel.BEARING), data.get(FlightDataChannel.GROUNDSPEED));
-
-            mGrndSpdVelocities.add(velocity);
-            if (mGrndSpdVelocities.size() > MAX_NUM_GRND_VELOCITIES) {
-                mGrndSpdVelocities.remove(0);
-            }
-
-            for (int i = 0; i < mGrndSpdVelocities.size() - 1; i++) {
-                for (int j = i + 1; j < mGrndSpdVelocities.size() - 1; j++) {
-                    if (Angle.delta(mGrndSpdVelocities.get(i).Direction(),
-                            mGrndSpdVelocities.get(j).Direction()) < MIN_SEPERATING_ANGLE) {
-                        mGrndSpdVelocities.clear();
-                        return;
-                    }
-                }
-            }
-            OffsetCircle result = TaubinNewtonFitCircle.FitCircle(mGrndSpdVelocities);
-            if(result != null) {
-                mPreviousWindResults.add(result);
-                if(mPreviousWindResults.size() > 1) {
-                    if(mPreviousWindResults.size() > MAX_NUM_WIND_RESULT)
-                        mPreviousWindResults.remove(0);
-                    for(OffsetCircle previous : mPreviousWindResults){
-                        if(Math.abs(previous.mRadius - result.mRadius) > MAX_WIND_RESULT_SPEED_VARIATION)
-                            return;
-                    }
-                }
-
-                if(mPreviousWindResults.size() == MAX_NUM_GRND_VELOCITIES)
-                    mWind = result;
-            }
-        } catch (java.lang.UnsupportedOperationException e) {}
-
-        for(IListenerClient client : mClients)
-            client.onDataReady();
-    }
-
-    @Override
-    public void onStatus(HashSet<UUID> channels, BroadcasterStatus status) {
-        HashSet<UUID> intersection = new HashSet<>(channels);
-        intersection.retainAll(mChannels);
-
-        if(intersection.size() > 0 && status.value() == BroadcasterStatus.Status.OFFLINE) {
-            mWind = null;
-            for(IListenerClient client : mClients)
-                client.onDataReady();
-        }
-    }
-    @Override
-    public UUID id() { return UUID.fromString("fe351c72-7eea-4b53-94e4-1bb91f78725f");}
+    public Double value() { throw new java.lang.UnsupportedOperationException(); }
 }

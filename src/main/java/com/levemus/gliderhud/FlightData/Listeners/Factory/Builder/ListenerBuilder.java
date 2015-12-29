@@ -11,7 +11,8 @@ package com.levemus.gliderhud.FlightData.Listeners.Factory.Builder;
  (c) 2015 Levemus Software, Inc.
  */
 
-import com.levemus.gliderhud.FlightData.Listeners.IListenerClient;
+import com.levemus.gliderhud.FlightData.Listeners.Listener;
+import com.levemus.gliderhud.FlightDisplay.IClient;
 import com.levemus.gliderhud.FlightData.Listeners.Factory.Builder.Operations.IConverter;
 import com.levemus.gliderhud.FlightData.Listeners.Factory.Builder.Operations.IAdjuster;
 
@@ -23,63 +24,46 @@ import java.util.List;
  * Created by mark@levemus on 15-12-26.
  */
 public class ListenerBuilder {
-    private UUID mId = UUID.randomUUID();
-    private HashSet<UUID> mChannels = new HashSet<>();
-    private long mNotificationInterval = 500;
-    private IConverter mConverter = null;
-    private List<IAdjuster> mAdjusters = null;
-    HashSet<IListenerClient> mClients = new HashSet<IListenerClient>();
+    private ListenerFrameConfig mConfig = new ListenerFrameConfig();
 
     public ListenerBuilder id(UUID id) {
-        mId = id;
+        mConfig.mId = id;
         return this;
     }
 
     public ListenerBuilder channels(HashSet channels) {
-        mChannels = channels;
+        mConfig.mChannels = channels;
         return this;
     }
 
     public ListenerBuilder notificationInterval(int interval) {
-        mNotificationInterval = interval;
+        mConfig.mNotificationInterval = interval;
         return this;
     }
 
     public ListenerBuilder converter(IConverter op) {
-        mConverter = op;
+        mConfig.mConverter = op;
         return this;
     }
 
     public ListenerBuilder adjusters(List<IAdjuster>ops) {
-        mAdjusters = ops;
+        mConfig.mAdjusters = ops;
         return this;
     }
 
-    public ListenerBuilder client(IListenerClient client) {
-        if(mClients == null)
-            mClients = new HashSet<>();
-        mClients.add(client);
+    public ListenerBuilder client(IClient client) {
+        mConfig.mClient = client;
         return this;
     }
-
 
     public Listener build() {
         // create and populate
-        Listener result = new Listener();
-        result.mChannels = mChannels;
-        result.mId = mId;
-        result.mNotificationInterval = mNotificationInterval;
-        result.mConverter = mConverter;
-        result.mAdjusters = mAdjusters;
-        result.mClients = mClients;
+        ListenerFrame result = new ListenerFrame();
+        result.populate(mConfig);
 
         // reset defaults
-        mChannels = new HashSet<>();
-        mId = UUID.randomUUID();
-        mNotificationInterval = 500;
-        mConverter = null;
-        mAdjusters = null;
-        mClients = new HashSet<IListenerClient>();
+        mConfig = new ListenerFrameConfig();
+
         return result;
     }
 }

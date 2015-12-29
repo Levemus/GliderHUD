@@ -1,4 +1,5 @@
-package com.levemus.gliderhud.FlightData.Broadcasters;
+package com.levemus.gliderhud.FlightData.Messages.Data;
+
 /*
  Both the author and publisher makes no representations or warranties
  about the suitability of this software, either expressed or implied, including
@@ -10,12 +11,19 @@ package com.levemus.gliderhud.FlightData.Broadcasters;
  (c) 2015 Levemus Software, Inc.
  */
 
-import com.levemus.gliderhud.FlightData.Listeners.IListenerNotify;
-import com.levemus.gliderhud.FlightData.Listeners.IListenerConfig;
+import com.levemus.gliderhud.FlightData.Messages.Message;
+
+import java.util.HashMap;
+import java.util.UUID;
 
 /**
- * Created by mark@levemus on 15-11-23.
+ * Created by mark@levemus on 15-12-20.
  */
-public interface IRegisterListener  {
-    public void register(IListenerConfig config, IListenerNotify listener );
+public class DataMessage extends Message<Double> {
+    @Override
+    public Type getType() { return Type.DATA; }
+    public DataMessage() {}
+    public DataMessage( HashMap<UUID, Double> values) {
+        mValues = values;
+    }
 }

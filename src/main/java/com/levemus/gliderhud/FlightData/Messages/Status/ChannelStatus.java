@@ -1,4 +1,4 @@
-package com.levemus.gliderhud.FlightData;
+package com.levemus.gliderhud.FlightData.Messages.Status;
 
 /*
  Both the author and publisher makes no representations or warranties
@@ -12,13 +12,8 @@ package com.levemus.gliderhud.FlightData;
  */
 
 /**
- * Created by mark@levemus on 15-12-05.
+ * Created by mark@levemus on 15-12-28.
  */
-import java.util.HashSet;
-import java.util.UUID;
-
-public interface IFlightData {
-    public double get(UUID channel) throws java.lang.UnsupportedOperationException;
-    public HashSet<UUID> supportedChannels();
-
+public class ChannelStatus {
+    public enum Status{ OFFLINE, ONLINE };
 }

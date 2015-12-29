@@ -20,21 +20,21 @@ import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCallback;
 import android.bluetooth.BluetoothGattCharacteristic;
-import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothProfile;
 import android.bluetooth.BluetoothGattService;
 import android.bluetooth.BluetoothGattDescriptor;
 
 import com.levemus.gliderhud.FlightData.Broadcasters.Bluetooth.Message.BluetoothFlightDataFactory;
 
-import java.util.Date;
 import java.util.HashSet;
 import java.util.UUID;
 
 import android.util.Log;
 
 import com.levemus.gliderhud.FlightData.Broadcasters.Broadcaster;
-import com.levemus.gliderhud.FlightData.IFlightData;
+import com.levemus.gliderhud.FlightData.Messages.IMessage;
+import com.levemus.gliderhud.FlightData.Messages.Status.ChannelStatus;
+import com.levemus.gliderhud.FlightData.Messages.Status.StatusMessage;
 
 import android.content.Context;
 import android.os.Handler;
@@ -57,12 +57,9 @@ public class BluetoothBroadcaster extends Broadcaster
 
     private String mAddress = "20:C3:8F:EB:04:9E"; // I only care about my vario - TODO: re-add a scanner
 
-    private long mStartTime;
-
     @Override
     public void init(Activity activity) {
         super.init(activity);
-        mStartTime = new Date().getTime();
     }
 
     @Override
@@ -80,8 +77,6 @@ public class BluetoothBroadcaster extends Broadcaster
             }
         }
         else { Log.e(TAG, "Unable to retrieve BluetoothManager"); }
-        BluetoothDevice device = mBluetoothAdapter.getRemoteDevice(mAddress);
-        mBluetoothGatt = device.connectGatt(mActivity, false, mGattCallback);
     }
 
     @Override
@@ -95,10 +90,15 @@ public class BluetoothBroadcaster extends Broadcaster
         }
     }
 
+    @Override
+    public UUID id() {
+        return UUID.fromString("e972af0a-1936-4d24-8a7d-dcf561e08f6b");
+    }
+
     BluetoothFlightDataFactory mMsgFactory = new BluetoothFlightDataFactory();
 
     @Override
-    public HashSet<UUID> supportedChannels() {
+    public HashSet<UUID> allChannels() {
         return mMsgFactory.supportedTypes();
     }
 
@@ -107,7 +107,6 @@ public class BluetoothBroadcaster extends Broadcaster
     // Various callback methods defined by the BLE API.
     private final BluetoothGattCallback mGattCallback = new BluetoothGattCallback()
     {
-        private long MAX_CONNECT_ATTEMPT_TIME = (120 * 1000); // milliseconds
         @Override
         public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState)
         {
@@ -120,13 +119,11 @@ public class BluetoothBroadcaster extends Broadcaster
             else if (newState == BluetoothProfile.STATE_DISCONNECTED)
             {
                 Log.i(TAG, "Disconnected from GATT server.");
-                long currentTime = new Date().getTime();
-                if(currentTime - mStartTime < MAX_CONNECT_ATTEMPT_TIME) {
-                    resume(mActivity);
-                }
+                Message statusMsg = new Message();
+                statusMsg.obj = new StatusMessage(allChannels(), ChannelStatus.Status.OFFLINE);
+                statusHandler.sendMessage(statusMsg);
             }
         }
-
 
         @Override
         // New services discovered
@@ -168,11 +165,26 @@ public class BluetoothBroadcaster extends Broadcaster
             super.handleMessage(msg);
             try {
                 String decoded = new String((byte[]) msg.obj, "UTF-8");
-                IFlightData btMsg = mMsgFactory.build(decoded);
+                IMessage btMsg = mMsgFactory.build(decoded);
+                HashSet<UUID> channels = new HashSet<>(allChannels());
                 if(btMsg != null) {
-                    mDataListeners.notifyListeners(BluetoothBroadcaster.this, btMsg.supportedChannels(),
-                            btMsg);
+                    notifyListeners(btMsg);
+                    channels.removeAll(btMsg.channels());
+                    if(!channels.isEmpty()) {
+                        notifyListeners(new StatusMessage(channels, ChannelStatus.Status.OFFLINE));
+                    }
                 }
+            }catch(Exception e){}
+        }
+    };
+
+    private Handler statusHandler = new Handler()
+    {
+        public void handleMessage(Message msg)
+        {
+            super.handleMessage(msg);
+            try {
+                notifyListeners((StatusMessage)msg.obj);
             }catch(Exception e){}
         }
     };

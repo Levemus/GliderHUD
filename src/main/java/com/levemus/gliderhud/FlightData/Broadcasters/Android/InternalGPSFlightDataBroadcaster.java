@@ -14,6 +14,7 @@ package com.levemus.gliderhud.FlightData.Broadcasters.Android;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 
 import java.util.Arrays;
@@ -25,8 +26,8 @@ import android.app.Activity;
 import android.content.Context;
 
 import com.levemus.gliderhud.FlightData.Broadcasters.Broadcaster;
-import com.levemus.gliderhud.FlightData.FlightDataChannel;
-import com.levemus.gliderhud.FlightData.FlightData;
+import com.levemus.gliderhud.FlightData.Messages.MessageChannels;
+import com.levemus.gliderhud.FlightData.Messages.Data.DataMessage;
 
 /**
  * Created by flyinorange on 15-11-23.
@@ -66,33 +67,52 @@ public class InternalGPSFlightDataBroadcaster extends Broadcaster implements Loc
     }
 
     @Override
-    public HashSet<UUID> supportedChannels() {
+    public UUID id() {
+        return UUID.fromString("6b68b893-3bd1-48b2-84d7-de1dd2d73617");
+    }
+
+    @Override
+    public HashSet<UUID> allChannels() {
         return new HashSet(Arrays.asList(
-                FlightDataChannel.LATITUDE,
-                FlightDataChannel.LONGITUDE,
-                FlightDataChannel.ALTITUDE,
-                FlightDataChannel.GROUNDSPEED,
-                FlightDataChannel.BEARING,
-                FlightDataChannel.VARIO));
+                MessageChannels.LATITUDE,
+                MessageChannels.LONGITUDE,
+                MessageChannels.ALTITUDE,
+                MessageChannels.GROUNDSPEED,
+                MessageChannels.BEARING,
+                MessageChannels.VARIO));
     }
 
     @Override
     public void onLocationChanged(android.location.Location location) {
         HashMap<UUID, Double> values = new HashMap<>();
-        values.put(FlightDataChannel.LATITUDE, location.getLatitude());
-        values.put(FlightDataChannel.LONGITUDE, location.getLongitude());
-        values.put(FlightDataChannel.ALTITUDE, location.getAltitude());
-        values.put(FlightDataChannel.GROUNDSPEED, location.getSpeed() * 3.6);
-        values.put(FlightDataChannel.BEARING, (double)location.getBearing());
+        values.put(MessageChannels.LATITUDE, location.getLatitude());
+        values.put(MessageChannels.LONGITUDE, location.getLongitude());
+        values.put(MessageChannels.ALTITUDE, location.getAltitude());
+        values.put(MessageChannels.GROUNDSPEED, location.getSpeed() * 3.6);
+        values.put(MessageChannels.BEARING, (double)location.getBearing());
         if(mTimeOfLastUpdate != 0 && location.getTime() != mTimeOfLastUpdate) {
-            values.put(FlightDataChannel.VARIO,
+            values.put(MessageChannels.VARIO,
                     (location.getAltitude() - mLastAltitude) / (location.getTime() - mTimeOfLastUpdate) * 1000);
         }
 
-        mDataListeners.notifyListeners(this, supportedChannels(), new FlightData(values));
+        android.os.Message dataMsg = new android.os.Message();
+        dataMsg.obj = new DataMessage(values);
+        messageHandler.sendMessage(dataMsg);
+
         mTimeOfLastUpdate = location.getTime();
         mLastAltitude = location.getAltitude();
     }
+
+    private Handler messageHandler = new Handler()
+    {
+        public void handleMessage(android.os.Message msg)
+        {
+            super.handleMessage(msg);
+            try {
+                notifyListeners((DataMessage)msg.obj);
+            }catch(Exception e){}
+        }
+    };
 
     @Override
     public void onProviderDisabled(String provider) {}

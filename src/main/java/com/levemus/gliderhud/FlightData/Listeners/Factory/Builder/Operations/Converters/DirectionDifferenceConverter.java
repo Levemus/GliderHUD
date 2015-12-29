@@ -11,7 +11,7 @@ package com.levemus.gliderhud.FlightData.Listeners.Factory.Builder.Operations.Co
  (c) 2015 Levemus Software, Inc.
  */
 
-import com.levemus.gliderhud.FlightData.FlightDataChannel;
+import com.levemus.gliderhud.FlightData.Messages.MessageChannels;
 import com.levemus.gliderhud.FlightData.Listeners.Factory.Builder.Operations.IConverter;
 import com.levemus.gliderhud.Utils.Angle;
 
@@ -32,7 +32,7 @@ public class DirectionDifferenceConverter implements IConverter {
     @Override
     public double convert(HashMap<UUID, Double> values) {
         if(mInitialValue == INVALID)
-            mInitialValue = values.get(FlightDataChannel.BEARING);
-        return Angle.delta(values.get(FlightDataChannel.BEARING), mInitialValue);
+            mInitialValue = values.get(MessageChannels.BEARING);
+        return Angle.delta(values.get(MessageChannels.BEARING), mInitialValue);
     }
 }
