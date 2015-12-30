@@ -24,13 +24,14 @@ public class GlideRatioDisplay extends MFDTextElement {
 
     // Constants
     private final String TAG = this.getClass().getSimpleName();
-    private final double MIN_GLIDE = -0.01;
-    private final double CRITICAL_GLIDE = -3.0;
-    private final double MAX_TURN_RATE = 10;
+    private final Double MIN_GLIDE = -0.01;
+    private final Double CRITICAL_GLIDE = -3.0;
+    private final Double MAX_TURN_RATE = 10.0;
+    private final Double MAX_GLIDE_VALUE = -100.0;
 
     // Listeners
-    private Listener mTurnRate = ListenerFactory.build(ListenerID.TURNRATE, this);
-    private Listener mGlide = ListenerFactory.build(ListenerID.GLIDERATIO, this);
+    private Listener<Double> mTurnRate = ListenerFactory.build(ListenerID.TURNRATE, this);
+    private Listener<Double> mGlide = ListenerFactory.build(ListenerID.GLIDERATIO, this);
 
     // Initialization/registration
     public GlideRatioDisplay(FlightDisplay parent) {
@@ -50,6 +51,9 @@ public class GlideRatioDisplay extends MFDTextElement {
 
     @Override
     protected String value() {
+        if(mGlide.value() >= MIN_GLIDE || mGlide.value() < MAX_GLIDE_VALUE)
+            return "---";
+
         double displayGlide = Math.round(mGlide.value() * 100);
         displayGlide /= 100;
         return Double.toString(displayGlide);
@@ -58,7 +62,7 @@ public class GlideRatioDisplay extends MFDTextElement {
     @Override
     public MFDElement.DisplayPriority displayPriority() {
         try {
-            if(mGlide.value() >= MIN_GLIDE || mTurnRate.value() > MAX_TURN_RATE)
+            if(mGlide.value() >= MIN_GLIDE || mGlide.value() < MAX_GLIDE_VALUE || mTurnRate.value() > MAX_TURN_RATE)
                 return MFDElement.DisplayPriority.NONE;
             else if(mGlide.value() >= CRITICAL_GLIDE &&  mTurnRate.value() < MAX_TURN_RATE)
                 return MFDElement.DisplayPriority.CRITICAL;

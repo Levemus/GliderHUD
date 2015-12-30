@@ -32,7 +32,7 @@ public class CompassDisplay extends FlightDisplay {
 
     private final String TAG = this.getClass().getSimpleName();
 
-    private Listener mOrientation = ListenerFactory.build(ListenerID.YAW, this);
+    private Listener<Double> mOrientation = ListenerFactory.build(ListenerID.YAW, this);
 
     private DirectionDisplayImage mHeadingDisplay = null;
     private WindDisplay mWindDisplay = null;
@@ -101,11 +101,11 @@ public class CompassDisplay extends FlightDisplay {
         private double DEGREES_HALF_CIRCLE = DEGREES_FULL_CIRCLE / 2;
         @Override
         public void display() {
-            double windSpeed = mWindDrift.speed();
+            double windSpeed = mWindDrift.value().Magnitude();
             if(windSpeed <= 0 )
                 return;
 
-            double mWindDirection = (mWindDrift.direction() + DEGREES_HALF_CIRCLE) % DEGREES_FULL_CIRCLE;
+            double mWindDirection = (mWindDrift.value().Direction() + DEGREES_HALF_CIRCLE) % DEGREES_FULL_CIRCLE;
 
             mWindDirectionDisplay.setCurrentDirection(mWindDirection);
             mWindDirectionDisplay.display();
@@ -129,8 +129,8 @@ public class CompassDisplay extends FlightDisplay {
     // this class is only applicable within the context of the compass display
     private class BearingDisplay extends FlightDisplay {
 
-        private Listener mBearing = ListenerFactory.build(ListenerID.BEARING, this);
-        private Listener mGroundSpeed = ListenerFactory.build(ListenerID.GROUNDSPEED, this);
+        private Listener<Double> mBearing = ListenerFactory.build(ListenerID.BEARING, this);
+        private Listener<Double> mGroundSpeed = ListenerFactory.build(ListenerID.GROUNDSPEED, this);
 
         private DirectionDisplayImage mBearingDisplay = null;
         @Override

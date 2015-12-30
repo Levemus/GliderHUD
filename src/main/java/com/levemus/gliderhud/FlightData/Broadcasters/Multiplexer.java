@@ -11,6 +11,7 @@ package com.levemus.gliderhud.FlightData.Broadcasters;
  (c) 2015 Levemus Software, Inc.
  */
 
+import com.levemus.gliderhud.FlightData.Configuration.Configuration;
 import com.levemus.gliderhud.FlightData.Configuration.IConfiguration;
 import com.levemus.gliderhud.FlightData.Broadcasters.Components.Filters.Filter;
 import com.levemus.gliderhud.FlightData.Broadcasters.Components.Filters.StatusFilter;
@@ -40,7 +41,10 @@ public class Multiplexer extends Broadcaster implements IMessageNotify {
     public void registerWith(Broadcaster broadcaster) {
         mBroadcasters.add(broadcaster);
         mChannelSets.put(broadcaster.id(), broadcaster.allChannels());
-        broadcaster.registerWith(this, mFilter);
+        Configuration config = new Configuration(id(),
+                broadcaster.allChannels(),
+                notificationInterval());
+        broadcaster.registerWith(config, mFilter);
     }
 
     public void deregisterFrom(Broadcaster broadcaster) {

@@ -17,6 +17,7 @@ import java.util.HashSet;
 import java.util.UUID;
 
 import com.levemus.gliderhud.FlightData.Broadcasters.Components.Dispatchers.Dispatcher;
+import com.levemus.gliderhud.FlightData.Configuration.Configuration;
 import com.levemus.gliderhud.FlightData.Messages.IMessageNotify;
 import com.levemus.gliderhud.FlightData.Messages.IMessage;
 import com.levemus.gliderhud.FlightData.Configuration.IConfiguration;
@@ -52,12 +53,19 @@ public abstract class Broadcaster implements IBroadcaster, IConfiguration  {
 
     protected void notifyListeners(IMessage msg)
     {
-        mDispatcher.postMessage(this, msg);
+        mDispatcher.postMessage(new Configuration(id(), msg.channels(), notificationInterval())
+                , msg);
+    }
+
+    protected void notifyListeners(HashSet<UUID> channels, IMessage msg)
+    {
+        mDispatcher.postMessage(new Configuration(id(), channels, notificationInterval())
+                , msg);
     }
 
     // IConfiguration
     public abstract UUID id();
     public abstract HashSet<UUID> allChannels();
-    public HashSet<UUID> orphanedChannels() { return new HashSet<>(); }
-    public long notificationInterval() { return Integer.MAX_VALUE; }
+    public HashSet<UUID> orphanedChannels() { return new HashSet<>(allChannels()); }
+    public long notificationInterval() { return 0; }
 }

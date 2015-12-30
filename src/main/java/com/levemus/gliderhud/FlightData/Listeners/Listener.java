@@ -25,7 +25,7 @@ import java.util.UUID;
 /**
  * Created by mark@levemus on 15-12-26.
  */
-public abstract class Listener implements IMessageNotify, IConfiguration, IListener {
+public abstract class Listener <E>implements IMessageNotify, IConfiguration, IListener {
 
     // IListenerClient
     protected IClient mClient;
@@ -68,7 +68,7 @@ public abstract class Listener implements IMessageNotify, IConfiguration, IListe
 
         for (UUID channel : intersection) {
             if(data.get(channel) == ChannelStatus.Status.OFFLINE) {
-                mValue = INVALID;
+                mValue = invalid();
                 mClient.onDataReady();
                 return;
             }
@@ -77,7 +77,13 @@ public abstract class Listener implements IMessageNotify, IConfiguration, IListe
     }
 
     // Value
-    protected Double INVALID = Double.MIN_VALUE;
-    protected Double mValue = INVALID;
-    public Double value() {return mValue;}
+    protected abstract E invalid();
+    protected E mValue = invalid();
+
+    public boolean isValid() {
+        E value = mValue;
+        E invalid = invalid();
+        return (value != invalid);
+    }
+    public E value() {return mValue;}
 }

@@ -24,13 +24,13 @@ public class ClimbRateDisplay extends MFDTextElement {
 
     // Constants
     private final String TAG = this.getClass().getSimpleName();
-    private final double MIN_VARIO = 0.10;
-    private final double MIN_CLIMB_TURN_RATE = 10;
-    private final double HIGH_CLIMB_RATE = 3.0;
-
+    private final Double MIN_VARIO = 0.10;
+    private final Double MIN_CLIMB_TURN_RATE = 10.0;
+    private final Double HIGH_CLIMB_RATE = 3.0;
+    private final Double MAX_CLIMB_RATE = 100.0;
     // Listeners
-    private Listener mClimbRate = ListenerFactory.build(ListenerID.VARIO, this);
-    private Listener mTurnRate = ListenerFactory.build(ListenerID.TURNRATE, this);
+    private Listener<Double> mClimbRate = ListenerFactory.build(ListenerID.VARIO, this);
+    private Listener<Double> mTurnRate = ListenerFactory.build(ListenerID.TURNRATE, this);
 
     // Initialization/registration
     public ClimbRateDisplay(FlightDisplay parent) {
@@ -50,6 +50,9 @@ public class ClimbRateDisplay extends MFDTextElement {
 
     @Override
     protected String value() {
+        if (Math.abs(mClimbRate.value()) > MAX_CLIMB_RATE)
+            return "---";
+
         double displayVario = 0;
         if (Math.abs(mClimbRate.value()) > MIN_VARIO) {
             displayVario = Math.round(mClimbRate.value() * 100);
@@ -61,7 +64,9 @@ public class ClimbRateDisplay extends MFDTextElement {
     @Override
     public MFDElement.DisplayPriority displayPriority() {
         try {
-            if (mTurnRate.value() < MIN_CLIMB_TURN_RATE && mClimbRate.value() < 0)
+            if(Math.abs(mClimbRate.value()) > MAX_CLIMB_RATE)
+                return MFDElement.DisplayPriority.NONE;
+            else if (mTurnRate.value() < MIN_CLIMB_TURN_RATE && mClimbRate.value() < 0)
                 return MFDElement.DisplayPriority.LOW;
             else if (Math.abs(mTurnRate.value()) > HIGH_CLIMB_RATE)
                 return MFDElement.DisplayPriority.HIGH;

@@ -29,9 +29,9 @@ public class HeightAbvLaunchDisplay extends MFDTextElement {
     private final double MAX_TURN_RATE = 15;
 
     // Listeners
-    private Listener mDistanceFr = ListenerFactory.build(ListenerID.DISTANCEFR, this);
-    private Listener mHeightAbv = ListenerFactory.build(ListenerID.HEIGHTABV, this);
-    private Listener mTurnRate = ListenerFactory.build(ListenerID.TURNRATE, this);
+    private Listener<Double> mDistanceFr = ListenerFactory.build(ListenerID.DISTANCEFR, this);
+    private Listener<Double> mHeightAbv = ListenerFactory.build(ListenerID.HEIGHTABV, this);
+    private Listener<Double> mTurnRate = ListenerFactory.build(ListenerID.TURNRATE, this);
 
     // Initialization/registration
     public HeightAbvLaunchDisplay(FlightDisplay parent) {

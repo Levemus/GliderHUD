@@ -23,8 +23,9 @@ import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothProfile;
 import android.bluetooth.BluetoothGattService;
 import android.bluetooth.BluetoothGattDescriptor;
+import android.bluetooth.BluetoothDevice;
 
-import com.levemus.gliderhud.FlightData.Broadcasters.Bluetooth.Message.BluetoothFlightDataFactory;
+import com.levemus.gliderhud.FlightData.Broadcasters.Bluetooth.Message.BluetoothDataMessageFactory;
 
 import java.util.HashSet;
 import java.util.UUID;
@@ -77,6 +78,8 @@ public class BluetoothBroadcaster extends Broadcaster
             }
         }
         else { Log.e(TAG, "Unable to retrieve BluetoothManager"); }
+        BluetoothDevice device = mBluetoothAdapter.getRemoteDevice(mAddress);
+        mBluetoothGatt = device.connectGatt(mActivity, false, mGattCallback);
     }
 
     @Override
@@ -95,7 +98,7 @@ public class BluetoothBroadcaster extends Broadcaster
         return UUID.fromString("e972af0a-1936-4d24-8a7d-dcf561e08f6b");
     }
 
-    BluetoothFlightDataFactory mMsgFactory = new BluetoothFlightDataFactory();
+    BluetoothDataMessageFactory mMsgFactory = new BluetoothDataMessageFactory();
 
     @Override
     public HashSet<UUID> allChannels() {
@@ -165,14 +168,15 @@ public class BluetoothBroadcaster extends Broadcaster
             super.handleMessage(msg);
             try {
                 String decoded = new String((byte[]) msg.obj, "UTF-8");
-                IMessage btMsg = mMsgFactory.build(decoded);
                 HashSet<UUID> channels = new HashSet<>(allChannels());
+                IMessage btMsg = mMsgFactory.build(decoded);
+                channels.removeAll(allChannels());
+                if(!channels.isEmpty()) {
+                    notifyListeners(channels, new StatusMessage(channels, ChannelStatus.Status.OFFLINE));
+                }
                 if(btMsg != null) {
                     notifyListeners(btMsg);
-                    channels.removeAll(btMsg.channels());
-                    if(!channels.isEmpty()) {
-                        notifyListeners(new StatusMessage(channels, ChannelStatus.Status.OFFLINE));
-                    }
+
                 }
             }catch(Exception e){}
         }

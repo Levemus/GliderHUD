@@ -67,20 +67,20 @@ public class Dispatcher implements IDispatcher {
 
     // Send message to subscribers
     public void postMessage(IConfiguration config, IMessage message) {
+
         HashSet<IMessageNotify> subscribers = new HashSet<>();
-        HashSet<UUID> channels = (HashSet<UUID>) message.channels();
-        if (channels != null){
-            for (UUID channel : channels) {
-                if(mChannelSubcribers.get(channel) != null)
-                    subscribers.addAll(mChannelSubcribers.get(channel));
+        for(UUID channel : config.allChannels()) {
+            if(mChannelSubcribers.containsKey(channel) && mChannelSubcribers.get(channel) != null) {
+                subscribers.addAll(mChannelSubcribers.get(channel));
             }
         }
+
         long time = new Date().getTime();
         for(IMessageNotify subscriber : subscribers) {
             NotifyInterval interval = mNotifyIntervals.get(subscriber);
             if(time - interval.mStartTime > interval.mConfig.notificationInterval()) {
                 HashSet<UUID> intersection = new HashSet<>(interval.mConfig.allChannels());
-                intersection.retainAll(message.channels());
+                intersection.retainAll(config.allChannels());
                 if(!intersection.isEmpty())
                     subscriber.onMessage(new Configuration(config.id(),intersection,config.notificationInterval()),
                         message);

@@ -31,7 +31,7 @@ public class AltitudeDisplay extends FlightDisplay {
     private final double MIN_ALTITUDE = 0.0;
 
     // Listeners
-    private Listener mAltitude = ListenerFactory.build(ListenerID.ALTITUDE, this);
+    private Listener<Double> mAltitude = ListenerFactory.build(ListenerID.ALTITUDE, this);
 
     // Displays
     private TextView mAltiDisplay = null;

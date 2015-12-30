@@ -19,6 +19,7 @@ import com.levemus.gliderhud.FlightData.Broadcasters.Broadcaster;
 import com.levemus.gliderhud.FlightData.Broadcasters.IBroadcaster;
 import com.levemus.gliderhud.FlightData.Broadcasters.Recon.HeadLocationDataBroadcaster;
 import com.levemus.gliderhud.FlightData.Broadcasters.Test.TestFlightDataBroadcaster;
+import com.levemus.gliderhud.FlightData.Broadcasters.Bluetooth.BluetoothBroadcaster;
 import com.levemus.gliderhud.FlightData.Broadcasters.Multiplexer;
 import com.levemus.gliderhud.FlightDisplay.FlightDisplay;
 import com.levemus.gliderhud.FlightDisplay.MainDisplay;
@@ -32,7 +33,7 @@ public class HUDActivity extends Activity {
 
 	private Broadcaster[] mBroadcasterList = {
 			new HeadLocationDataBroadcaster(),
-			//new BluetoothBroadcaster(),
+			new BluetoothBroadcaster(),
 			//new InternalGPSFlightDataBroadcaster(),
 			new TestFlightDataBroadcaster()
 	};

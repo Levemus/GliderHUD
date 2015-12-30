@@ -11,6 +11,7 @@ package com.levemus.gliderhud.FlightData.Broadcasters.Components.Filters;
  (c) 2015 Levemus Software, Inc.
  */
 
+import com.levemus.gliderhud.FlightData.Configuration.Configuration;
 import com.levemus.gliderhud.FlightData.Configuration.IConfiguration;
 import com.levemus.gliderhud.FlightData.Messages.IMessage;
 import com.levemus.gliderhud.FlightData.Messages.IMessageNotify;
@@ -31,34 +32,32 @@ public class StatusFilter extends Filter {
 
     @Override
     public void onMessage(IConfiguration config, IMessage message) {
-        HashSet<UUID> channelsToSource = new HashSet<>();
-        for(UUID channel : (HashSet<UUID>)message.channels()) {
-            if(!mChannelToSourceId.containsKey(channel) ||
-                    mChannelToSourceId.get(channel) == null) {
-                mChannelToSourceId.put(channel, config.id());
-            }
 
-            if(mChannelToSourceId.get(channel).compareTo(config.id())== 0) {
-                channelsToSource.add(channel);
+        for (UUID channel : (HashSet<UUID>) message.channels()) {
+            if (mChannelToSourceId.get(channel) == null)
+                mChannelToSourceId.put(channel, config.id());
+        }
+
+        HashSet<UUID> channelsToNotify = new HashSet<>();
+        for (UUID channel : config.allChannels()) {
+            if (mChannelToSourceId.get(channel).compareTo(config.id()) == 0) {
+                channelsToNotify.add(channel);
             }
         }
 
-        if(!channelsToSource.isEmpty()) {
-            if(message.getType() == IMessage.Type.STATUS) {
-                StatusMessage statusMsg = (StatusMessage)message;
-                if(statusMsg != null) {
-                    if(statusMsg.get(statusMsg.channels().iterator().next()) == ChannelStatus.Status.OFFLINE) {
-                        for(UUID channel : channelsToSource) {
-                            mChannelToSourceId.put(channel, null);
-                        }
-                    }
+        if (message.getType() == IMessage.Type.STATUS) {
+            StatusMessage statusMsg = (StatusMessage) message;
+            if (statusMsg != null) {
+                for (UUID channel : (HashSet<UUID>) message.channels()) {
+                    if (statusMsg.get(channel) == ChannelStatus.Status.OFFLINE)
+                        mChannelToSourceId.put(channel, null);
                 }
             }
+        }
 
-            // send the msg
-            if(mSubscriber != null) {
-                mSubscriber.onMessage(config, message);
-            }
+        if (!channelsToNotify.isEmpty()) {
+            Configuration newConfig = new Configuration(config.id(), channelsToNotify, config.notificationInterval());
+            mSubscriber.onMessage(newConfig, message);
         }
     }
 }

@@ -29,7 +29,7 @@ public class GroundSpeedDisplay extends FlightDisplay {
     private final String TAG = this.getClass().getSimpleName();
 
     // Listeners
-    private Listener mGroundSpeed = ListenerFactory.build(ListenerID.GROUNDSPEED, this);
+    private Listener<Double> mGroundSpeed = ListenerFactory.build(ListenerID.GROUNDSPEED, this);
 
     // Displays
     private TextView mGroundSpeedDisplay = null;

@@ -112,7 +112,8 @@ public class TestFlightDataBroadcaster extends Broadcaster {
                 MessageChannels.BEARING,
                 MessageChannels.VARIO,
                 MessageChannels.LONGITUDE,
-                MessageChannels.LATITUDE));
+                MessageChannels.LATITUDE
+                ));
     }
 
     @Override

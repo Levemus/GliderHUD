@@ -34,7 +34,7 @@ public class Filter implements IMessageNotify, IFilter {
 
     @Override
     public void onMessage(IConfiguration config, IMessage message) {
-        for(UUID channel : (HashSet<UUID>)message.channels()) {
+        for(UUID channel : config.allChannels()) {
             if(!mChannelToSourceId.containsKey(channel) ||
                     mChannelToSourceId.get(channel) == null) {
                 mChannelToSourceId.put(channel, config.id());

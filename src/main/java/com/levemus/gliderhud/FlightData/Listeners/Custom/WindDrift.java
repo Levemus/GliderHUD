@@ -34,7 +34,7 @@ import java.util.UUID;
 /**
  * Created by mark@levemus on 15-12-20.
  */
-public class WindDrift extends Listener implements IMessageNotify, IConfiguration, IListener {
+public class WindDrift extends Listener <Vector> implements IMessageNotify, IConfiguration, IListener {
 
     // IConfiguration
     HashSet<UUID> mChannels = new HashSet(Arrays.asList(
@@ -118,17 +118,6 @@ public class WindDrift extends Listener implements IMessageNotify, IConfiguratio
     private final double MAX_WIND_RESULT_SPEED_VARIATION = 5;
     private ArrayList<OffsetCircle> mPreviousWindResults = new ArrayList<OffsetCircle>();
 
-    public double speed() {
-        if(mWind != null)
-            return mWind.mCenterOffset.Magnitude();
-        return 0;
-    }
-
-    public double direction() {
-        if(mWind != null)
-            return mWind.mCenterOffset.Direction();
-        return 0;
-    }
-
-    public Double value() { throw new java.lang.UnsupportedOperationException(); }
+    public Vector invalid() { return null; }
+    public Vector value() { return mWind.mCenterOffset; }
 }

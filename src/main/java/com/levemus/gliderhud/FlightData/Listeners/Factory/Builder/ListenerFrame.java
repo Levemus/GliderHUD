@@ -26,7 +26,9 @@ import java.util.UUID;
 /**
  * Created by mark@levemus on 15-12-26.
  */
-public class ListenerFrame extends Listener {
+public class ListenerFrame extends Listener<Double> {
+
+    public Double invalid() {return -Double.MAX_VALUE;}
     private HashMap<UUID, Double> mValues = new HashMap<>();
     private IConverter mConverter = null;
     private List<IAdjuster> mAdjusters = null;

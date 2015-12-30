@@ -27,7 +27,7 @@ public class DistanceFrLaunchDisplay extends MFDTextElement {
     private final double MIN_DISTANCE_FROM_LAUNCH = 5000; // meters
 
     // Listeners
-    private Listener mDistanceFr = ListenerFactory.build(ListenerID.DISTANCEFR, this);
+    private Listener<Double> mDistanceFr = ListenerFactory.build(ListenerID.DISTANCEFR, this);
 
     // Initialization/registration
     public DistanceFrLaunchDisplay(FlightDisplay parent) {
