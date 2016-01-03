@@ -1,0 +1,77 @@
+package com.levemus.gliderhud.FlightData.Processors;
+
+/*
+ Both the author and publisher makes no representations or warranties
+ about the suitability of this software, either expressed or implied, including
+ but not limited to the implied warranties of merchantability, fitness
+ for a particular purpose or noninfringement. Both the author and publisher
+ shall not be liable for any damages suffered as a result of using,
+ modifying or distributing the software or its derivatives.
+
+ (c) 2015 Levemus Software, Inc.
+ */
+
+import java.util.HashSet;
+import java.util.UUID;
+
+import android.os.Handler;
+
+import com.levemus.gliderhud.FlightData.Managers.IChannelDataProvider;
+import com.levemus.gliderhud.FlightData.Configuration.IConfiguration;
+
+/**
+ * Created by mark@levemus on 15-12-26.
+ */
+public abstract class Processor<E>implements IConfiguration, IProcessor {
+
+    // IProcessor
+    protected IChannelDataProvider mProvider;
+    @Override
+    public void registerProvider(IChannelDataProvider provider) {mProvider = provider;}
+    @Override
+    public void deRegisterProvider(IChannelDataProvider provider) {mProvider = null;}
+
+    Handler mHandler = new Handler();
+
+    @Override
+    public void start() {
+        mHandler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                process();
+                mHandler.postDelayed(this, refreshPeriod());
+            }
+        }, refreshPeriod());
+    }
+
+    @Override
+    public void stop() {
+        mHandler.removeCallbacksAndMessages(null);
+    }
+
+    public void process() {}
+
+    @Override
+    public long refreshPeriod() { return 500; }
+
+    // IConfiguration
+    protected HashSet<UUID> mChannels = new HashSet();
+    @Override
+    public HashSet<UUID> channels() {
+        return mChannels;
+    }
+
+    protected UUID mId;
+    @Override
+    public UUID id() { return mId; }
+
+    // Value
+    public boolean isValid() {
+        return (!mValue.equals(invalid()));
+    }
+    protected abstract E invalid();
+    protected E mLastValue = invalid();
+    protected abstract boolean hasChanged();
+    protected E mValue = invalid();
+    public E value() {return mValue;}
+}
