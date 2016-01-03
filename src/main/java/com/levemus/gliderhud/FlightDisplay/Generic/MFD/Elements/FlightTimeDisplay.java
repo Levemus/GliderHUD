@@ -41,7 +41,7 @@ public class FlightTimeDisplay extends MFDTextElement {
 
     @Override
     public void registerProvider(IChannelDataProvider provider) {
-        mGroundSpeed = ProcessorFactory.build(ProcessorID.GROUNDSPEED, provider);
+        mGroundSpeed = ProcessorFactory.build(ProcessorID.GROUNDSPEED);
         mGroundSpeed.registerProvider(provider);
         mGroundSpeed.start();
     }

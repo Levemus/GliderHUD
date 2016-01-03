@@ -69,7 +69,6 @@ public class ProcessorFrame extends Processor<Double> {
         mId = config.mId;
         mConverter = config.mConverter;
         mAdjusters = config.mAdjusters;
-        mProvider = config.mProvider;
         mPeriod = config.mPeriod;
     }
 }

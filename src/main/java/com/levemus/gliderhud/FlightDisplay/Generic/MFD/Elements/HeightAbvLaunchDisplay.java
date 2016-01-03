@@ -44,10 +44,10 @@ public class HeightAbvLaunchDisplay extends MFDTextElement {
     @Override
     public void registerProvider(IChannelDataProvider provider)
     {
-        mDistanceFr = ProcessorFactory.build(ProcessorID.DISTANCEFR, provider);
-        mHeightAbv = ProcessorFactory.build(ProcessorID.HEIGHTABV, provider);
-        mTurnRate = ProcessorFactory.build(ProcessorID.TURNRATE, provider);
-        mVario = ProcessorFactory.build(ProcessorID.VARIO, provider);
+        mDistanceFr = ProcessorFactory.build(ProcessorID.DISTANCEFR);
+        mHeightAbv = ProcessorFactory.build(ProcessorID.HEIGHTABV);
+        mTurnRate = ProcessorFactory.build(ProcessorID.TURNRATE);
+        mVario = ProcessorFactory.build(ProcessorID.VARIO);
         mDistanceFr.registerProvider(provider);
         mHeightAbv.registerProvider(provider);
         mTurnRate.registerProvider(provider);
@@ -89,10 +89,6 @@ public class HeightAbvLaunchDisplay extends MFDTextElement {
     @Override
     public DisplayPriority displayPriority() {
         try {
-            mHeightAbv.process();
-            mTurnRate.process();
-            mDistanceFr.process();
-            mVario.process();
             if(mHeightAbv.value() < MIN_HEIGHT_ABVL || mDistanceFr.value() > MAX_DISTANCE_FROM_LAUNCH)
                 return DisplayPriority.NONE;
             else if(mTurnRate.value() < MAX_TURN_RATE || mVario.value() < MIN_CLIMB_RATE)

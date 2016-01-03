@@ -59,9 +59,11 @@ class WindDisplay extends FlightDisplay {
     private double DEGREES_FULL_CIRCLE = 360;
     private double DEGREES_HALF_CIRCLE = DEGREES_FULL_CIRCLE / 2;
     @Override
-    public void display() {
+    public void display(Activity activity) {
 
         try {
+            mWindDirectionDisplay.display(activity);
+
             if (mWindDrift == null || !mWindDrift.isValid() || mWindDrift.value().Magnitude() <= 0)
                 return;
 
@@ -72,9 +74,7 @@ class WindDisplay extends FlightDisplay {
             mWindDirectionDisplay.setCurrentDirection(mWindDirection);
             mWindSpeedDisplay.setCurrentDirection(mWindDirection);
             mWindSpeedDisplay.setText(Double.toString(Math.round(windSpeed * 3.6)));
-
-            mWindDirectionDisplay.display();
-            mWindSpeedDisplay.display();
+            mWindSpeedDisplay.display(activity);
         } catch(Exception e) {}
     }
 

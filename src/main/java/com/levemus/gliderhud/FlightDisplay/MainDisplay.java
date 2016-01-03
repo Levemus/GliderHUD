@@ -39,9 +39,6 @@ public class MainDisplay extends FlightDisplay {
     @Override
     public void init(Activity activity)
     {
-        activity.requestWindowFeature(Window.FEATURE_NO_TITLE);
-        activity.setContentView(com.levemus.gliderhud.R.layout.activity_compass);
-
         for(IFlightDisplay display : mDisplays ) {
             display.init(activity);
         }

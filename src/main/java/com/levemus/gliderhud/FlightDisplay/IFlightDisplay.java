@@ -21,7 +21,7 @@ import com.levemus.gliderhud.FlightData.Managers.IChannelDataProvider;
 public interface IFlightDisplay {
     void init(Activity activity);
     void deInit(Activity activity);
-    void display();
+    void display(Activity activity);
     void hide();
     void registerProvider(IChannelDataProvider provider);
     void deRegisterProvider(IChannelDataProvider provider);

@@ -37,7 +37,7 @@ public class DistanceFrLaunchDisplay extends MFDTextElement {
 
     @Override
     public void registerProvider(IChannelDataProvider provider) {
-        mDistanceFr = ProcessorFactory.build(ProcessorID.DISTANCEFR, provider);
+        mDistanceFr = ProcessorFactory.build(ProcessorID.DISTANCEFR);
         mDistanceFr.registerProvider(provider);
         mDistanceFr.start();
     }

@@ -32,12 +32,11 @@ import com.levemus.gliderhud.FlightData.Processors.Factory.Builder.Operations.IA
  * Created by mark@levemus on 15-12-27.
  */
 public class ProcessorFactory {
-    public static Processor build(UUID id, IChannelDataProvider provider) {
+    public static Processor build(UUID id) {
         if(id == ProcessorID.ALTITUDE)
             return new ProcessorBuilder()
                     .channels(new HashSet<>(Arrays.asList(MessageChannels.ALTITUDE)))
                     .id(id)
-                    .provider(provider)
                     .build();
 
         if(id == ProcessorID.BEARING)
@@ -45,14 +44,12 @@ public class ProcessorFactory {
                     .channels(new HashSet<>(Arrays.asList(MessageChannels.BEARING)))
                     .id(id)
                     .period(1000L)
-                    .provider(provider)
                     .build();
 
         if(id == ProcessorID.GROUNDSPEED)
             return new ProcessorBuilder()
                     .channels(new HashSet<>(Arrays.asList(MessageChannels.GROUNDSPEED)))
                     .id(id)
-                    .provider(provider)
                     .build();
 
         if(id == ProcessorID.VARIO)
@@ -60,14 +57,12 @@ public class ProcessorFactory {
                     .channels(new HashSet<>(Arrays.asList(MessageChannels.VARIO)))
                     .id(id)
                     .adjusters(new ArrayList<IAdjuster>(Arrays.asList(new SmoothAdjuster(5))))
-                    .provider(provider)
                     .build();
 
         if(id == ProcessorID.YAW)
             return new ProcessorBuilder()
                     .channels(new HashSet<>(Arrays.asList(MessageChannels.YAW)))
                     .id(id)
-                    .provider(provider)
                     .build();
 
         if(id == ProcessorID.TURNRATE)
@@ -77,14 +72,12 @@ public class ProcessorFactory {
                     .adjusters(new ArrayList<>(Arrays.asList(
                             new TimeRateAdjuster(),
                             new SmoothAdjuster(5))))
-                    .provider(provider)
                     .build();
 
         if(id == ProcessorID.DISTANCEFR)
             return new ProcessorBuilder()
                     .channels(new HashSet<>(Arrays.asList(MessageChannels.LONGITUDE, MessageChannels.LATITUDE)))
                     .converter(new DistanceFromConverter())
-                    .provider(provider)
                     .build();
 
         if(id == ProcessorID.GLIDERATIO)
@@ -93,14 +86,12 @@ public class ProcessorFactory {
                     .id(id)
                     .converter(new DivideConverter(MessageChannels.GROUNDSPEED, MessageChannels.VARIO))
                     .adjusters(new ArrayList<IAdjuster>(Arrays.asList(new SmoothAdjuster(5))))
-                    .provider(provider)
                     .build();
 
         if(id == ProcessorID.HEIGHTABV)
             return new ProcessorBuilder()
                     .channels(new HashSet<>(Arrays.asList(MessageChannels.ALTITUDE)))
                     .converter(new DifferenceConverter(MessageChannels.ALTITUDE))
-                    .provider(provider)
                     .build();
 
         throw new java.lang.UnsupportedOperationException();

@@ -12,6 +12,7 @@ package com.levemus.gliderhud.FlightDisplay.Recon.Components;
  */
 
 import android.app.Activity;
+import android.content.Context;
 
 import com.levemus.gliderhud.FlightData.Managers.IChannelDataProvider;
 import com.levemus.gliderhud.FlightDisplay.IFlightDisplay;
@@ -28,9 +29,8 @@ abstract public class DirectionDisplay implements IFlightDisplay {
     protected double mCurrentDirection = 0;
     protected DirectionDisplayOffset mImageOffset = null;
     protected DirectionDisplay() {}
-
     // IFlightDisplay
-    public void display() {}
+    public void display(Activity activity) {}
     public void hide() {}
     public void init(Activity activity) {}
     public void deInit(Activity activity) {}

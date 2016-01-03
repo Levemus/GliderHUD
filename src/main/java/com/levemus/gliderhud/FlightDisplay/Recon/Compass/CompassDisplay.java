@@ -14,6 +14,7 @@ package com.levemus.gliderhud.FlightDisplay.Recon.Compass;
 import java.util.UUID;
 
 import android.app.Activity;
+import android.content.Context;
 import android.widget.ImageView;
 
 import com.levemus.gliderhud.FlightData.Configuration.Configuration;
@@ -39,13 +40,15 @@ public class CompassDisplay extends FlightDisplay {
     private BearingDisplay mBearingDisplay = null;
 
     @Override
-    public void init(Activity activity)
+    public void init(final Activity activity)
     {
         super.init(activity);
 
-        mHeadingDisplay = new DirectionDisplayImage((ImageView)
-                activity.findViewById(com.levemus.gliderhud.R.id.compass_bar));
-
+        ((Activity)mContext).runOnUiThread(new Runnable() {
+            public void run() {
+                mHeadingDisplay = new DirectionDisplayImage((ImageView)
+                        activity.findViewById(com.levemus.gliderhud.R.id.compass_bar));
+            }});
         mOrientation = new HeadLocationProvider();
         mOrientation.start(activity);
 
@@ -84,7 +87,7 @@ public class CompassDisplay extends FlightDisplay {
     }
 
     @Override
-    public void display()
+    public void display(Activity activity)
     {
         try {
             Configuration config = new Configuration(
@@ -95,9 +98,11 @@ public class CompassDisplay extends FlightDisplay {
             mHeadingDisplay.setCurrentDirection(DirectionDisplay.smoothDirection(yaw, current));
             mBearingDisplay.setBaseAngle(mHeadingDisplay.getCurrentDirection());
             mWindDisplay.setBaseAngle(mHeadingDisplay.getCurrentDirection());
-            mHeadingDisplay.display();
-            mBearingDisplay.display();
-            mWindDisplay.display();
+
+            mHeadingDisplay.display(activity);
+            mWindDisplay.display(activity);
+            mBearingDisplay.display(activity);
+
         }catch(Exception e){}
     }
 

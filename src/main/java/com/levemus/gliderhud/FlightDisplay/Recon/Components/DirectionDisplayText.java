@@ -12,6 +12,7 @@ package com.levemus.gliderhud.FlightDisplay.Recon.Components;
  */
 
 import android.app.Activity;
+import android.content.Context;
 import android.widget.TextView;
 
 import com.levemus.gliderhud.Utils.Angle;
@@ -30,13 +31,13 @@ public class DirectionDisplayText extends DirectionDisplay{
     }
 
     @Override
-    public void init(Activity activity) {}
-
-    @Override
-    public void display()
+    public void display(Activity activity)
     {
-        double angle = (mImageOffset != null ? Angle.delta(mCurrentDirection, mImageOffset.getParentDirection()) : mCurrentDirection);
-        mTextView.setX((float)getScreenLocation(-angle).X());
+        activity.runOnUiThread(new Runnable() {
+            public void run() {
+                double angle = (mImageOffset != null ? Angle.delta(mCurrentDirection, mImageOffset.getParentDirection()) : mCurrentDirection);
+                mTextView.setX((float) getScreenLocation(-angle).X());
+            }});
     }
 
     public void setText(String value)

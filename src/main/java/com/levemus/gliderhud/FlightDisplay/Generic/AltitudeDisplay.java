@@ -47,7 +47,7 @@ public class AltitudeDisplay extends FlightDisplay {
 
     @Override
     public void registerProvider(IChannelDataProvider provider) {
-        mAltitude = ProcessorFactory.build(ProcessorID.ALTITUDE, provider);
+        mAltitude = ProcessorFactory.build(ProcessorID.ALTITUDE);
         mAltitude.registerProvider(provider);
         mAltitude.start();
     }
@@ -61,7 +61,7 @@ public class AltitudeDisplay extends FlightDisplay {
 
     // Operation
     @Override
-    public void display() {
+    public void display(Activity activity) {
         try {
             if(!mAltitude.isValid())
                 mAltiDisplay.setText("---");

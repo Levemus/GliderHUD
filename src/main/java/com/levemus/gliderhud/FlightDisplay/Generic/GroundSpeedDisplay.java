@@ -44,7 +44,7 @@ public class GroundSpeedDisplay extends FlightDisplay {
 
     @Override
     public void registerProvider(IChannelDataProvider provider) {
-        mGroundSpeed = ProcessorFactory.build(ProcessorID.GROUNDSPEED, provider);
+        mGroundSpeed = ProcessorFactory.build(ProcessorID.GROUNDSPEED);
         mGroundSpeed.registerProvider(provider);
         mGroundSpeed.start();
     }
@@ -58,7 +58,7 @@ public class GroundSpeedDisplay extends FlightDisplay {
 
     // Operation
     @Override
-    public void display() {
+    public void display(Activity activity) {
         try {
             if(!mGroundSpeed.isValid())
                 mGroundSpeedDisplay.setText("---");

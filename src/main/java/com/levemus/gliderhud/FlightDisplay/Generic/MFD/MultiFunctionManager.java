@@ -70,7 +70,7 @@ public class MultiFunctionManager extends FlightDisplay {
     private long mCurrentDisplayStart = 0;
 
     @Override
-    public void display() {
+    public void display(Activity activity) {
         long currentTime = new Date().getTime();
 
         if(mCurrentDisplayStart == 0)
@@ -82,7 +82,7 @@ public class MultiFunctionManager extends FlightDisplay {
         determineDisplayElement();
 
         if(mDisplayQueue.size() > 0)
-            mDisplayQueue.get(0).display();
+            mDisplayQueue.get(0).display(activity);
     }
 
     private void determineDisplayElement() {

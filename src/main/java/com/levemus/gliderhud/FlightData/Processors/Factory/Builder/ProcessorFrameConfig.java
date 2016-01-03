@@ -27,6 +27,5 @@ public class ProcessorFrameConfig {
     public HashSet<UUID> mChannels = new HashSet<>();
     public IConverter mConverter = null;
     public List<IAdjuster> mAdjusters = null;
-    public IChannelDataProvider mProvider = null;
     public Long mPeriod = 500L;
 }

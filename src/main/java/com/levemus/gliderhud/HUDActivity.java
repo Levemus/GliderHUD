@@ -31,58 +31,29 @@ import com.levemus.gliderhud.FlightDisplay.MainDisplay;
 public class HUDActivity extends Activity {
 	private final String TAG = this.getClass().getSimpleName();
 
-	DataManager mFlightManager = new DataManager();
-
-	private Provider[] mProviderServices = {
-			new BluetoothProvider(),
-			//new InternalGPSFlightDataProvider(),
-			new TestProvider()
-	};
-
-	private IFlightDisplay[] mDisplays = {
-			new MainDisplay(),
-	};
+	HUD mHUD = new HUD();
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		Log.i(TAG, "onCreate");
+		mHUD.init(this);
 		super.onCreate(savedInstanceState);
 
-		for(Provider provider : mProviderServices) {
-			mFlightManager.registerProvider(provider);
-			provider.registerClient(mFlightManager);
-		}
-
-		for(IFlightDisplay display : mDisplays) {
-			display.init(this);
-		}
 	}
 
 	@Override
 	public void onResume() {
 		Log.i(TAG, "onResume");
 		super.onResume();
-
-		for(Provider provider : mProviderServices) {
-			provider.start(this);
-		}
-
-		for(IFlightDisplay display : mDisplays) {
-			display.registerProvider(mFlightManager);
-		}
+		mHUD.start();
+		mHUD.resume();
 	}
 
 	@Override
 	public void onPause()  {
 		Log.d(TAG, "onPause");
-
-		for(IFlightDisplay display : mDisplays) {
-			display.deRegisterProvider(mFlightManager);
-		}
-
-		for(Provider broadcaster : mProviderServices) {
-			broadcaster.stop(this);
-		}
+		mHUD.pause();
+		mHUD.stop();
 
 		super.onPause();
 	}
@@ -90,16 +61,7 @@ public class HUDActivity extends Activity {
 	@Override
 	public void onDestroy(){
 		Log.d(TAG, "onDestroy");
-
-		for(IFlightDisplay display : mDisplays) {
-			display.deInit(this);
-		}
-
-		for(Provider provider : mProviderServices) {
-			mFlightManager.deRegisterProvider(provider);
-			provider.deRegisterClient(mFlightManager);
-		}
-
+		mHUD.deInit();
 		super.onDestroy();
 	}
 }

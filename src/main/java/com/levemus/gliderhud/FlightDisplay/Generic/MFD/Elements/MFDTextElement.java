@@ -34,7 +34,7 @@ public abstract class MFDTextElement extends MFDElement {
     protected String value() {return "";}
 
     @Override
-    public void display() {
+    public void display(Activity activity) {
         mMFDTextLayout.setVisibility(View.VISIBLE);
         try {
             mMFDDisplay.setText(value());

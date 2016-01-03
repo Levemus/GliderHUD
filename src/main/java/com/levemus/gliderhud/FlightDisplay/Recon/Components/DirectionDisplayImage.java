@@ -11,6 +11,7 @@ package com.levemus.gliderhud.FlightDisplay.Recon.Components;
  (c) 2015 Levemus Software, Inc.
  */
 
+import android.app.Activity;
 import android.graphics.Matrix;
 import android.widget.ImageView;
 
@@ -25,28 +26,41 @@ public class DirectionDisplayImage extends DirectionDisplay {
     protected ImageView mImageView = null;
 
     Point location = new Point(-1,-1);
-    public DirectionDisplayImage(ImageView image)
+    public DirectionDisplayImage(final ImageView image)
     {
         mImageView = image;
-        Matrix matrix = new Matrix();
-        matrix.reset();
-        matrix.postTranslate(-428, 0);
+    }
 
-        mImageView.setScaleType(ImageView.ScaleType.MATRIX);
-        mImageView.setImageMatrix(matrix);
+    public void init(Activity activity) {
+        super.init(activity);
+    }
+
+    public void deInit(Activity activity) {
+        mImageView = null;
+        super.deInit(activity);
     }
 
     @Override
-    public void display()
+    public void display(Activity activity)
     {
-        double angle = (mImageOffset != null ? mImageOffset.getDirectionOffset(mCurrentDirection) : mCurrentDirection);
-        double locationX = location.X();
-        double screenLocationX = -(getScreenLocation(angle).X());
-        if(locationX == screenLocationX)
-            return;
-        location = new Point(screenLocationX, 0);
-        mImageView.getImageMatrix().reset();
-        mImageView.getImageMatrix().postTranslate((int)location.X(), 0);
-        mImageView.postInvalidate();
+        activity.runOnUiThread(new Runnable() {
+            public void run() {
+                double angle = (mImageOffset != null ? mImageOffset.getDirectionOffset(mCurrentDirection) : mCurrentDirection);
+                double locationX = location.X();
+                double screenLocationX = -(getScreenLocation(angle).X());
+                if (locationX == screenLocationX)
+                    return;
+                Matrix matrix = new Matrix();
+                matrix.reset();
+                matrix.postTranslate(-428, 0);
+
+                mImageView.setScaleType(ImageView.ScaleType.MATRIX);
+                mImageView.setImageMatrix(matrix);
+                location = new Point(screenLocationX, 0);
+                mImageView.getImageMatrix().reset();
+                mImageView.getImageMatrix().postTranslate((int) location.X(), 0);
+                mImageView.postInvalidate();
+            }
+        });
     }
 }

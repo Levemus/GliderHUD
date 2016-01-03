@@ -1,6 +1,7 @@
 package com.levemus.gliderhud.FlightDisplay;
 
 import android.app.Activity;
+import android.content.Context;
 import android.os.Handler;
 
 import com.levemus.gliderhud.FlightData.Managers.IChannelDataProvider;
@@ -11,14 +12,19 @@ import com.levemus.gliderhud.FlightData.Managers.IChannelDataProvider;
 
 public abstract class FlightDisplay implements IFlightDisplay {
 
-    Handler handler = new Handler();
+    protected Context mContext;
+    private Handler handler = new Handler();
     @Override
-    public void init(Activity activity) {
+    public void init(final Activity activity) {
+        mContext = activity;
         if(refreshPeriod() != Integer.MAX_VALUE) {
             handler.postDelayed(new Runnable() {
                 @Override
                 public void run() {
-                    display();
+                    activity.runOnUiThread(new Runnable() {
+                        public void run() {
+                            display(activity);
+                        }});
                     handler.postDelayed(this, refreshPeriod());
                 }
             }, refreshPeriod());
@@ -28,10 +34,11 @@ public abstract class FlightDisplay implements IFlightDisplay {
     @Override
     public void deInit(Activity activity) {
         handler.removeCallbacksAndMessages(null);
+        mContext = null;
     }
 
     @Override
-    public void display() {}
+    public void display(Activity activity) {}
 
     @Override
     public void hide() {}

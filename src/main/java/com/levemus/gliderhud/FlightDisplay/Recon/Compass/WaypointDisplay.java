@@ -17,6 +17,8 @@ import java.util.HashSet;
 import android.app.Activity;
 
 import com.levemus.gliderhud.FlightData.Managers.IChannelDataProvider;
+import com.levemus.gliderhud.FlightData.Processors.Factory.ProcessorFactory;
+import com.levemus.gliderhud.FlightData.Processors.Factory.ProcessorID;
 import com.levemus.gliderhud.FlightData.Processors.Processor;
 import com.levemus.gliderhud.FlightData.Processors.Factory.Builder.ProcessorBuilder;
 import com.levemus.gliderhud.FlightData.Messages.MessageChannels;
@@ -53,19 +55,32 @@ class WaypointDisplay extends FlightDisplay {
     {
         mLongitude = new ProcessorBuilder()
                 .channels(new HashSet<>(Arrays.asList(MessageChannels.LONGITUDE)))
-                .provider(provider)
                 .build();
 
         mLatitude = new ProcessorBuilder()
                 .channels(new HashSet<>(Arrays.asList(MessageChannels.LATITUDE)))
-                .provider(provider)
                 .build();
+
+        mLongitude.registerProvider(provider);
+        mLatitude.registerProvider(provider);
+        mLongitude.start();
+        mLatitude.start();
+    }
+
+    @Override
+    public void deRegisterProvider(IChannelDataProvider provider) {
+        mLongitude.stop();
+        mLatitude.stop();
+        mLongitude.deRegisterProvider(provider);
+        mLatitude.deRegisterProvider(provider);
+        mLongitude = null;
+        mLatitude = null;
     }
 
     private Double MIN_DISTANCE = 50.0;
 
     @Override
-    public void display() {
+    public void display(Activity activity) {
         try {
             Double longitude = mLongitude.value();
             Double latitude = mLatitude.value();
@@ -78,11 +93,11 @@ class WaypointDisplay extends FlightDisplay {
             double direction = turnPoint.Direction();
 
             mDirectionDisplay.setCurrentDirection(direction);
-            mDirectionDisplay.display();
+            mDirectionDisplay.display(activity);
 
             mDistanceDisplay.setCurrentDirection(direction);
             mDistanceDisplay.setText(Double.toString(Math.round(distance / 100) / 10));
-            mDistanceDisplay.display();
+            mDistanceDisplay.display(activity);
         } catch(Exception e) {}
     }
 

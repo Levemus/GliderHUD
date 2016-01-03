@@ -25,7 +25,7 @@ public class GlideRatioDisplay extends MFDTextElement {
 
     // Constants
     private final String TAG = this.getClass().getSimpleName();
-    private final Double MIN_GLIDE = -0.01;
+    private final Double MIN_GLIDE = 0.00;
     private final Double CRITICAL_GLIDE = -3.0;
     private final Double MAX_TURN_RATE = 10.0;
     private final Double MAX_GLIDE_VALUE = -100.0;
@@ -41,8 +41,8 @@ public class GlideRatioDisplay extends MFDTextElement {
 
     @Override
     public void registerProvider(IChannelDataProvider provider) {
-        mTurnRate = ProcessorFactory.build(ProcessorID.TURNRATE, provider);
-        mGlide = ProcessorFactory.build(ProcessorID.GLIDERATIO, provider);
+        mTurnRate = ProcessorFactory.build(ProcessorID.TURNRATE);
+        mGlide = ProcessorFactory.build(ProcessorID.GLIDERATIO);
         mTurnRate.registerProvider(provider);
         mGlide.registerProvider(provider);
         mTurnRate.start();

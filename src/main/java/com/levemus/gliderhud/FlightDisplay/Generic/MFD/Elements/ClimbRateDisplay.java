@@ -40,8 +40,8 @@ public class ClimbRateDisplay extends MFDTextElement {
 
     @Override
     public void registerProvider(IChannelDataProvider provider) {
-        mClimbRate = ProcessorFactory.build(ProcessorID.VARIO, provider);
-        mTurnRate = ProcessorFactory.build(ProcessorID.TURNRATE, provider);
+        mClimbRate = ProcessorFactory.build(ProcessorID.VARIO);
+        mTurnRate = ProcessorFactory.build(ProcessorID.TURNRATE);
         mClimbRate.registerProvider(provider);
         mTurnRate.registerProvider(provider);
         mClimbRate.start();

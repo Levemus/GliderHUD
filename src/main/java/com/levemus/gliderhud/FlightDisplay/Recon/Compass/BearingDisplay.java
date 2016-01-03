@@ -42,11 +42,11 @@ class BearingDisplay extends FlightDisplay {
     private double MIN_GROUND_SPEED = 0.3;
 
     @Override
-    public void display() {
+    public void display(Activity activity) {
         try {
             if (mGroundSpeed.value() > MIN_GROUND_SPEED) {
                 mBearingDisplay.setCurrentDirection(mBearing.value());
-                mBearingDisplay.display();
+                mBearingDisplay.display(activity);
             }
         }catch(Exception e){}
     }
@@ -54,14 +54,18 @@ class BearingDisplay extends FlightDisplay {
     @Override
     public void registerProvider(IChannelDataProvider provider)
     {
-        mBearing = ProcessorFactory.build(ProcessorID.BEARING, provider);
-        mGroundSpeed = ProcessorFactory.build(ProcessorID.GROUNDSPEED, provider);
+        mBearing = ProcessorFactory.build(ProcessorID.BEARING);
+        mGroundSpeed = ProcessorFactory.build(ProcessorID.GROUNDSPEED);
+        mBearing.registerProvider(provider);
+        mGroundSpeed.registerProvider(provider);
         mBearing.start();
         mGroundSpeed.start();
     }
 
     @Override
     public void deRegisterProvider(IChannelDataProvider provider) {
+        mBearing.deRegisterProvider(provider);
+        mGroundSpeed.deRegisterProvider(provider);
         mBearing.stop();
         mGroundSpeed.stop();
         mBearing = null;

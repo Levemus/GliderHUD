@@ -47,11 +47,6 @@ public class ProcessorBuilder {
         return this;
     }
 
-    public ProcessorBuilder provider(IChannelDataProvider provider) {
-        mConfig.mProvider = provider;
-        return this;
-    }
-
     public ProcessorBuilder period(Long period) {
         mConfig.mPeriod = period;
         return this;
