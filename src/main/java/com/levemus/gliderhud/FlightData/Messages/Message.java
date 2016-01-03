@@ -14,36 +14,39 @@ package com.levemus.gliderhud.FlightData.Messages;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.UUID;
+import java.io.Serializable;
 
 /**
  * Created by mark@levemus on 15-12-28.
  */
-public abstract class Message<E> implements IMessage{
+public abstract class Message<E> implements IMessage<E>, Serializable {
+    private final String TAG = this.getClass().getSimpleName();
 
-        @Override
-        public abstract Type getType();
+    @Override
+    public abstract Type getType();
 
-        protected HashMap<UUID, E> mValues;
-        public Message(HashMap<UUID, E> values) {
-            mValues = values;
-        }
-        public Message() {
+    protected HashMap<UUID, E> mValues;
+
+    public Message(HashMap<UUID, E> values) {
+        mValues = values;
+    }
+
+    public Message() {
         mValues = new HashMap<UUID, E>();
     }
 
-        @Override
-        public E get(UUID channel) throws UnsupportedOperationException {
-            try {
-                if(mValues.containsKey(channel))
-                    return mValues.get(channel);
-            }
-            catch(Exception e) {}
-            throw new UnsupportedOperationException();
+    @Override
+    public E get(UUID channel) throws UnsupportedOperationException {
+        try {
+            if (mValues.containsKey(channel))
+                return mValues.get(channel);
+        } catch (Exception e) {
         }
-
-        @Override
-        public HashSet<UUID> channels() {
-            return(new HashSet<UUID>(mValues.keySet()));
-        }
+        throw new UnsupportedOperationException();
     }
 
+    @Override
+    public HashSet<UUID> channels() {
+        return (new HashSet<UUID>(mValues.keySet()));
+    }
+}

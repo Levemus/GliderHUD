@@ -14,6 +14,7 @@ package com.levemus.gliderhud.Types;
 /**
  * Created by flyinorange on 15-11-23.
  */
+
 public class Point
 {
     private double _x;

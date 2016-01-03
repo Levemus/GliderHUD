@@ -26,4 +26,5 @@ public interface IMessage <E> {
     HashSet<UUID> channels();
 
     E get(UUID channel) throws java.lang.UnsupportedOperationException;
+
 }

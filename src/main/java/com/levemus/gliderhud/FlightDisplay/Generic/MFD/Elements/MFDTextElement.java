@@ -21,6 +21,7 @@ import com.levemus.gliderhud.FlightDisplay.FlightDisplay;
 /**
  * Created by mark@levemus  on 15-12-22.
  */
+
 public abstract class MFDTextElement extends MFDElement {
 
     private final String TAG = this.getClass().getSimpleName();

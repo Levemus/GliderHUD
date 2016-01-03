@@ -12,8 +12,9 @@ package com.levemus.gliderhud.Types;
  */
 
 /**
- * Created by flyinorange on 15-11-23.
+ * Created by mark@levemus on 15-11-23.
  */
+
 public class Vector {
     private double _X = 0;
     private double _Y = 0;

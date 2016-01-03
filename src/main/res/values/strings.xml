@@ -1,7 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Demo Compass</string>
+    <string name="app_name">GliderHUD</string>
     <string name="bar_cd">"bar"</string>
     <string name="underline_cd">"underline"</string>
-  
+    <string name="text_device">[Devices]</string>
+    <string name="button_scan">Scan for Devices...</string>
+    <string name="button_scan_stop"> Stop Scan... </string>
+    <string name="button_cancel"> Cancel </string>
+    <string name="ble_address">"ble_address"</string>
+    <string name="ble_previous_connect">"ble_previous_connect"</string>
+    <string name="service_id">"service_id"</string>
+    <string name="full_app_name">"com.levemus.GliderHUD"</string>
+
 </resources>

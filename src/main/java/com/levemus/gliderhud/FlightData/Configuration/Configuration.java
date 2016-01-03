@@ -11,13 +11,14 @@ package com.levemus.gliderhud.FlightData.Configuration;
  (c) 2015 Levemus Software, Inc.
  */
 
+import java.io.Serializable;
 import java.util.HashSet;
 import java.util.UUID;
 
 /**
  * Created by mark@levemus on 15-12-29.
  */
-public class Configuration implements IConfiguration {
+public class Configuration implements IConfiguration, Serializable {
 
     private UUID mId;
     @Override
@@ -25,20 +26,15 @@ public class Configuration implements IConfiguration {
 
     private HashSet<UUID>  mChannels;
     @Override
-    public HashSet<UUID> allChannels() { return mChannels; }
+    public HashSet<UUID> channels() { return mChannels; }
 
-    private HashSet<UUID>  mOrphanedChannels;
-    @Override
-    public HashSet<UUID> orphanedChannels() { return mOrphanedChannels; }
-
-    private long mNotificationInterval;
-    @Override
-    public long notificationInterval() { return mNotificationInterval; }
-
-    public Configuration(UUID id, HashSet<UUID> channels, long notificationInterval) {
+    public Configuration(UUID id, HashSet<UUID> channels) {
         mId = id;
         mChannels = channels;
-        mOrphanedChannels = new HashSet<>(mChannels);
-        mNotificationInterval = notificationInterval;
+    }
+
+    @Override
+    public String toString() {
+        return "Configuration [mId=" + mId.toString() + " mChannels= "+ mChannels.toString() + "]";
     }
 }

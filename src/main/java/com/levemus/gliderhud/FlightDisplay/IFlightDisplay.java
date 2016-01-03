@@ -13,11 +13,16 @@ package com.levemus.gliderhud.FlightDisplay;
 
 import android.app.Activity;
 
+import com.levemus.gliderhud.FlightData.Managers.IChannelDataProvider;
+
 /**
  * Created by mark@levemus on 15-11-29.
  */
 public interface IFlightDisplay {
-    public void init(Activity activity);
-    public void display();
-    public void hide();
+    void init(Activity activity);
+    void deInit(Activity activity);
+    void display();
+    void hide();
+    void registerProvider(IChannelDataProvider provider);
+    void deRegisterProvider(IChannelDataProvider provider);
 }

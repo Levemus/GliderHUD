@@ -11,15 +11,16 @@ package com.levemus.gliderhud.FlightDisplay.Generic.MFD.Elements;
  (c) 2015 Levemus Software, Inc.
  */
 
-import com.levemus.gliderhud.FlightData.Broadcasters.IBroadcaster;
-import com.levemus.gliderhud.FlightData.Listeners.Listener;
-import com.levemus.gliderhud.FlightData.Listeners.Factory.ListenerID;
-import com.levemus.gliderhud.FlightData.Listeners.Factory.ListenerFactory;
+import com.levemus.gliderhud.FlightData.Managers.IChannelDataProvider;
+import com.levemus.gliderhud.FlightData.Processors.Processor;
+import com.levemus.gliderhud.FlightData.Processors.Factory.ProcessorID;
+import com.levemus.gliderhud.FlightData.Processors.Factory.ProcessorFactory;
 import com.levemus.gliderhud.FlightDisplay.FlightDisplay;
 
 /**
  * Created by mark@levemus on 15-12-18.
  */
+
 public class GlideRatioDisplay extends MFDTextElement {
 
     // Constants
@@ -30,8 +31,8 @@ public class GlideRatioDisplay extends MFDTextElement {
     private final Double MAX_GLIDE_VALUE = -100.0;
 
     // Listeners
-    private Listener<Double> mTurnRate = ListenerFactory.build(ListenerID.TURNRATE, this);
-    private Listener<Double> mGlide = ListenerFactory.build(ListenerID.GLIDERATIO, this);
+    private Processor<Double> mTurnRate;
+    private Processor<Double> mGlide;
 
     // Initialization/registration
     public GlideRatioDisplay(FlightDisplay parent) {
@@ -39,10 +40,23 @@ public class GlideRatioDisplay extends MFDTextElement {
     }
 
     @Override
-    public void registerWith(IBroadcaster broadcaster)
-    {
-        broadcaster.registerWith(mTurnRate, mTurnRate);
-        broadcaster.registerWith(mGlide, mGlide);
+    public void registerProvider(IChannelDataProvider provider) {
+        mTurnRate = ProcessorFactory.build(ProcessorID.TURNRATE, provider);
+        mGlide = ProcessorFactory.build(ProcessorID.GLIDERATIO, provider);
+        mTurnRate.registerProvider(provider);
+        mGlide.registerProvider(provider);
+        mTurnRate.start();
+        mGlide.start();
+    }
+
+    @Override
+    public void deRegisterProvider(IChannelDataProvider provider) {
+        mTurnRate.stop();
+        mGlide.stop();
+        mTurnRate.deRegisterProvider(provider);
+        mGlide.deRegisterProvider(provider);
+        mTurnRate = null;
+        mGlide = null;
     }
 
     // Operation
@@ -62,6 +76,8 @@ public class GlideRatioDisplay extends MFDTextElement {
     @Override
     public MFDElement.DisplayPriority displayPriority() {
         try {
+            mGlide.process();
+            mTurnRate.process();
             if(mGlide.value() >= MIN_GLIDE || mGlide.value() < MAX_GLIDE_VALUE || mTurnRate.value() > MAX_TURN_RATE)
                 return MFDElement.DisplayPriority.NONE;
             else if(mGlide.value() >= CRITICAL_GLIDE &&  mTurnRate.value() < MAX_TURN_RATE)

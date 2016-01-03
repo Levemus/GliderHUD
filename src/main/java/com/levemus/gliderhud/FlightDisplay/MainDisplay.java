@@ -14,23 +14,24 @@ package com.levemus.gliderhud.FlightDisplay;
 import android.view.Window;
 import android.app.Activity;
 
-import com.levemus.gliderhud.FlightData.Broadcasters.IBroadcaster;
+import com.levemus.gliderhud.FlightData.Managers.IChannelDataProvider;
 import com.levemus.gliderhud.FlightDisplay.Generic.AltitudeDisplay;
 import com.levemus.gliderhud.FlightDisplay.Generic.GroundSpeedDisplay;
-import com.levemus.gliderhud.FlightDisplay.Recon.CompassDisplay;
 import com.levemus.gliderhud.FlightDisplay.Generic.MFD.MultiFunctionManager;
+import com.levemus.gliderhud.FlightDisplay.Recon.Compass.CompassDisplay;
 
 /**
  * Created by mark@levemus on 15-11-29.
  */
+
 public class MainDisplay extends FlightDisplay {
 
     private final String TAG = this.getClass().getSimpleName();
 
     private FlightDisplay mDisplays[] =
     {
-            new AltitudeDisplay(),
             new CompassDisplay(),
+            new AltitudeDisplay(),
             new GroundSpeedDisplay(),
             new MultiFunctionManager(),
     };
@@ -47,16 +48,26 @@ public class MainDisplay extends FlightDisplay {
     }
 
     @Override
-    public void registerWith(IBroadcaster broadcaster)
+    public void deInit(Activity activity)
     {
-        for(FlightDisplay display : mDisplays ) {
-            display.registerWith(broadcaster);
+        for(IFlightDisplay display : mDisplays ) {
+            display.deInit(activity);
         }
     }
 
     @Override
-    public void display() {}
+    public void registerProvider(IChannelDataProvider provider)
+    {
+        for(FlightDisplay display : mDisplays ) {
+            display.registerProvider(provider);
+        }
+    }
 
     @Override
-    public void hide() {}
+    public void deRegisterProvider(IChannelDataProvider provider)
+    {
+        for(FlightDisplay display : mDisplays ) {
+            display.deRegisterProvider(provider);
+        }
+    }
 }

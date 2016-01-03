@@ -10,54 +10,51 @@ package com.levemus.gliderhud;
 
  (c) 2015 Levemus Software, Inc.
  */
+
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.os.Bundle;
 import android.util.Log;
 
-import com.levemus.gliderhud.FlightData.Broadcasters.Broadcaster;
-import com.levemus.gliderhud.FlightData.Broadcasters.IBroadcaster;
-import com.levemus.gliderhud.FlightData.Broadcasters.Recon.HeadLocationDataBroadcaster;
-import com.levemus.gliderhud.FlightData.Broadcasters.Test.TestFlightDataBroadcaster;
-import com.levemus.gliderhud.FlightData.Broadcasters.Bluetooth.BluetoothBroadcaster;
-import com.levemus.gliderhud.FlightData.Broadcasters.Multiplexer;
-import com.levemus.gliderhud.FlightDisplay.FlightDisplay;
+import com.levemus.gliderhud.FlightData.Providers.Provider;
+import com.levemus.gliderhud.FlightData.Providers.Test.TestProvider;
+import com.levemus.gliderhud.FlightData.Providers.Bluetooth.BluetoothProvider;
+import com.levemus.gliderhud.FlightData.Managers.DataManager;
+import com.levemus.gliderhud.FlightDisplay.IFlightDisplay;
 import com.levemus.gliderhud.FlightDisplay.MainDisplay;
 
 /**
  * Created by mark@levemus on 15-11-23.
  */
+
 @SuppressLint("NewApi")
 public class HUDActivity extends Activity {
 	private final String TAG = this.getClass().getSimpleName();
 
-	private Broadcaster[] mBroadcasterList = {
-			new HeadLocationDataBroadcaster(),
-			new BluetoothBroadcaster(),
-			//new InternalGPSFlightDataBroadcaster(),
-			new TestFlightDataBroadcaster()
+	DataManager mFlightManager = new DataManager();
+
+	private Provider[] mProviderServices = {
+			new BluetoothProvider(),
+			//new InternalGPSFlightDataProvider(),
+			new TestProvider()
 	};
 
-	private FlightDisplay[] mDisplayList = {
-			new MainDisplay()
+	private IFlightDisplay[] mDisplays = {
+			new MainDisplay(),
 	};
-
-	private Multiplexer mMultiplexer = new Multiplexer();
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		Log.i(TAG, "onCreate");
 		super.onCreate(savedInstanceState);
 
-		for(Broadcaster broadcaster : mBroadcasterList) {
-			broadcaster.init(this);
-			mMultiplexer.registerWith(broadcaster);
+		for(Provider provider : mProviderServices) {
+			mFlightManager.registerProvider(provider);
+			provider.registerClient(mFlightManager);
 		}
 
-		for(FlightDisplay display : mDisplayList)
-		{
+		for(IFlightDisplay display : mDisplays) {
 			display.init(this);
-			display.registerWith(mMultiplexer);
 		}
 	}
 
@@ -65,23 +62,44 @@ public class HUDActivity extends Activity {
 	public void onResume() {
 		Log.i(TAG, "onResume");
 		super.onResume();
-		for(IBroadcaster broadcaster : mBroadcasterList) {
-			broadcaster.resume(this);
+
+		for(Provider provider : mProviderServices) {
+			provider.start(this);
+		}
+
+		for(IFlightDisplay display : mDisplays) {
+			display.registerProvider(mFlightManager);
 		}
 	}
 
 	@Override
 	public void onPause()  {
 		Log.d(TAG, "onPause");
-		super.onPause();
-		for(IBroadcaster broadcaster : mBroadcasterList) {
-			broadcaster.pause(this);
+
+		for(IFlightDisplay display : mDisplays) {
+			display.deRegisterProvider(mFlightManager);
 		}
+
+		for(Provider broadcaster : mProviderServices) {
+			broadcaster.stop(this);
+		}
+
+		super.onPause();
 	}
 
 	@Override
 	public void onDestroy(){
 		Log.d(TAG, "onDestroy");
+
+		for(IFlightDisplay display : mDisplays) {
+			display.deInit(this);
+		}
+
+		for(Provider provider : mProviderServices) {
+			mFlightManager.deRegisterProvider(provider);
+			provider.deRegisterClient(mFlightManager);
+		}
+
 		super.onDestroy();
 	}
 }

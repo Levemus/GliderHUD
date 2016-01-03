@@ -11,15 +11,16 @@ package com.levemus.gliderhud.FlightDisplay.Generic.MFD.Elements;
  (c) 2015 Levemus Software, Inc.
  */
 
-import com.levemus.gliderhud.FlightData.Broadcasters.IBroadcaster;
-import com.levemus.gliderhud.FlightData.Listeners.Listener;
-import com.levemus.gliderhud.FlightData.Listeners.Factory.ListenerID;
-import com.levemus.gliderhud.FlightData.Listeners.Factory.ListenerFactory;
+import com.levemus.gliderhud.FlightData.Managers.IChannelDataProvider;
+import com.levemus.gliderhud.FlightData.Processors.Processor;
+import com.levemus.gliderhud.FlightData.Processors.Factory.ProcessorID;
+import com.levemus.gliderhud.FlightData.Processors.Factory.ProcessorFactory;
 import com.levemus.gliderhud.FlightDisplay.FlightDisplay;
 
 /**
  * Created by mark@levemus on 15-12-17.
  */
+
 public class ClimbRateDisplay extends MFDTextElement {
 
     // Constants
@@ -29,8 +30,8 @@ public class ClimbRateDisplay extends MFDTextElement {
     private final Double HIGH_CLIMB_RATE = 3.0;
     private final Double MAX_CLIMB_RATE = 100.0;
     // Listeners
-    private Listener<Double> mClimbRate = ListenerFactory.build(ListenerID.VARIO, this);
-    private Listener<Double> mTurnRate = ListenerFactory.build(ListenerID.TURNRATE, this);
+    private Processor<Double> mClimbRate;
+    private Processor<Double> mTurnRate;
 
     // Initialization/registration
     public ClimbRateDisplay(FlightDisplay parent) {
@@ -38,10 +39,23 @@ public class ClimbRateDisplay extends MFDTextElement {
     }
 
     @Override
-    public void registerWith(IBroadcaster broadcaster)
-    {
-        broadcaster.registerWith(mTurnRate, mTurnRate);
-        broadcaster.registerWith(mClimbRate, mClimbRate);
+    public void registerProvider(IChannelDataProvider provider) {
+        mClimbRate = ProcessorFactory.build(ProcessorID.VARIO, provider);
+        mTurnRate = ProcessorFactory.build(ProcessorID.TURNRATE, provider);
+        mClimbRate.registerProvider(provider);
+        mTurnRate.registerProvider(provider);
+        mClimbRate.start();
+        mTurnRate.start();
+    }
+
+    @Override
+    public void deRegisterProvider(IChannelDataProvider provider) {
+        mClimbRate.stop();
+        mTurnRate.stop();
+        mClimbRate.deRegisterProvider(provider);
+        mTurnRate.deRegisterProvider(provider);
+        mClimbRate = null;
+        mTurnRate = null;
     }
 
     // Operation
@@ -64,10 +78,10 @@ public class ClimbRateDisplay extends MFDTextElement {
     @Override
     public MFDElement.DisplayPriority displayPriority() {
         try {
+            mClimbRate.process();
+            mTurnRate.process();
             if(Math.abs(mClimbRate.value()) > MAX_CLIMB_RATE)
                 return MFDElement.DisplayPriority.NONE;
-            else if (mTurnRate.value() < MIN_CLIMB_TURN_RATE && mClimbRate.value() < 0)
-                return MFDElement.DisplayPriority.LOW;
             else if (Math.abs(mTurnRate.value()) > HIGH_CLIMB_RATE)
                 return MFDElement.DisplayPriority.HIGH;
             else
@@ -76,4 +90,7 @@ public class ClimbRateDisplay extends MFDTextElement {
             return MFDElement.DisplayPriority.NONE;
         }
     }
+
+    @Override
+    public int refreshPeriod() { return 200; } // ms
 }

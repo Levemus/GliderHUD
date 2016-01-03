@@ -19,6 +19,7 @@ import com.levemus.gliderhud.Types.Point;
 /**
  * Created by mark@levemus on 15-11-30.
  */
+
 public class DirectionDisplayImage extends DirectionDisplay {
 
     protected ImageView mImageView = null;
@@ -39,9 +40,11 @@ public class DirectionDisplayImage extends DirectionDisplay {
     public void display()
     {
         double angle = (mImageOffset != null ? mImageOffset.getDirectionOffset(mCurrentDirection) : mCurrentDirection);
-        if(location.X() == -(getScreenLocation(angle).X()))
+        double locationX = location.X();
+        double screenLocationX = -(getScreenLocation(angle).X());
+        if(locationX == screenLocationX)
             return;
-        location = new Point(-(getScreenLocation(angle).X()), 0);
+        location = new Point(screenLocationX, 0);
         mImageView.getImageMatrix().reset();
         mImageView.getImageMatrix().postTranslate((int)location.X(), 0);
         mImageView.postInvalidate();

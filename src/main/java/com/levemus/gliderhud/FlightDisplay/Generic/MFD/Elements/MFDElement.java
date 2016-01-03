@@ -11,14 +11,12 @@ package com.levemus.gliderhud.FlightDisplay.Generic.MFD.Elements;
  (c) 2015 Levemus Software, Inc.
  */
 
-import android.app.Activity;
-import android.widget.TextView;
-
 import com.levemus.gliderhud.FlightDisplay.FlightDisplay;
 
 /**
  * Created by mark@levemus on 15-12-17.
  */
+
 public abstract class MFDElement extends FlightDisplay {
 
     protected FlightDisplay mParentDisplay = null;
@@ -30,10 +28,6 @@ public abstract class MFDElement extends FlightDisplay {
     };
     public abstract DisplayPriority displayPriority();
 
-    @Override
-    public void onDataReady() {
-        if(mParentDisplay != null) {
-            mParentDisplay.onDataReady();
-        }
-    }
+    public long displayDuration() { return 30000; } // ms
+    public int refreshPeriod() { return 500; } // ms
 }

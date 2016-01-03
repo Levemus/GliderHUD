@@ -11,15 +11,16 @@ package com.levemus.gliderhud.FlightDisplay.Generic.MFD.Elements;
  (c) 2015 Levemus Software, Inc.
  */
 
-import com.levemus.gliderhud.FlightData.Broadcasters.IBroadcaster;
-import com.levemus.gliderhud.FlightData.Listeners.Listener;
-import com.levemus.gliderhud.FlightData.Listeners.Factory.ListenerID;
-import com.levemus.gliderhud.FlightData.Listeners.Factory.ListenerFactory;
+import com.levemus.gliderhud.FlightData.Managers.IChannelDataProvider;
+import com.levemus.gliderhud.FlightData.Processors.Processor;
+import com.levemus.gliderhud.FlightData.Processors.Factory.ProcessorID;
+import com.levemus.gliderhud.FlightData.Processors.Factory.ProcessorFactory;
 import com.levemus.gliderhud.FlightDisplay.FlightDisplay;
 
 /**
  * Created by mark@levemus on 15-12-18.
  */
+
 public class DistanceFrLaunchDisplay extends MFDTextElement {
 
     // Constants
@@ -27,7 +28,7 @@ public class DistanceFrLaunchDisplay extends MFDTextElement {
     private final double MIN_DISTANCE_FROM_LAUNCH = 5000; // meters
 
     // Listeners
-    private Listener<Double> mDistanceFr = ListenerFactory.build(ListenerID.DISTANCEFR, this);
+    private Processor<Double> mDistanceFr;
 
     // Initialization/registration
     public DistanceFrLaunchDisplay(FlightDisplay parent) {
@@ -35,8 +36,17 @@ public class DistanceFrLaunchDisplay extends MFDTextElement {
     }
 
     @Override
-    public void registerWith(IBroadcaster broadcaster) {
-        broadcaster.registerWith(mDistanceFr, mDistanceFr);
+    public void registerProvider(IChannelDataProvider provider) {
+        mDistanceFr = ProcessorFactory.build(ProcessorID.DISTANCEFR, provider);
+        mDistanceFr.registerProvider(provider);
+        mDistanceFr.start();
+    }
+
+    @Override
+    public void deRegisterProvider(IChannelDataProvider provider) {
+        mDistanceFr.stop();
+        mDistanceFr.deRegisterProvider(provider);
+        mDistanceFr = null;
     }
 
     // Operation
@@ -49,6 +59,7 @@ public class DistanceFrLaunchDisplay extends MFDTextElement {
     @Override
     public DisplayPriority displayPriority() {
         try {
+            mDistanceFr.process();
             DisplayPriority priority = DisplayPriority.NONE;
             if(mDistanceFr.value() > MIN_DISTANCE_FROM_LAUNCH)
                 priority = DisplayPriority.MEDIUM;
@@ -57,4 +68,7 @@ public class DistanceFrLaunchDisplay extends MFDTextElement {
             return DisplayPriority.NONE;
         }
     }
+
+    @Override
+    public long displayDuration() { return 5000; }
 }

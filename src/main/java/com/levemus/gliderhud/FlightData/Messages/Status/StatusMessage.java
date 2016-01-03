@@ -11,16 +11,17 @@ package com.levemus.gliderhud.FlightData.Messages.Status;
  (c) 2015 Levemus Software, Inc.
  */
 
-import com.levemus.gliderhud.FlightData.Messages.Message;
-
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.UUID;
 import java.util.HashSet;
 
+import com.levemus.gliderhud.FlightData.Messages.Message;
+
 /**
  * Created by mark@levemus on 15-12-20.
  */
-public class StatusMessage extends Message<ChannelStatus.Status> {
+public class StatusMessage extends Message<ChannelStatus.Status> implements Serializable {
 
     public StatusMessage() {}
     public StatusMessage( HashMap<UUID, ChannelStatus.Status> values) {
@@ -35,4 +36,9 @@ public class StatusMessage extends Message<ChannelStatus.Status> {
 
     @Override
     public Type getType() { return Type.STATUS; }
+
+    @Override
+    public String toString() {
+        return "StatusMessage [mValues=" + mValues + "]";
+    }
 }

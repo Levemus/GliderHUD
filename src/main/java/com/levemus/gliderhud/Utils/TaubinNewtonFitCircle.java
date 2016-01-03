@@ -21,9 +21,9 @@ import com.levemus.gliderhud.Types.Vector;
 import com.levemus.gliderhud.Types.OffsetCircle;
 
 /**
- * Created by flyinorange on 15-11-23.
- *
+ * Created by mark@levemus on 15-11-23.
  */
+
 public class TaubinNewtonFitCircle {
 
     private static Point getCentroid(ArrayList<Vector> points) {

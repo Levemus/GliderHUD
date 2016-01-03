@@ -13,11 +13,13 @@ package com.levemus.gliderhud.FlightDisplay.Recon.Components;
 
 import android.app.Activity;
 import android.widget.TextView;
+
 import com.levemus.gliderhud.Utils.Angle;
 
 /**
  * Created by mark@levemus on 15-12-01.
  */
+
 public class DirectionDisplayText extends DirectionDisplay{
     private final String TAG = this.getClass().getSimpleName();
     protected TextView mTextView = null;

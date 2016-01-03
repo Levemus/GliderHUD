@@ -14,16 +14,17 @@ package com.levemus.gliderhud.FlightDisplay.Generic;
 import android.app.Activity;
 import android.widget.TextView;
 
-import com.levemus.gliderhud.FlightData.Broadcasters.IBroadcaster;
+import com.levemus.gliderhud.FlightData.Managers.IChannelDataProvider;
 import com.levemus.gliderhud.FlightDisplay.FlightDisplay;
 
-import com.levemus.gliderhud.FlightData.Listeners.Factory.ListenerFactory;
-import com.levemus.gliderhud.FlightData.Listeners.Listener;
-import com.levemus.gliderhud.FlightData.Listeners.Factory.ListenerID;
+import com.levemus.gliderhud.FlightData.Processors.Factory.ProcessorFactory;
+import com.levemus.gliderhud.FlightData.Processors.Processor;
+import com.levemus.gliderhud.FlightData.Processors.Factory.ProcessorID;
 
 /**
  * Created by mark@levemus on 15-12-01.
  */
+
 public class AltitudeDisplay extends FlightDisplay {
 
     // Constants
@@ -31,7 +32,7 @@ public class AltitudeDisplay extends FlightDisplay {
     private final double MIN_ALTITUDE = 0.0;
 
     // Listeners
-    private Listener<Double> mAltitude = ListenerFactory.build(ListenerID.ALTITUDE, this);
+    private Processor<Double> mAltitude;
 
     // Displays
     private TextView mAltiDisplay = null;
@@ -41,18 +42,31 @@ public class AltitudeDisplay extends FlightDisplay {
     public void init(Activity activity)
     {
         mAltiDisplay = (TextView) activity.findViewById(com.levemus.gliderhud.R.id.altiDisplay);
+        super.init(activity);
     }
 
     @Override
-    public void registerWith(IBroadcaster broadcaster) {
-        broadcaster.registerWith(mAltitude, mAltitude);
+    public void registerProvider(IChannelDataProvider provider) {
+        mAltitude = ProcessorFactory.build(ProcessorID.ALTITUDE, provider);
+        mAltitude.registerProvider(provider);
+        mAltitude.start();
+    }
+
+    @Override
+    public void deRegisterProvider(IChannelDataProvider provider) {
+        mAltitude.stop();
+        mAltitude.deRegisterProvider(provider);
+        mAltitude = null;
     }
 
     // Operation
     @Override
     public void display() {
         try {
-            mAltiDisplay.setText(Integer.toString((int) Math.max(mAltitude.value(), MIN_ALTITUDE)));
+            if(!mAltitude.isValid())
+                mAltiDisplay.setText("---");
+            else
+                mAltiDisplay.setText(Integer.toString((int) Math.max(mAltitude.value(), MIN_ALTITUDE)));
         }catch (Exception e){
             mAltiDisplay.setText("---");
         }

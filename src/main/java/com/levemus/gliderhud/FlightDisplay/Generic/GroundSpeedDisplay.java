@@ -14,43 +14,56 @@ package com.levemus.gliderhud.FlightDisplay.Generic;
 import android.app.Activity;
 import android.widget.TextView;
 
-import com.levemus.gliderhud.FlightData.Broadcasters.IBroadcaster;
-import com.levemus.gliderhud.FlightData.Listeners.Listener;
-import com.levemus.gliderhud.FlightData.Listeners.Factory.ListenerID;
-import com.levemus.gliderhud.FlightData.Listeners.Factory.ListenerFactory;
+import com.levemus.gliderhud.FlightData.Managers.IChannelDataProvider;
+import com.levemus.gliderhud.FlightData.Processors.Processor;
+import com.levemus.gliderhud.FlightData.Processors.Factory.ProcessorID;
+import com.levemus.gliderhud.FlightData.Processors.Factory.ProcessorFactory;
 import com.levemus.gliderhud.FlightDisplay.FlightDisplay;
 
 /**
  * Created by mark@levemus on 15-12-01.
  */
+
 public class GroundSpeedDisplay extends FlightDisplay {
 
     // Constants
     private final String TAG = this.getClass().getSimpleName();
 
     // Listeners
-    private Listener<Double> mGroundSpeed = ListenerFactory.build(ListenerID.GROUNDSPEED, this);
+    private Processor<Double> mGroundSpeed;
 
     // Displays
     private TextView mGroundSpeedDisplay = null;
 
     // Initialization/registration
     @Override
-    public void init(Activity activity)
-    {
+    public void init(Activity activity) {
         mGroundSpeedDisplay = (TextView) activity.findViewById(com.levemus.gliderhud.R.id.speedDisplay);
+        super.init(activity);
     }
 
     @Override
-    public void registerWith(IBroadcaster broadcaster) {
-        broadcaster.registerWith(mGroundSpeed, mGroundSpeed);
+    public void registerProvider(IChannelDataProvider provider) {
+        mGroundSpeed = ProcessorFactory.build(ProcessorID.GROUNDSPEED, provider);
+        mGroundSpeed.registerProvider(provider);
+        mGroundSpeed.start();
+    }
+
+    @Override
+    public void deRegisterProvider(IChannelDataProvider provider) {
+        mGroundSpeed.stop();
+        mGroundSpeed.deRegisterProvider(provider);
+        mGroundSpeed = null;
     }
 
     // Operation
     @Override
     public void display() {
         try {
-            mGroundSpeedDisplay.setText(Integer.toString((int)(mGroundSpeed.value() * 3.6)));
+            if(!mGroundSpeed.isValid())
+                mGroundSpeedDisplay.setText("---");
+            else
+                mGroundSpeedDisplay.setText(Integer.toString((int)(mGroundSpeed.value() * 3.6)));
         }catch (Exception e){
             mGroundSpeedDisplay.setText("---");
         }

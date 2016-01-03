@@ -11,19 +11,25 @@ package com.levemus.gliderhud.FlightData.Messages.Data;
  (c) 2015 Levemus Software, Inc.
  */
 
-import com.levemus.gliderhud.FlightData.Messages.Message;
-
 import java.util.HashMap;
 import java.util.UUID;
+import java.io.Serializable;
+
+import com.levemus.gliderhud.FlightData.Messages.Message;
 
 /**
  * Created by mark@levemus on 15-12-20.
  */
-public class DataMessage extends Message<Double> {
+public class DataMessage extends Message<Double> implements Serializable {
     @Override
     public Type getType() { return Type.DATA; }
     public DataMessage() {}
     public DataMessage( HashMap<UUID, Double> values) {
         mValues = values;
+    }
+
+    @Override
+    public String toString() {
+        return "DataMessage [mValues=" + mValues.toString() + "]";
     }
 }

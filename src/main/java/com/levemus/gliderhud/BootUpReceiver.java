@@ -11,13 +11,13 @@ package com.levemus.gliderhud;
  (c) 2015 Levemus Software, Inc.
  */
 
-/**
- * Created by mark@ on 15-11-22.
- */
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.widget.Toast;
+
+/**
+ * Created by mark@levemus on 15-11-22.
+ */
 
 public class BootUpReceiver extends BroadcastReceiver{
 

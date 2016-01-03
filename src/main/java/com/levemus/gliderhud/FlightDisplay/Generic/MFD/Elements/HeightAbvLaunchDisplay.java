@@ -11,15 +11,16 @@ package com.levemus.gliderhud.FlightDisplay.Generic.MFD.Elements;
  (c) 2015 Levemus Software, Inc.
  */
 
-import com.levemus.gliderhud.FlightData.Broadcasters.IBroadcaster;
-import com.levemus.gliderhud.FlightData.Listeners.Listener;
-import com.levemus.gliderhud.FlightData.Listeners.Factory.ListenerID;
-import com.levemus.gliderhud.FlightData.Listeners.Factory.ListenerFactory;
+import com.levemus.gliderhud.FlightData.Managers.IChannelDataProvider;
+import com.levemus.gliderhud.FlightData.Processors.Processor;
+import com.levemus.gliderhud.FlightData.Processors.Factory.ProcessorID;
+import com.levemus.gliderhud.FlightData.Processors.Factory.ProcessorFactory;
 import com.levemus.gliderhud.FlightDisplay.FlightDisplay;
 
 /**
  * Created by mark@levemus on 15-12-18.
  */
+
 public class HeightAbvLaunchDisplay extends MFDTextElement {
 
     // Constants
@@ -27,11 +28,13 @@ public class HeightAbvLaunchDisplay extends MFDTextElement {
     private final double MIN_HEIGHT_ABVL = 10.0; // meters
     private final double MAX_DISTANCE_FROM_LAUNCH = 5000; // meters
     private final double MAX_TURN_RATE = 15;
+    private final double MIN_CLIMB_RATE = -0.5;
 
     // Listeners
-    private Listener<Double> mDistanceFr = ListenerFactory.build(ListenerID.DISTANCEFR, this);
-    private Listener<Double> mHeightAbv = ListenerFactory.build(ListenerID.HEIGHTABV, this);
-    private Listener<Double> mTurnRate = ListenerFactory.build(ListenerID.TURNRATE, this);
+    private Processor<Double> mDistanceFr;
+    private Processor<Double> mHeightAbv;
+    private Processor<Double> mTurnRate;
+    private Processor<Double> mVario;
 
     // Initialization/registration
     public HeightAbvLaunchDisplay(FlightDisplay parent) {
@@ -39,11 +42,36 @@ public class HeightAbvLaunchDisplay extends MFDTextElement {
     }
 
     @Override
-    public void registerWith(IBroadcaster broadcaster)
+    public void registerProvider(IChannelDataProvider provider)
     {
-        broadcaster.registerWith(mDistanceFr, mDistanceFr);
-        broadcaster.registerWith(mHeightAbv, mHeightAbv);
-        broadcaster.registerWith(mTurnRate, mTurnRate);
+        mDistanceFr = ProcessorFactory.build(ProcessorID.DISTANCEFR, provider);
+        mHeightAbv = ProcessorFactory.build(ProcessorID.HEIGHTABV, provider);
+        mTurnRate = ProcessorFactory.build(ProcessorID.TURNRATE, provider);
+        mVario = ProcessorFactory.build(ProcessorID.VARIO, provider);
+        mDistanceFr.registerProvider(provider);
+        mHeightAbv.registerProvider(provider);
+        mTurnRate.registerProvider(provider);
+        mVario.registerProvider(provider);
+        mDistanceFr.start();
+        mHeightAbv.start();
+        mTurnRate.start();
+        mVario.start();
+    }
+
+    @Override
+    public void deRegisterProvider(IChannelDataProvider provider) {
+        mDistanceFr.stop();
+        mHeightAbv.stop();
+        mTurnRate.stop();
+        mVario.stop();
+        mDistanceFr.deRegisterProvider(provider);
+        mHeightAbv.deRegisterProvider(provider);
+        mTurnRate.deRegisterProvider(provider);
+        mVario.deRegisterProvider(provider);
+        mDistanceFr = null;
+        mHeightAbv = null;
+        mTurnRate = null;
+        mVario = null;
     }
 
     // Operation
@@ -61,9 +89,13 @@ public class HeightAbvLaunchDisplay extends MFDTextElement {
     @Override
     public DisplayPriority displayPriority() {
         try {
+            mHeightAbv.process();
+            mTurnRate.process();
+            mDistanceFr.process();
+            mVario.process();
             if(mHeightAbv.value() < MIN_HEIGHT_ABVL || mDistanceFr.value() > MAX_DISTANCE_FROM_LAUNCH)
                 return DisplayPriority.NONE;
-            else if(mTurnRate.value() > MAX_TURN_RATE)
+            else if(mTurnRate.value() < MAX_TURN_RATE || mVario.value() < MIN_CLIMB_RATE)
                 return DisplayPriority.LOW;
             else
                 return DisplayPriority.MEDIUM;
@@ -71,4 +103,7 @@ public class HeightAbvLaunchDisplay extends MFDTextElement {
             return DisplayPriority.NONE;
         }
     }
+
+    @Override
+    public long displayDuration() { return 5000; }
 }

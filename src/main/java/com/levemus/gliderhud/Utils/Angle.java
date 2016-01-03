@@ -14,6 +14,7 @@ package com.levemus.gliderhud.Utils;
 /**
  * Created by mark@levemus on 15-12-18.
  */
+
 public class Angle {
 
     private static double DEGREES_PER_CIRCLE = 360;

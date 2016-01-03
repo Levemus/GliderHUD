@@ -17,6 +17,7 @@ import java.util.HashSet;
 /**
  * Created by mark@levemus on 15-12-16.
  */
+
 public class MessageChannels {
     public static final UUID ALTITUDE = UUID.fromString("495a2826-1c5c-4d59-a101-86c2c78b1a6e"); // m
     public static final UUID GROUNDSPEED = UUID.fromString("b7122024-efb5-40e1-b730-3e956551a234"); // m/s

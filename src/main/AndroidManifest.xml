@@ -24,8 +24,7 @@
             android:name=".HUDActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:icon="@drawable/compass_icon"
-            android:label="@string/app_name"
-            android:launchMode="singleInstance" >
+            android:label="@string/app_name">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.DEFAULT" />
@@ -33,6 +32,26 @@
             </intent-filter>
 
         </activity>
+        <activity
+            android:name="com.levemus.gliderhud.FlightData.Providers.Bluetooth.BluetoothScanner"
+            android:label="BLE Scanner"
+            android:parentActivityName="com.levemus.gliderhud.HUDActivity" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.levemus.gliderhud.HUDActivity" />
+        </activity>
+        <service
+            android:name="com.levemus.gliderhud.FlightData.Providers.Bluetooth.BluetoothService"
+            android:label="BluetoothService" >
+        </service>
+        <service
+            android:name="com.levemus.gliderhud.FlightData.Providers.Android.InternalGPSService"
+            android:label="InternalGPSService" >
+        </service>
+        <service
+            android:name=".FlightData.Providers.Test.TestService"
+            android:label="TestFlightDataService" >
+        </service>
     </application>
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
 </manifest>

@@ -19,7 +19,5 @@ import java.util.UUID;
  */
 public interface IConfiguration {
     UUID id();
-    HashSet<UUID> allChannels();
-    HashSet<UUID> orphanedChannels();
-    long notificationInterval();
+    HashSet<UUID> channels();
 }

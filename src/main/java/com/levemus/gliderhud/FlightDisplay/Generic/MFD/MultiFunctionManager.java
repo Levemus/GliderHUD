@@ -15,10 +15,11 @@ import android.app.Activity;
 import android.widget.RelativeLayout;
 import android.view.View;
 
-import com.levemus.gliderhud.FlightData.Broadcasters.IBroadcaster;
+import com.levemus.gliderhud.FlightData.Managers.IChannelDataProvider;
 import com.levemus.gliderhud.FlightDisplay.FlightDisplay;
 import com.levemus.gliderhud.FlightDisplay.Generic.MFD.Elements.ClimbRateDisplay;
 import com.levemus.gliderhud.FlightDisplay.Generic.MFD.Elements.DistanceFrLaunchDisplay;
+import com.levemus.gliderhud.FlightDisplay.Generic.MFD.Elements.FlightTimeDisplay;
 import com.levemus.gliderhud.FlightDisplay.Generic.MFD.Elements.GlideRatioDisplay;
 import com.levemus.gliderhud.FlightDisplay.Generic.MFD.Elements.HeightAbvLaunchDisplay;
 import com.levemus.gliderhud.FlightDisplay.Generic.MFD.Elements.MFDElement;
@@ -29,13 +30,15 @@ import java.util.ArrayList;
 /**
  * Created by mark@levemus on 15-12-01.
  */
+
 public class MultiFunctionManager extends FlightDisplay {
 
     MFDElement[] mDisplayElements = new MFDElement[] {
             new ClimbRateDisplay(this),
             new GlideRatioDisplay(this),
             new HeightAbvLaunchDisplay(this),
-            new DistanceFrLaunchDisplay(this)
+            new DistanceFrLaunchDisplay(this),
+            new FlightTimeDisplay(this)
     };
 
     private RelativeLayout mMFDDisplay;
@@ -46,19 +49,25 @@ public class MultiFunctionManager extends FlightDisplay {
         for(MFDElement element : mDisplayElements) {
             element.init(activity);
         }
+        super.init(activity);
     }
 
     @Override
-    public void registerWith(IBroadcaster broadcaster) {
+    public void registerProvider(IChannelDataProvider provider) {
         for(MFDElement element : mDisplayElements) {
-            element.registerWith(broadcaster);
+            element.registerProvider(provider);
+        }
+    }
+
+    @Override
+    public void deRegisterProvider(IChannelDataProvider provider) {
+        for(MFDElement element : mDisplayElements) {
+            element.deRegisterProvider(provider);
         }
     }
 
     private ArrayList<MFDElement> mDisplayQueue = new ArrayList<MFDElement>();
     private long mCurrentDisplayStart = 0;
-    private long DISPLAY_TIME_SLICE = 10 * 1000; // ms
-    private long DISPLAY_FADE_OUT = 5 * 1000; // ms
 
     @Override
     public void display() {
@@ -106,9 +115,7 @@ public class MultiFunctionManager extends FlightDisplay {
         }
 
         if(displayQueue.size() > 1 &&
-                ((displayQueue.get(0).displayPriority().ordinal() < priority.ordinal() &&
-                        ((currentTime - mCurrentDisplayStart) > DISPLAY_FADE_OUT))
-                || (currentTime - mCurrentDisplayStart) > DISPLAY_TIME_SLICE))
+                (currentTime - mCurrentDisplayStart) > displayQueue.get(0).displayDuration())
         {
             displayQueue.remove(0);
             mCurrentDisplayStart = currentTime;
@@ -128,4 +135,11 @@ public class MultiFunctionManager extends FlightDisplay {
         }
         return priority;
     }
+
+    protected int refreshPeriod() {
+        if(!mDisplayQueue.isEmpty())
+            return mDisplayQueue.get(0).refreshPeriod();
+        else
+            return 500;
+    } // ms
 }
