@@ -12,29 +12,23 @@ package com.levemus.gliderhud.FlightData.Configuration;
  */
 
 import java.io.Serializable;
-import java.util.HashSet;
 import java.util.UUID;
 
 /**
  * Created by mark@levemus on 15-12-29.
  */
-public class Configuration implements IConfiguration, Serializable {
+public class Configuration implements IIdentifiable,Serializable {
 
-    private UUID mId;
+    protected UUID mId;
     @Override
     public UUID id() { return mId; }
 
-    private HashSet<UUID>  mChannels;
-    @Override
-    public HashSet<UUID> channels() { return mChannels; }
-
-    public Configuration(UUID id, HashSet<UUID> channels) {
+    public Configuration(UUID id) {
         mId = id;
-        mChannels = channels;
     }
 
     @Override
     public String toString() {
-        return "Configuration [mId=" + mId.toString() + " mChannels= "+ mChannels.toString() + "]";
+        return "Configuration [mId=" + mId.toString() + "]";
     }
 }

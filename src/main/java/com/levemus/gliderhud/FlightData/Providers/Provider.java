@@ -13,33 +13,24 @@ package com.levemus.gliderhud.FlightData.Providers;
 
 import android.app.Activity;
 
-import com.levemus.gliderhud.FlightData.Managers.IChannelDataClient;
-import com.levemus.gliderhud.FlightData.Configuration.IConfiguration;
-
-import java.util.HashSet;
-import java.util.UUID;
+import com.levemus.gliderhud.FlightData.Configuration.IChannelized;
+import com.levemus.gliderhud.FlightData.Configuration.IIdentifiable;
+import com.levemus.gliderhud.FlightData.Managers.IClient;
 
 /**
  * Created by mark@levemus on 15-11-29.
  */
 
-public abstract class Provider implements IProvider, IConfiguration {
+public abstract class Provider implements IProvider, IIdentifiable, IChannelized {
 
     // IProvider
     @Override
     public void start(Activity activity) {}
     @Override
     public void stop(Activity activity) {}
-    @Override
-    public void registerClient(IChannelDataClient client) {}
-    @Override
-    public void deRegisterClient(IChannelDataClient client) {}
 
-    // IConfiguration
     @Override
-    public abstract UUID id();
+    public void registerClient(IClient client) {}
     @Override
-    public abstract HashSet<UUID> channels();
-
-
+    public void deRegisterClient(IClient client) {}
 }

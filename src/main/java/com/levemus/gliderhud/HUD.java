@@ -92,7 +92,7 @@ public class HUD {
             return;
 
         for(Provider provider : mProviderServices) {
-            mFlightManager.registerProvider(provider);
+            mFlightManager.registerProvider(provider, provider);
             provider.registerClient(mFlightManager);
         }
 
@@ -136,7 +136,7 @@ public class HUD {
         }
 
         for(Provider provider : mProviderServices) {
-            mFlightManager.deRegisterProvider(provider);
+            mFlightManager.deRegisterProvider(provider, provider);
             provider.deRegisterClient(mFlightManager);
         }
     }

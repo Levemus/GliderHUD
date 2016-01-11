@@ -11,11 +11,12 @@ package com.levemus.gliderhud.FlightData.Managers;
  (c) 2015 Levemus Software, Inc.
  */
 
-import com.levemus.gliderhud.FlightData.Configuration.IConfiguration;
+import com.levemus.gliderhud.FlightData.Configuration.IChannelized;
+import com.levemus.gliderhud.FlightData.Configuration.IIdentifiable;
 
 /**
  * Created by mark@levemus on 16-01-01.
  */
 public interface IDataManager {
-    void registerProvider(IConfiguration config);
+    void registerProvider(IIdentifiable id, IChannelized channels);
 }

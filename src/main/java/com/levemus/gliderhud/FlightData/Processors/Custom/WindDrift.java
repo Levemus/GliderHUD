@@ -17,12 +17,11 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.UUID;
 
-import android.util.Log;
-
+import com.levemus.gliderhud.FlightData.Configuration.IChannelized;
+import com.levemus.gliderhud.FlightData.Configuration.IIdentifiable;
 import com.levemus.gliderhud.FlightData.Processors.Processor;
-import com.levemus.gliderhud.FlightData.Messages.MessageChannels;
+import com.levemus.gliderhud.Messages.ChannelMessages.Channels;
 import com.levemus.gliderhud.FlightData.Processors.IProcessor;
-import com.levemus.gliderhud.FlightData.Configuration.IConfiguration;
 import com.levemus.gliderhud.Types.OffsetCircle;
 import com.levemus.gliderhud.Types.Vector;
 import com.levemus.gliderhud.Utils.TaubinNewtonFitCircle;
@@ -32,14 +31,14 @@ import com.levemus.gliderhud.Utils.TaubinNewtonFitCircle;
 /**
  * Created by mark@levemus on 15-12-20.
  */
-public class WindDrift extends Processor<Vector> implements IConfiguration, IProcessor {
+public class WindDrift extends Processor<Vector> implements IProcessor, IIdentifiable, IChannelized {
 
     private final String TAG = this.getClass().getSimpleName();
 
     // IConfiguration
     HashSet<UUID> mChannels = new HashSet(Arrays.asList(
-            MessageChannels.GROUNDSPEED,
-            MessageChannels.BEARING));
+            Channels.GROUNDSPEED,
+            Channels.BEARING));
     @Override
     public HashSet<UUID> channels() {
         return mChannels;
@@ -51,22 +50,22 @@ public class WindDrift extends Processor<Vector> implements IConfiguration, IPro
     // IMessageNotify
     private HashMap<Double, Vector> mGrndSpdVelocities = new HashMap<>();
 
-    private final double MIN_SEPERATING_ANGLE = 45;
+    private final double MIN_SEPERATING_ANGLE = 30;
     private final double MIN_NUM_ANGLES = (0.75 * (360 / MIN_SEPERATING_ANGLE));
     private ArrayList<OffsetCircle> mResults = new ArrayList<>();
-    private final int MAX_RESULTS = 3;
-    private double MAX_DELTA_AIRSPEED = 5.0;
+    private final int MAX_RESULTS = 5;
+    private double MAX_DELTA_AIRSPEED = 3.0;
 
     public void process() {
         Vector velocity = new Vector();
         try {
-            HashMap<UUID, Double> values = mProvider.pullFrom(this);
-            if (values.get(MessageChannels.GROUNDSPEED) == 0)
+            HashMap<UUID, Double> values = mProvider.get(this);
+            if (values.get(Channels.GROUNDSPEED) == 0)
                 return;
 
             velocity.SetDirectionAndMagnitude(
-                    values.get(MessageChannels.BEARING),
-                    values.get(MessageChannels.GROUNDSPEED));
+                    values.get(Channels.BEARING),
+                    values.get(Channels.GROUNDSPEED));
             mGrndSpdVelocities.put(velocity.Direction() / MIN_SEPERATING_ANGLE, velocity);
             if(mGrndSpdVelocities.size() < MIN_NUM_ANGLES) {
                 return;

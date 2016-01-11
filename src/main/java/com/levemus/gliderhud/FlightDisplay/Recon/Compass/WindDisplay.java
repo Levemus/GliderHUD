@@ -15,7 +15,7 @@ import android.app.Activity;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.levemus.gliderhud.FlightData.Managers.IChannelDataProvider;
+import com.levemus.gliderhud.FlightData.Managers.IChannelDataSource;
 import com.levemus.gliderhud.FlightData.Processors.Custom.WindDrift;
 import com.levemus.gliderhud.FlightDisplay.FlightDisplay;
 import com.levemus.gliderhud.FlightDisplay.Recon.Components.DirectionDisplayImage;
@@ -41,7 +41,7 @@ class WindDisplay extends FlightDisplay {
     }
 
     @Override
-    public void registerProvider(IChannelDataProvider provider)
+    public void registerProvider(IChannelDataSource provider)
     {
         mWindDrift = new WindDrift();
         mWindDrift.registerProvider(provider);
@@ -49,7 +49,7 @@ class WindDisplay extends FlightDisplay {
     }
 
     @Override
-    public void deRegisterProvider(IChannelDataProvider provider)
+    public void deRegisterProvider(IChannelDataSource provider)
     {
         mWindDrift.stop();
         mWindDrift.deRegisterProvider(provider);
@@ -62,16 +62,15 @@ class WindDisplay extends FlightDisplay {
     public void display(Activity activity) {
 
         try {
-            mWindDirectionDisplay.display(activity);
 
             if (mWindDrift == null || !mWindDrift.isValid() || mWindDrift.value().Magnitude() <= 0)
                 return;
 
-            double windSpeed = mWindDrift.value().Magnitude();
-
             double mWindDirection = (mWindDrift.value().Direction() + DEGREES_HALF_CIRCLE) % DEGREES_FULL_CIRCLE;
-
             mWindDirectionDisplay.setCurrentDirection(mWindDirection);
+            mWindDirectionDisplay.display(activity);
+
+            double windSpeed = mWindDrift.value().Magnitude();
             mWindSpeedDisplay.setCurrentDirection(mWindDirection);
             mWindSpeedDisplay.setText(Double.toString(Math.round(windSpeed * 3.6)));
             mWindSpeedDisplay.display(activity);

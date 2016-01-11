@@ -15,11 +15,10 @@ import android.app.Activity;
 import android.widget.RelativeLayout;
 import android.view.View;
 
-import com.levemus.gliderhud.FlightData.Managers.IChannelDataProvider;
+import com.levemus.gliderhud.FlightData.Managers.IChannelDataSource;
 import com.levemus.gliderhud.FlightDisplay.FlightDisplay;
 import com.levemus.gliderhud.FlightDisplay.Generic.MFD.Elements.ClimbRateDisplay;
 import com.levemus.gliderhud.FlightDisplay.Generic.MFD.Elements.DistanceFrLaunchDisplay;
-import com.levemus.gliderhud.FlightDisplay.Generic.MFD.Elements.FlightTimeDisplay;
 import com.levemus.gliderhud.FlightDisplay.Generic.MFD.Elements.GlideRatioDisplay;
 import com.levemus.gliderhud.FlightDisplay.Generic.MFD.Elements.HeightAbvLaunchDisplay;
 import com.levemus.gliderhud.FlightDisplay.Generic.MFD.Elements.MFDElement;
@@ -38,7 +37,6 @@ public class MultiFunctionManager extends FlightDisplay {
             new GlideRatioDisplay(this),
             new HeightAbvLaunchDisplay(this),
             new DistanceFrLaunchDisplay(this),
-            new FlightTimeDisplay(this)
     };
 
     private RelativeLayout mMFDDisplay;
@@ -53,14 +51,14 @@ public class MultiFunctionManager extends FlightDisplay {
     }
 
     @Override
-    public void registerProvider(IChannelDataProvider provider) {
+    public void registerProvider(IChannelDataSource provider) {
         for(MFDElement element : mDisplayElements) {
             element.registerProvider(provider);
         }
     }
 
     @Override
-    public void deRegisterProvider(IChannelDataProvider provider) {
+    public void deRegisterProvider(IChannelDataSource provider) {
         for(MFDElement element : mDisplayElements) {
             element.deRegisterProvider(provider);
         }

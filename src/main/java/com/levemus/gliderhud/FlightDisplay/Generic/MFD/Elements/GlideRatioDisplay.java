@@ -11,7 +11,7 @@ package com.levemus.gliderhud.FlightDisplay.Generic.MFD.Elements;
  (c) 2015 Levemus Software, Inc.
  */
 
-import com.levemus.gliderhud.FlightData.Managers.IChannelDataProvider;
+import com.levemus.gliderhud.FlightData.Managers.IChannelDataSource;
 import com.levemus.gliderhud.FlightData.Processors.Processor;
 import com.levemus.gliderhud.FlightData.Processors.Factory.ProcessorID;
 import com.levemus.gliderhud.FlightData.Processors.Factory.ProcessorFactory;
@@ -40,7 +40,7 @@ public class GlideRatioDisplay extends MFDTextElement {
     }
 
     @Override
-    public void registerProvider(IChannelDataProvider provider) {
+    public void registerProvider(IChannelDataSource provider) {
         mTurnRate = ProcessorFactory.build(ProcessorID.TURNRATE);
         mGlide = ProcessorFactory.build(ProcessorID.GLIDERATIO);
         mTurnRate.registerProvider(provider);
@@ -50,7 +50,7 @@ public class GlideRatioDisplay extends MFDTextElement {
     }
 
     @Override
-    public void deRegisterProvider(IChannelDataProvider provider) {
+    public void deRegisterProvider(IChannelDataSource provider) {
         mTurnRate.stop();
         mGlide.stop();
         mTurnRate.deRegisterProvider(provider);

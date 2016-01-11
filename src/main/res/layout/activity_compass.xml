@@ -69,16 +69,8 @@
         android:src="@drawable/green_pointer_sm"
         android:layout_alignTop="@+id/compass_bar"
         android:layout_alignParentRight="true"
-        android:layout_alignParentLeft="true" />
-
-    <ImageView
-        android:layout_width="wrap_content"
-        android:layout_height="26dp"
-        android:id="@+id/wind_pointer"
-        android:src="@drawable/blue_pointer_sm"
-        android:layout_alignTop="@+id/compass_bar"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentLeft="true" />
+        android:layout_alignParentLeft="true"
+        android:visibility="invisible" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -87,6 +79,35 @@
         android:id="@+id/windSpeed"
         android:layout_centerHorizontal="true"
         android:textSize="30dp" />
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="26dp"
+        android:id="@+id/waypoint_pointer"
+        android:src="@drawable/red_pointer_sm"
+        android:layout_alignTop="@+id/compass_bar"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentLeft="true"
+        android:visibility="invisible" />
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="26dp"
+        android:id="@+id/wind_pointer"
+        android:src="@drawable/blue_pointer_sm"
+        android:layout_alignTop="@+id/compass_bar"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentLeft="true"
+        android:visibility="invisible" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:id="@+id/waypointDistance"
+        android:layout_centerHorizontal="true"
+        android:textSize="30dp"
+        android:visibility="invisible" />
 
     <RelativeLayout
         android:layout_width="match_parent"
@@ -126,5 +147,15 @@
                 android:layout_alignParentLeft="true" />
         </RelativeLayout>
     </RelativeLayout>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:text="00h 00m"
+        android:id="@+id/flight_time"
+        android:layout_below="@+id/altiDisplay"
+        android:layout_alignParentLeft="true"
+        />
 
 </RelativeLayout>

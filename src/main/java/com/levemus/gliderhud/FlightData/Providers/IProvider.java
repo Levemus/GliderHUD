@@ -13,7 +13,7 @@ package com.levemus.gliderhud.FlightData.Providers;
 
 import android.app.Activity;
 
-import com.levemus.gliderhud.FlightData.Managers.IChannelDataClient;
+import com.levemus.gliderhud.FlightData.Managers.IClient;
 
 /**
  * Created by mark@levemus on 15-12-27.
@@ -23,6 +23,6 @@ public interface IProvider {
     void start(Activity activity);
     void stop(Activity activity);
 
-    void registerClient(IChannelDataClient client);
-    void deRegisterClient(IChannelDataClient client);
+    void registerClient(IClient client);
+    void deRegisterClient(IClient client);
 }

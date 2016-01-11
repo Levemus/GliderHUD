@@ -11,22 +11,17 @@ package com.levemus.gliderhud.FlightDisplay.Recon.Compass;
  (c) 2015 Levemus Software, Inc.
  */
 
-import java.util.Arrays;
-import java.util.HashSet;
-
 import android.app.Activity;
+import android.widget.ImageView;
+import android.widget.TextView;
 
-import com.levemus.gliderhud.FlightData.Managers.IChannelDataProvider;
-import com.levemus.gliderhud.FlightData.Processors.Factory.ProcessorFactory;
-import com.levemus.gliderhud.FlightData.Processors.Factory.ProcessorID;
-import com.levemus.gliderhud.FlightData.Processors.Processor;
-import com.levemus.gliderhud.FlightData.Processors.Factory.Builder.ProcessorBuilder;
-import com.levemus.gliderhud.FlightData.Messages.MessageChannels;
+import com.levemus.gliderhud.FlightData.Managers.IChannelDataSource;
+import com.levemus.gliderhud.FlightData.Processors.Custom.Turnpoint;
 import com.levemus.gliderhud.FlightDisplay.FlightDisplay;
 import com.levemus.gliderhud.FlightDisplay.Recon.Components.DirectionDisplayImage;
 import com.levemus.gliderhud.FlightDisplay.Recon.Components.DirectionDisplayText;
-import com.levemus.gliderhud.Utils.WaypointManager;
 import com.levemus.gliderhud.Types.Vector;
+import com.levemus.gliderhud.Utils.WifiDirect.WifiDirectManager;
 
 /**
  * Created by mark@levemus on 15-12-29.
@@ -34,69 +29,69 @@ import com.levemus.gliderhud.Types.Vector;
 // this class is only applicable within the context of the compass display
 class WaypointDisplay extends FlightDisplay {
 
-    private Processor<Double> mLongitude;
-
-    private Processor<Double> mLatitude;
-
-    WaypointManager mTurnpointManager = new WaypointManager();
+    private Turnpoint mTurnpoint;
 
     private DirectionDisplayImage mDirectionDisplay = null;
     private DirectionDisplayText mDistanceDisplay = null;
 
+    private WifiDirectManager mManager = new WifiDirectManager();
+
     @Override
     public void init(Activity activity) {
         super.init(activity);
-        //mDirectionDisplay = new DirectionDisplayImage((ImageView) activity.findViewById(com.levemus.gliderhud.R.id.waypoint_pointer));
-        //mDistanceDisplay = new DirectionDisplayText((TextView) activity.findViewById(com.levemus.gliderhud.R.id.waypoint_distance));
+        mManager.start(activity);
+        mDirectionDisplay = new DirectionDisplayImage((ImageView) activity.findViewById(com.levemus.gliderhud.R.id.waypoint_pointer));
+        mDistanceDisplay = new DirectionDisplayText((TextView) activity.findViewById(com.levemus.gliderhud.R.id.waypointDistance));
     }
 
     @Override
-    public void registerProvider(IChannelDataProvider provider)
+    public void deInit(Activity activity) {
+        super.deInit(activity);
+        mManager.stop(activity);
+    }
+
+    @Override
+    public void registerProvider(IChannelDataSource provider)
     {
-        mLongitude = new ProcessorBuilder()
-                .channels(new HashSet<>(Arrays.asList(MessageChannels.LONGITUDE)))
-                .build();
-
-        mLatitude = new ProcessorBuilder()
-                .channels(new HashSet<>(Arrays.asList(MessageChannels.LATITUDE)))
-                .build();
-
-        mLongitude.registerProvider(provider);
-        mLatitude.registerProvider(provider);
-        mLongitude.start();
-        mLatitude.start();
+        mTurnpoint = new Turnpoint();
+        mTurnpoint.registerProvider(provider);
+        mTurnpoint.start();
     }
 
     @Override
-    public void deRegisterProvider(IChannelDataProvider provider) {
-        mLongitude.stop();
-        mLatitude.stop();
-        mLongitude.deRegisterProvider(provider);
-        mLatitude.deRegisterProvider(provider);
-        mLongitude = null;
-        mLatitude = null;
+    public void deRegisterProvider(IChannelDataSource provider)
+    {
+        mTurnpoint.stop();
+        mTurnpoint.deRegisterProvider(provider);
+        mTurnpoint = null;
     }
 
     private Double MIN_DISTANCE = 50.0;
+    private double DEGREES_FULL_CIRCLE = 360;
+    private double DEGREES_HALF_CIRCLE = DEGREES_FULL_CIRCLE / 2;
 
     @Override
     public void display(Activity activity) {
         try {
-            Double longitude = mLongitude.value();
-            Double latitude = mLatitude.value();
+            if(!mTurnpoint.isValid()) {
+                return;
+            }
 
-            Vector turnPoint = mTurnpointManager.getBearingAndDistance(longitude, latitude);
+            Vector turnPoint = mTurnpoint.value();
+
             double distance = turnPoint.Magnitude();
             if(distance <= MIN_DISTANCE )
                 return;
 
-            double direction = turnPoint.Direction();
+            double direction = (turnPoint.Direction() + DEGREES_HALF_CIRCLE) % DEGREES_FULL_CIRCLE;
 
             mDirectionDisplay.setCurrentDirection(direction);
             mDirectionDisplay.display(activity);
 
             mDistanceDisplay.setCurrentDirection(direction);
-            mDistanceDisplay.setText(Double.toString(Math.round(distance / 100) / 10));
+            distance = Math.round(distance / 100);
+            distance /= 10;
+            mDistanceDisplay.setText(Double.toString(distance));
             mDistanceDisplay.display(activity);
         } catch(Exception e) {}
     }

@@ -11,15 +11,13 @@ package com.levemus.gliderhud.FlightData.Providers.Android;
  (c) 2015 Levemus Software, Inc.
  */
 
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.UUID;
 
 import android.app.Activity;
 
-import com.levemus.gliderhud.FlightData.Managers.IChannelDataClient;
+import com.levemus.gliderhud.FlightData.Managers.IClient;
 import com.levemus.gliderhud.FlightData.Providers.Provider;
-import com.levemus.gliderhud.FlightData.Messages.MessageChannels;
 
 /**
  * Created by mark@levemus on 15-11-23.
@@ -30,39 +28,33 @@ public class InternalGPSProvider extends Provider {
 
     @Override
     public HashSet<UUID> channels() {
-        return new HashSet(Arrays.asList(
-                MessageChannels.LATITUDE,
-                MessageChannels.LONGITUDE,
-                MessageChannels.ALTITUDE,
-                MessageChannels.GROUNDSPEED,
-                MessageChannels.BEARING,
-                MessageChannels.VARIO));
+        return(mService.channels());
     }
 
     @Override
     public UUID id() {
-        return UUID.fromString("6b68b893-3bd1-48b2-84d7-de1dd2d73617");
+        return(mService.id());
     }
 
-    private InternalGPSService service = new InternalGPSService();
+    private InternalGPSService mService = new InternalGPSService();
 
     @Override
     public void start(final Activity activity) {
-        service.start(activity, InternalGPSService.class, id());
+        mService.start(activity, InternalGPSService.class, id());
     }
 
     @Override
     public void stop(Activity activity) {
-        service.stop(activity, InternalGPSService.class);
+        mService.stop(activity, InternalGPSService.class);
     }
 
     @Override
-    public void registerClient(IChannelDataClient client) {
-        service.registerClient(client);
+    public void registerClient(IClient client) {
+        mService.registerClient(client);
     }
 
     @Override
-    public void deRegisterClient(IChannelDataClient client) {
-        service.deRegisterClient(client);
+    public void deRegisterClient(IClient client) {
+        mService.deRegisterClient(client);
     }
 }

@@ -12,9 +12,8 @@ package com.levemus.gliderhud.FlightDisplay.Recon.Components;
  */
 
 import android.app.Activity;
-import android.content.Context;
 
-import com.levemus.gliderhud.FlightData.Managers.IChannelDataProvider;
+import com.levemus.gliderhud.FlightData.Managers.IChannelDataSource;
 import com.levemus.gliderhud.FlightDisplay.IFlightDisplay;
 import com.levemus.gliderhud.Types.Point;
 import com.levemus.gliderhud.Utils.Angle;
@@ -34,8 +33,8 @@ abstract public class DirectionDisplay implements IFlightDisplay {
     public void hide() {}
     public void init(Activity activity) {}
     public void deInit(Activity activity) {}
-    public void registerProvider(IChannelDataProvider provider) {}
-    public void deRegisterProvider(IChannelDataProvider provider) {}
+    public void registerProvider(IChannelDataSource provider) {}
+    public void deRegisterProvider(IChannelDataSource provider) {}
 
     public static double smoothDirection(double newHeading, double oldHeading) {
 

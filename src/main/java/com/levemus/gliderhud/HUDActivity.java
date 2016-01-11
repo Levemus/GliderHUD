@@ -16,12 +16,7 @@ import android.app.Activity;
 import android.os.Bundle;
 import android.util.Log;
 
-import com.levemus.gliderhud.FlightData.Providers.Provider;
-import com.levemus.gliderhud.FlightData.Providers.Test.TestProvider;
-import com.levemus.gliderhud.FlightData.Providers.Bluetooth.BluetoothProvider;
-import com.levemus.gliderhud.FlightData.Managers.DataManager;
-import com.levemus.gliderhud.FlightDisplay.IFlightDisplay;
-import com.levemus.gliderhud.FlightDisplay.MainDisplay;
+import com.levemus.gliderhud.Utils.WifiDirect.WifiDirectManager;
 
 /**
  * Created by mark@levemus on 15-11-23.
@@ -38,7 +33,6 @@ public class HUDActivity extends Activity {
 		Log.i(TAG, "onCreate");
 		mHUD.init(this);
 		super.onCreate(savedInstanceState);
-
 	}
 
 	@Override
@@ -54,7 +48,6 @@ public class HUDActivity extends Activity {
 		Log.d(TAG, "onPause");
 		mHUD.pause();
 		mHUD.stop();
-
 		super.onPause();
 	}
 

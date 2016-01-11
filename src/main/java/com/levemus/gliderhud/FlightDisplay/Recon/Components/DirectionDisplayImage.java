@@ -13,6 +13,7 @@ package com.levemus.gliderhud.FlightDisplay.Recon.Components;
 
 import android.app.Activity;
 import android.graphics.Matrix;
+import android.view.View;
 import android.widget.ImageView;
 
 import com.levemus.gliderhud.Types.Point;
@@ -45,6 +46,7 @@ public class DirectionDisplayImage extends DirectionDisplay {
     {
         activity.runOnUiThread(new Runnable() {
             public void run() {
+
                 double angle = (mImageOffset != null ? mImageOffset.getDirectionOffset(mCurrentDirection) : mCurrentDirection);
                 double locationX = location.X();
                 double screenLocationX = -(getScreenLocation(angle).X());
@@ -54,6 +56,7 @@ public class DirectionDisplayImage extends DirectionDisplay {
                 matrix.reset();
                 matrix.postTranslate(-428, 0);
 
+                mImageView.setVisibility(View.VISIBLE);
                 mImageView.setScaleType(ImageView.ScaleType.MATRIX);
                 mImageView.setImageMatrix(matrix);
                 location = new Point(screenLocationX, 0);

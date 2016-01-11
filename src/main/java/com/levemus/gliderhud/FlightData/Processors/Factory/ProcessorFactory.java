@@ -16,9 +16,8 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.UUID;
 
-import com.levemus.gliderhud.FlightData.Managers.IChannelDataProvider;
 import com.levemus.gliderhud.FlightData.Processors.Processor;
-import com.levemus.gliderhud.FlightData.Messages.MessageChannels;
+import com.levemus.gliderhud.Messages.ChannelMessages.Channels;
 import com.levemus.gliderhud.FlightData.Processors.Factory.Builder.ProcessorBuilder;
 import com.levemus.gliderhud.FlightData.Processors.Factory.Builder.Operations.Adjusters.SmoothAdjuster;
 import com.levemus.gliderhud.FlightData.Processors.Factory.Builder.Operations.Adjusters.TimeRateAdjuster;
@@ -35,39 +34,39 @@ public class ProcessorFactory {
     public static Processor build(UUID id) {
         if(id == ProcessorID.ALTITUDE)
             return new ProcessorBuilder()
-                    .channels(new HashSet<>(Arrays.asList(MessageChannels.ALTITUDE)))
+                    .channels(new HashSet<>(Arrays.asList(Channels.ALTITUDE)))
                     .id(id)
                     .build();
 
         if(id == ProcessorID.BEARING)
             return new ProcessorBuilder()
-                    .channels(new HashSet<>(Arrays.asList(MessageChannels.BEARING)))
+                    .channels(new HashSet<>(Arrays.asList(Channels.BEARING)))
                     .id(id)
                     .period(1000L)
                     .build();
 
         if(id == ProcessorID.GROUNDSPEED)
             return new ProcessorBuilder()
-                    .channels(new HashSet<>(Arrays.asList(MessageChannels.GROUNDSPEED)))
+                    .channels(new HashSet<>(Arrays.asList(Channels.GROUNDSPEED)))
                     .id(id)
                     .build();
 
         if(id == ProcessorID.VARIO)
             return new ProcessorBuilder()
-                    .channels(new HashSet<>(Arrays.asList(MessageChannels.VARIO)))
+                    .channels(new HashSet<>(Arrays.asList(Channels.VARIO)))
                     .id(id)
                     .adjusters(new ArrayList<IAdjuster>(Arrays.asList(new SmoothAdjuster(5))))
                     .build();
 
         if(id == ProcessorID.YAW)
             return new ProcessorBuilder()
-                    .channels(new HashSet<>(Arrays.asList(MessageChannels.YAW)))
+                    .channels(new HashSet<>(Arrays.asList(Channels.YAW)))
                     .id(id)
                     .build();
 
         if(id == ProcessorID.TURNRATE)
             return new ProcessorBuilder()
-                    .channels(new HashSet<>(Arrays.asList(MessageChannels.BEARING)))
+                    .channels(new HashSet<>(Arrays.asList(Channels.BEARING)))
                     .id(id)
                     .adjusters(new ArrayList<>(Arrays.asList(
                             new TimeRateAdjuster(),
@@ -76,22 +75,22 @@ public class ProcessorFactory {
 
         if(id == ProcessorID.DISTANCEFR)
             return new ProcessorBuilder()
-                    .channels(new HashSet<>(Arrays.asList(MessageChannels.LONGITUDE, MessageChannels.LATITUDE)))
+                    .channels(new HashSet<>(Arrays.asList(Channels.LONGITUDE, Channels.LATITUDE)))
                     .converter(new DistanceFromConverter())
                     .build();
 
         if(id == ProcessorID.GLIDERATIO)
             return new ProcessorBuilder()
-                    .channels(new HashSet<>(Arrays.asList(MessageChannels.VARIO, MessageChannels.GROUNDSPEED)))
+                    .channels(new HashSet<>(Arrays.asList(Channels.VARIO, Channels.GROUNDSPEED)))
                     .id(id)
-                    .converter(new DivideConverter(MessageChannels.GROUNDSPEED, MessageChannels.VARIO))
+                    .converter(new DivideConverter(Channels.GROUNDSPEED, Channels.VARIO))
                     .adjusters(new ArrayList<IAdjuster>(Arrays.asList(new SmoothAdjuster(5))))
                     .build();
 
         if(id == ProcessorID.HEIGHTABV)
             return new ProcessorBuilder()
-                    .channels(new HashSet<>(Arrays.asList(MessageChannels.ALTITUDE)))
-                    .converter(new DifferenceConverter(MessageChannels.ALTITUDE))
+                    .channels(new HashSet<>(Arrays.asList(Channels.ALTITUDE)))
+                    .converter(new DifferenceConverter(Channels.ALTITUDE))
                     .build();
 
         throw new java.lang.UnsupportedOperationException();

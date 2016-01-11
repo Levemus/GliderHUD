@@ -4,7 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.os.Handler;
 
-import com.levemus.gliderhud.FlightData.Managers.IChannelDataProvider;
+import com.levemus.gliderhud.FlightData.Managers.IChannelDataSource;
 
 /**
  * Created by mark@levemus on 15-12-20.
@@ -44,10 +44,10 @@ public abstract class FlightDisplay implements IFlightDisplay {
     public void hide() {}
 
     @Override
-    public void registerProvider(IChannelDataProvider provider) {}
+    public void registerProvider(IChannelDataSource provider) {}
 
     @Override
-    public void deRegisterProvider(IChannelDataProvider provider) {}
+    public void deRegisterProvider(IChannelDataSource provider) {}
 
     protected int refreshPeriod() { return 500; } // ms
 }

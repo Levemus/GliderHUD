@@ -2,6 +2,14 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.levemus.gliderhud" android:versionCode="1000" android:versionName="MS1">
 
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
+    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE"/>
+    <uses-permission android:name="android.permission.CHANGE_NETWORK_STATE"/>
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+
     <uses-permission android:name="android.permission.BLUETOOTH" />
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
@@ -10,7 +18,7 @@
         android:allowBackup="true"
         android:icon="@drawable/compass_icon"
         android:label="@string/app_name"
-        android:theme="@style/ReconTheme.NoTitleBar">
+        android:theme="@style/ReconTheme.NoTitleBar.Fullscreen">
         <uses-library android:name="com.reconinstruments.os" android:required="true" />
         <uses-library android:name="com.reconinstruments.lib" android:required="true" />
         <receiver android:enabled="true" android:name=".BootUpReceiver"
@@ -40,6 +48,12 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.levemus.gliderhud.HUDActivity" />
         </activity>
+
+        <service
+            android:name="com.levemus.gliderhud.Utils.WifiDirect.WifiDirectService"
+            android:label="TestFlightDataService" >
+        </service>
+
         <service
             android:name="com.levemus.gliderhud.FlightData.Providers.Bluetooth.BluetoothService"
             android:label="BluetoothService" >
@@ -49,8 +63,8 @@
             android:label="InternalGPSService" >
         </service>
         <service
-            android:name=".FlightData.Providers.Test.TestService"
-            android:label="TestFlightDataService" >
+            android:name="com.levemus.gliderhud.FlightData.Providers.Test.TestService"
+            android:label="TestService" >
         </service>
     </application>
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>

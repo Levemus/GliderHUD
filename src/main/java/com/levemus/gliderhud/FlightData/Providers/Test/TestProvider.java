@@ -11,62 +11,54 @@ package com.levemus.gliderhud.FlightData.Providers.Test;
  (c) 2015 Levemus Software, Inc.
  */
 
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.UUID;
 
 import android.app.Activity;
 
-import com.levemus.gliderhud.FlightData.Managers.IChannelDataClient;
+import com.levemus.gliderhud.FlightData.Configuration.IChannelized;
+import com.levemus.gliderhud.FlightData.Configuration.IIdentifiable;
+import com.levemus.gliderhud.FlightData.Managers.IClient;
 import com.levemus.gliderhud.FlightData.Providers.Provider;
-import com.levemus.gliderhud.FlightData.Messages.MessageChannels;
 
 /**
  * Created by mark@levemus on 15-11-23.
  */
 
-public class TestProvider extends Provider {
+public class TestProvider extends Provider implements IIdentifiable, IChannelized {
 
     // logcat class id
     private final String TAG = this.getClass().getSimpleName();
+    private TestService mService = new TestService();
 
     @Override
     public HashSet<UUID> channels() {
-        return new HashSet(Arrays.asList(
-                MessageChannels.ALTITUDE,
-                MessageChannels.GROUNDSPEED,
-                MessageChannels.BEARING,
-                MessageChannels.VARIO,
-                MessageChannels.LONGITUDE,
-                MessageChannels.LATITUDE
-                ));
+        return mService.channels();
     }
 
     @Override
     public UUID id() {
-        return UUID.fromString("39e961ed-3eb5-46a8-9eb4-5ee70d09219b");
+        return mService.id();
     }
-
-    private TestService service = new TestService();
 
     @Override
     public void start(final Activity activity) {
-        service.start(activity, TestService.class, id());
+        mService.start(activity, TestService.class, id());
     }
 
     @Override
     public void stop(Activity activity) {
-        service.stop(activity, TestService.class);
+        mService.stop(activity, TestService.class);
     }
 
     @Override
-    public void registerClient(IChannelDataClient client) {
-        service.registerClient(client);
+    public void registerClient(IClient client) {
+        mService.registerClient(client);
     }
 
     @Override
-    public void deRegisterClient(IChannelDataClient client) {
-        service.deRegisterClient(client);
+    public void deRegisterClient(IClient client) {
+        mService.deRegisterClient(client);
     }
 }
 

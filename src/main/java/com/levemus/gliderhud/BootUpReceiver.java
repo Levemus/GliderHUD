@@ -14,6 +14,7 @@ package com.levemus.gliderhud;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.support.v4.content.LocalBroadcastManager;
 
 /**
  * Created by mark@levemus on 15-11-22.
@@ -27,6 +28,7 @@ public class BootUpReceiver extends BroadcastReceiver{
         Intent i = new Intent(context, HUDActivity.class);
         i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         context.startActivity(i);
+        LocalBroadcastManager.getInstance(context).unregisterReceiver(this);
 
     }
 }

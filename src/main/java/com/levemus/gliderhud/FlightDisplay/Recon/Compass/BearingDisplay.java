@@ -14,7 +14,7 @@ package com.levemus.gliderhud.FlightDisplay.Recon.Compass;
 import android.app.Activity;
 import android.widget.ImageView;
 
-import com.levemus.gliderhud.FlightData.Managers.IChannelDataProvider;
+import com.levemus.gliderhud.FlightData.Managers.IChannelDataSource;
 import com.levemus.gliderhud.FlightData.Processors.Factory.ProcessorFactory;
 import com.levemus.gliderhud.FlightData.Processors.Factory.ProcessorID;
 import com.levemus.gliderhud.FlightData.Processors.Processor;
@@ -52,7 +52,7 @@ class BearingDisplay extends FlightDisplay {
     }
 
     @Override
-    public void registerProvider(IChannelDataProvider provider)
+    public void registerProvider(IChannelDataSource provider)
     {
         mBearing = ProcessorFactory.build(ProcessorID.BEARING);
         mGroundSpeed = ProcessorFactory.build(ProcessorID.GROUNDSPEED);
@@ -63,7 +63,7 @@ class BearingDisplay extends FlightDisplay {
     }
 
     @Override
-    public void deRegisterProvider(IChannelDataProvider provider) {
+    public void deRegisterProvider(IChannelDataSource provider) {
         mBearing.deRegisterProvider(provider);
         mGroundSpeed.deRegisterProvider(provider);
         mBearing.stop();

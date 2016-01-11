@@ -15,8 +15,9 @@ import java.util.HashMap;
 import java.util.UUID;
 
 import android.location.Location;
+import android.util.Log;
 
-import com.levemus.gliderhud.FlightData.Messages.MessageChannels;
+import com.levemus.gliderhud.Messages.ChannelMessages.Channels;
 import com.levemus.gliderhud.FlightData.Processors.Factory.Builder.Operations.IConverter;
 
 
@@ -25,20 +26,22 @@ import com.levemus.gliderhud.FlightData.Processors.Factory.Builder.Operations.IC
  */
 public class DistanceFromConverter implements IConverter {
 
+    private final String TAG = this.getClass().getSimpleName();
+
     private final double INVALID = Double.MIN_VALUE;
     private double mStartLongitude = INVALID;
     private double mStartLatitude = INVALID;
 
     public DistanceFromConverter() {}
-    public DistanceFromConverter(double longitude, double latitude) {
+    public DistanceFromConverter(double latitude, double longitude) {
         mStartLongitude = longitude;
         mStartLatitude = latitude;
     }
 
     @Override
     public double convert(HashMap<UUID, Double> values) {
-        double latitude = values.get(MessageChannels.LATITUDE);
-        double longtitude = values.get(MessageChannels.LONGITUDE);
+        double latitude = values.get(Channels.LATITUDE);
+        double longtitude = values.get(Channels.LONGITUDE);
 
         if (mStartLongitude == INVALID ||
                 mStartLatitude == INVALID) {
@@ -52,6 +55,7 @@ public class DistanceFromConverter implements IConverter {
         Location currentLocation = new Location("current");
         currentLocation.setLatitude(latitude);
         currentLocation.setLongitude(longtitude);
-        return(currentLocation.distanceTo(launchLocation));
+        Float distance = currentLocation.distanceTo(launchLocation);
+        return(distance);
     }
 }

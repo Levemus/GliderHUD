@@ -11,11 +11,11 @@ package com.levemus.gliderhud.FlightDisplay;
  (c) 2015 Levemus Software, Inc.
  */
 
-import android.view.Window;
 import android.app.Activity;
 
-import com.levemus.gliderhud.FlightData.Managers.IChannelDataProvider;
+import com.levemus.gliderhud.FlightData.Managers.IChannelDataSource;
 import com.levemus.gliderhud.FlightDisplay.Generic.AltitudeDisplay;
+import com.levemus.gliderhud.FlightDisplay.Generic.FlightTimeDisplay;
 import com.levemus.gliderhud.FlightDisplay.Generic.GroundSpeedDisplay;
 import com.levemus.gliderhud.FlightDisplay.Generic.MFD.MultiFunctionManager;
 import com.levemus.gliderhud.FlightDisplay.Recon.Compass.CompassDisplay;
@@ -33,6 +33,7 @@ public class MainDisplay extends FlightDisplay {
             new CompassDisplay(),
             new AltitudeDisplay(),
             new GroundSpeedDisplay(),
+            new FlightTimeDisplay(),
             new MultiFunctionManager(),
     };
 
@@ -53,7 +54,7 @@ public class MainDisplay extends FlightDisplay {
     }
 
     @Override
-    public void registerProvider(IChannelDataProvider provider)
+    public void registerProvider(IChannelDataSource provider)
     {
         for(FlightDisplay display : mDisplays ) {
             display.registerProvider(provider);
@@ -61,7 +62,7 @@ public class MainDisplay extends FlightDisplay {
     }
 
     @Override
-    public void deRegisterProvider(IChannelDataProvider provider)
+    public void deRegisterProvider(IChannelDataSource provider)
     {
         for(FlightDisplay display : mDisplays ) {
             display.deRegisterProvider(provider);

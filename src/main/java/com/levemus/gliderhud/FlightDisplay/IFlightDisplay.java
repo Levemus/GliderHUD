@@ -13,7 +13,7 @@ package com.levemus.gliderhud.FlightDisplay;
 
 import android.app.Activity;
 
-import com.levemus.gliderhud.FlightData.Managers.IChannelDataProvider;
+import com.levemus.gliderhud.FlightData.Managers.IChannelDataSource;
 
 /**
  * Created by mark@levemus on 15-11-29.
@@ -23,6 +23,6 @@ public interface IFlightDisplay {
     void deInit(Activity activity);
     void display(Activity activity);
     void hide();
-    void registerProvider(IChannelDataProvider provider);
-    void deRegisterProvider(IChannelDataProvider provider);
+    void registerProvider(IChannelDataSource provider);
+    void deRegisterProvider(IChannelDataSource provider);
 }

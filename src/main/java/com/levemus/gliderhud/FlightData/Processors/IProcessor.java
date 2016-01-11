@@ -11,14 +11,14 @@ package com.levemus.gliderhud.FlightData.Processors;
  (c) 2015 Levemus Software, Inc.
  */
 
-import com.levemus.gliderhud.FlightData.Managers.IChannelDataProvider;
+import com.levemus.gliderhud.FlightData.Managers.IChannelDataSource;
 
 /**
  * Created by mark@levemus on 15-12-26.
  */
 public interface IProcessor {
-    void registerProvider(IChannelDataProvider provider);
-    void deRegisterProvider(IChannelDataProvider provider);
+    void registerProvider(IChannelDataSource provider);
+    void deRegisterProvider(IChannelDataSource provider);
     void start();
     void stop();
     long refreshPeriod();

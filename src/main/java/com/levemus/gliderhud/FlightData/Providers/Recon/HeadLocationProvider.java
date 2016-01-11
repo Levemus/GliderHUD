@@ -12,26 +12,26 @@ package com.levemus.gliderhud.FlightData.Providers.Recon;
  */
 
 import java.util.Arrays;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.UUID;
 
 import android.app.Activity;
 
-import com.levemus.gliderhud.FlightData.Managers.IChannelDataClient;
-import com.levemus.gliderhud.FlightData.Configuration.IConfiguration;
-import com.levemus.gliderhud.FlightData.Providers.IProvider;
-import com.levemus.gliderhud.FlightData.Messages.MessageChannels;
+import com.levemus.gliderhud.FlightData.Managers.IClient;
+import com.levemus.gliderhud.FlightData.Providers.Provider;
+import com.levemus.gliderhud.Messages.ChannelMessages.Channels;
+import com.levemus.gliderhud.Messages.ChannelMessages.Data.DataMessage;
 import com.reconinstruments.os.HUDOS;
 import com.reconinstruments.os.hardware.sensors.HUDHeadingManager;
 import com.reconinstruments.os.hardware.sensors.HeadLocationListener;
-import com.levemus.gliderhud.FlightData.Managers.IChannelDataProvider;
 
 /**
  * Created by mark@levemus on 15-12-06.
  */
 
-public class HeadLocationProvider implements HeadLocationListener, IConfiguration, IProvider, IChannelDataProvider {
+public class HeadLocationProvider extends Provider implements HeadLocationListener {
 
     private final String TAG = this.getClass().getSimpleName();
     private HUDHeadingManager mHUDHeadingManager = null;
@@ -48,19 +48,19 @@ public class HeadLocationProvider implements HeadLocationListener, IConfiguratio
         mHUDHeadingManager.register(this);
     }
 
-    protected IChannelDataClient mClient;
+    protected IClient mClient;
     @Override
-    public void registerClient(IChannelDataClient client) {mClient = client;}
+    public void registerClient(IClient client) {mClient = client;}
 
     @Override
-    public void deRegisterClient(IChannelDataClient client) {
+    public void deRegisterClient(IClient client) {
         mClient = null;
     }
 
     @Override
     public HashSet<UUID> channels() {
         return new HashSet(Arrays.asList(
-                MessageChannels.YAW));
+                Channels.YAW));
     }
 
     @Override
@@ -68,23 +68,16 @@ public class HeadLocationProvider implements HeadLocationListener, IConfiguratio
         return UUID.fromString("28ca23b9-c1c7-4419-92b9-2afd940f1d5d");
     }
 
-    private HashMap<UUID, Double> mValues = new HashMap<>();
-
     @Override
     public void onHeadLocation(float yaw, float pitch, float roll) {
         if (Float.isNaN(yaw)) {
             return;
         }
 
-        mValues.put(MessageChannels.YAW, (double)yaw);
-    }
+        HashMap<UUID, Double> values = new HashMap<>();
+        values.put(Channels.YAW, (double)yaw);
 
-    @Override
-    public HashMap<UUID, Double> pullFrom(IConfiguration config) {
-        HashMap<UUID, Double> result = new HashMap<>();
-        for(UUID channel : config.channels())
-            result.put(channel, mValues.get(channel));
-
-        return result;
+        if(mClient != null)
+            mClient.onMsg( new DataMessage(id(), channels(), new Date().getTime(), values));
     }
 }

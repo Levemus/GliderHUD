@@ -69,8 +69,6 @@ public class BluetoothScanner extends Activity
     private LinearLayout listLinearLayout;
     private HashMap<Button, BluetoothDevice> buttonDeviceHash = new HashMap<Button, BluetoothDevice>();
 
-    private String mDefaultAddress = ""; //"20:C3:8F:EB:04:9E";
-
     @Override
     public void onCreate(Bundle savedInstanceState)
     {
@@ -83,7 +81,7 @@ public class BluetoothScanner extends Activity
 
         if(mExtSensorManager.getHUDNetworkType() == ExternalSensorConnectionParams.ExternalSensorNetworkType.ANT)
         {
-            Log.e(TAG, "Device is in ANT+ MODE! Needs to be changed to BLE (in settings menu)");
+            Log.e(TAG, "Needs to be changed to BLE (in settings menu)");
             createBLENotification();
         }
     }
@@ -103,7 +101,7 @@ public class BluetoothScanner extends Activity
 
         if(mExtSensorManager.getHUDNetworkType() == ExternalSensorConnectionParams.ExternalSensorNetworkType.ANT)
         {
-            Log.e(TAG, "JET is in ANT+ MODE! Needs to be changed to BLE (in settings menu)");
+            Log.e(TAG, "Needs to be changed to BLE (in settings menu)");
             return;
         }
 

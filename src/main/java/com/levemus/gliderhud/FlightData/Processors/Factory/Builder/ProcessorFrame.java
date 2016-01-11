@@ -36,7 +36,7 @@ public class ProcessorFrame extends Processor<Double> {
     @Override
     public void process() {
         try {
-            mValues = mProvider.pullFrom(this);
+            mValues = mProvider.get(this);
             if(mConverter == null) {
                 mConverter = new SelectConverter(mValues.keySet().iterator().next());
             }

@@ -16,20 +16,20 @@ import java.util.UUID;
 
 import android.os.Handler;
 
-import com.levemus.gliderhud.FlightData.Managers.IChannelDataProvider;
-import com.levemus.gliderhud.FlightData.Configuration.IConfiguration;
+import com.levemus.gliderhud.FlightData.Managers.IChannelDataSource;
+import com.levemus.gliderhud.FlightData.Configuration.ChannelConfiguration;
 
 /**
  * Created by mark@levemus on 15-12-26.
  */
-public abstract class Processor<E>implements IConfiguration, IProcessor {
+public abstract class Processor<E>extends ChannelConfiguration implements IProcessor {
 
     // IProcessor
-    protected IChannelDataProvider mProvider;
+    protected IChannelDataSource mProvider;
     @Override
-    public void registerProvider(IChannelDataProvider provider) {mProvider = provider;}
+    public void registerProvider(IChannelDataSource provider) {mProvider = provider;}
     @Override
-    public void deRegisterProvider(IChannelDataProvider provider) {mProvider = null;}
+    public void deRegisterProvider(IChannelDataSource provider) {mProvider = null;}
 
     Handler mHandler = new Handler();
 

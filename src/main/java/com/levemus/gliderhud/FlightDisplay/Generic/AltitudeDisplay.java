@@ -14,7 +14,7 @@ package com.levemus.gliderhud.FlightDisplay.Generic;
 import android.app.Activity;
 import android.widget.TextView;
 
-import com.levemus.gliderhud.FlightData.Managers.IChannelDataProvider;
+import com.levemus.gliderhud.FlightData.Managers.IChannelDataSource;
 import com.levemus.gliderhud.FlightDisplay.FlightDisplay;
 
 import com.levemus.gliderhud.FlightData.Processors.Factory.ProcessorFactory;
@@ -46,14 +46,14 @@ public class AltitudeDisplay extends FlightDisplay {
     }
 
     @Override
-    public void registerProvider(IChannelDataProvider provider) {
+    public void registerProvider(IChannelDataSource provider) {
         mAltitude = ProcessorFactory.build(ProcessorID.ALTITUDE);
         mAltitude.registerProvider(provider);
         mAltitude.start();
     }
 
     @Override
-    public void deRegisterProvider(IChannelDataProvider provider) {
+    public void deRegisterProvider(IChannelDataSource provider) {
         mAltitude.stop();
         mAltitude.deRegisterProvider(provider);
         mAltitude = null;

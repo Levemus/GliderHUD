@@ -15,7 +15,6 @@ import java.util.UUID;
 import java.util.HashSet;
 import java.util.List;
 
-import com.levemus.gliderhud.FlightData.Managers.IChannelDataProvider;
 import com.levemus.gliderhud.FlightData.Processors.Processor;
 import com.levemus.gliderhud.FlightData.Processors.Factory.Builder.Operations.IConverter;
 import com.levemus.gliderhud.FlightData.Processors.Factory.Builder.Operations.IAdjuster;

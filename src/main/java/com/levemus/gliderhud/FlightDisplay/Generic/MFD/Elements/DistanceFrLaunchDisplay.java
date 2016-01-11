@@ -11,7 +11,7 @@ package com.levemus.gliderhud.FlightDisplay.Generic.MFD.Elements;
  (c) 2015 Levemus Software, Inc.
  */
 
-import com.levemus.gliderhud.FlightData.Managers.IChannelDataProvider;
+import com.levemus.gliderhud.FlightData.Managers.IChannelDataSource;
 import com.levemus.gliderhud.FlightData.Processors.Processor;
 import com.levemus.gliderhud.FlightData.Processors.Factory.ProcessorID;
 import com.levemus.gliderhud.FlightData.Processors.Factory.ProcessorFactory;
@@ -36,14 +36,14 @@ public class DistanceFrLaunchDisplay extends MFDTextElement {
     }
 
     @Override
-    public void registerProvider(IChannelDataProvider provider) {
+    public void registerProvider(IChannelDataSource provider) {
         mDistanceFr = ProcessorFactory.build(ProcessorID.DISTANCEFR);
         mDistanceFr.registerProvider(provider);
         mDistanceFr.start();
     }
 
     @Override
-    public void deRegisterProvider(IChannelDataProvider provider) {
+    public void deRegisterProvider(IChannelDataSource provider) {
         mDistanceFr.stop();
         mDistanceFr.deRegisterProvider(provider);
         mDistanceFr = null;
@@ -54,7 +54,10 @@ public class DistanceFrLaunchDisplay extends MFDTextElement {
     protected String title() {return "Dist Fr Lnch (km)";}
 
     @Override
-    protected String value() {return Double.toString((Math.round(mDistanceFr.value() / 3600) * 10) / 10);}
+    protected String value() {
+        double distance = Math.round(mDistanceFr.value() / 10) / 100;
+        return Double.toString(distance);
+    }
 
     @Override
     public DisplayPriority displayPriority() {

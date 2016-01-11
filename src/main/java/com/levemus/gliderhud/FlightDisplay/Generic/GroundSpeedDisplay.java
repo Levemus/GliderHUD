@@ -14,7 +14,7 @@ package com.levemus.gliderhud.FlightDisplay.Generic;
 import android.app.Activity;
 import android.widget.TextView;
 
-import com.levemus.gliderhud.FlightData.Managers.IChannelDataProvider;
+import com.levemus.gliderhud.FlightData.Managers.IChannelDataSource;
 import com.levemus.gliderhud.FlightData.Processors.Processor;
 import com.levemus.gliderhud.FlightData.Processors.Factory.ProcessorID;
 import com.levemus.gliderhud.FlightData.Processors.Factory.ProcessorFactory;
@@ -43,14 +43,14 @@ public class GroundSpeedDisplay extends FlightDisplay {
     }
 
     @Override
-    public void registerProvider(IChannelDataProvider provider) {
+    public void registerProvider(IChannelDataSource provider) {
         mGroundSpeed = ProcessorFactory.build(ProcessorID.GROUNDSPEED);
         mGroundSpeed.registerProvider(provider);
         mGroundSpeed.start();
     }
 
     @Override
-    public void deRegisterProvider(IChannelDataProvider provider) {
+    public void deRegisterProvider(IChannelDataSource provider) {
         mGroundSpeed.stop();
         mGroundSpeed.deRegisterProvider(provider);
         mGroundSpeed = null;
