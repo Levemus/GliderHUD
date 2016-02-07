@@ -22,7 +22,7 @@ import com.levemus.gliderhud.Utils.Angle;
  * Created by mark@levemus on 15-12-01.
  */
 
-abstract public class DirectionDisplay implements IFlightDisplay {
+abstract public class DirectionDisplay implements IFlightDisplay, IDirectionDisplay {
 
     private static double PIXELS_PER_45_DEGREES = 190.0;
     protected double mCurrentDirection = 0;
@@ -69,6 +69,7 @@ abstract public class DirectionDisplay implements IFlightDisplay {
     }
 
     // Offset functions
+    @Override
     public void setParentDirection(double angle)
     {
         if(mImageOffset == null)
@@ -91,4 +92,16 @@ abstract public class DirectionDisplay implements IFlightDisplay {
             return(Angle.delta(((angle + 93) % 360), mParentDirection));
         }
     }
+
+    public int getWidth(){return 0;}
+    public int getPosition() {return 0;}
+
+    protected int mAlpha = 0xFF;
+    @Override
+    public void setAlpha(int alpha) {
+        mAlpha = alpha;
+    }
+
+    @Override
+    public boolean canDisplay() {return true;}
 }

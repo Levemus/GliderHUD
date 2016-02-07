@@ -29,6 +29,8 @@ public class LXWP0Message extends BluetoothDataMessage {
 
     public LXWP0Message() {}
 
+    public LXWP0Message(UUID id) { mId = id; }
+
     @Override
     public String frameStart() {return "$LXWP0";}
 

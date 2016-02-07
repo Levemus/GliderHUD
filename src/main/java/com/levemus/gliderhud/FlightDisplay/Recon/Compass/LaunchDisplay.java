@@ -14,76 +14,80 @@ package com.levemus.gliderhud.FlightDisplay.Recon.Compass;
 import android.app.Activity;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.levemus.gliderhud.FlightData.Managers.IChannelDataSource;
 import com.levemus.gliderhud.FlightData.Processors.Custom.Turnpoint;
+import com.levemus.gliderhud.FlightData.Processors.Factory.ProcessorFactory;
+import com.levemus.gliderhud.FlightData.Processors.Factory.ProcessorID;
+import com.levemus.gliderhud.FlightData.Processors.Processor;
 import com.levemus.gliderhud.FlightDisplay.FlightDisplay;
 import com.levemus.gliderhud.FlightDisplay.Recon.Components.DirectionDisplayImage;
 import com.levemus.gliderhud.FlightDisplay.Recon.Components.DirectionDisplayText;
-import com.levemus.gliderhud.Types.Vector;
-import com.levemus.gliderhud.Utils.WifiDirect.WifiDirectManager;
 
 /**
- * Created by mark@levemus on 15-12-29.
+ * Created by mark@levemus on 16-01-18.
  */
 // this class is only applicable within the context of the compass display
-class WaypointDisplay extends CompassSubDisplay {
-
-    private Turnpoint mTurnpoint;
+class LaunchDisplay extends CompassSubDisplay {
 
     private DirectionDisplayImage mDirectionDisplay = null;
     private DirectionDisplayText mDistanceDisplay = null;
 
-    private WifiDirectManager mManager = new WifiDirectManager();
+    private Processor<Double> mBearingTo;
+    private Processor<Double> mDistanceFr;
+
+    private Turnpoint mTurnpoint;
 
     @Override
     public void init(Activity activity) {
         super.init(activity);
-        //mManager.start(activity);
-        mDirectionDisplay = new DirectionDisplayImage((ImageView) activity.findViewById(com.levemus.gliderhud.R.id.waypoint_pointer));
-        mDistanceDisplay = new DirectionDisplayText((TextView) activity.findViewById(com.levemus.gliderhud.R.id.waypointDistance));
+        mDirectionDisplay = new DirectionDisplayImage((ImageView) activity.findViewById(com.levemus.gliderhud.R.id.launch_pointer));
+        mDistanceDisplay = new DirectionDisplayText((TextView) activity.findViewById(com.levemus.gliderhud.R.id.launchDistance));
     }
 
     @Override
     public void deInit(Activity activity) {
         super.deInit(activity);
-        //mManager.stop(activity);
     }
 
     @Override
     public void registerProvider(IChannelDataSource provider)
     {
+        mBearingTo = ProcessorFactory.build(ProcessorID.BEARINGTO);
+        mDistanceFr = ProcessorFactory.build(ProcessorID.DISTANCEFR);
         mTurnpoint = new Turnpoint();
+        mBearingTo.registerSource(provider);
+        mDistanceFr.registerSource(provider);
         mTurnpoint.registerSource(provider);
+        mBearingTo.start();
+        mDistanceFr.start();
         mTurnpoint.start();
     }
 
     @Override
     public void deRegisterProvider(IChannelDataSource provider)
     {
-        mTurnpoint.stop();
+        mBearingTo.deRegisterSource(provider);
+        mDistanceFr.deRegisterSource(provider);
         mTurnpoint.deRegisterSource(provider);
+        mBearingTo.stop();
+        mDistanceFr.stop();
+        mTurnpoint.stop();
+        mBearingTo = null;
+        mDistanceFr = null;
         mTurnpoint = null;
     }
 
-    private Double MIN_DISTANCE = 50.0;
-    private int mCurrentIndex = 1;
+    private Double MIN_DISTANCE = 20.0;
 
     @Override
     public void display(Activity activity) {
         try {
-            if(!canDisplay()) {
-                return;
-            }
-
-            Vector turnPoint = mTurnpoint.value();
-
-            double distance = turnPoint.Magnitude();
-            if(distance <= MIN_DISTANCE )
+            if (!canDisplay())
                 return;
 
-            double direction = turnPoint.Direction();
+            double distance = mDistanceFr.value();
+            double direction = mBearingTo.value();
 
             mDirectionDisplay.setCurrentDirection(direction);
             mDirectionDisplay.display(activity);
@@ -91,27 +95,7 @@ class WaypointDisplay extends CompassSubDisplay {
             mDistanceDisplay.setCurrentDirection(direction);
             distance = Math.round(distance / 100);
             distance /= 10;
-
-            if(mCurrentIndex != mTurnpoint.currentIndex()) {
-                String message = "";
-
-                if(mCurrentIndex == -1)
-                    message = "Goal Reached!";
-                else //if(mCurrentIndex != 0)
-                    message = "Turnpoint " + mCurrentIndex + " Reached.";
-
-                Toast.makeText(mContext, message, Toast.LENGTH_LONG).show();
-                mCurrentIndex = mTurnpoint.currentIndex();
-            }
-
-            StringBuilder builder = new StringBuilder();
-            if(mTurnpoint.currentIndex() == -1)
-                builder.append("G");
-            else
-                builder.append(mTurnpoint.currentIndex());
-            builder.append(": ");
-            builder.append(Double.toString(distance));
-            mDistanceDisplay.setText(builder.toString());
+            mDistanceDisplay.setText(Double.toString(distance));
             mDistanceDisplay.display(activity);
         } catch(Exception e) {}
     }
@@ -124,9 +108,10 @@ class WaypointDisplay extends CompassSubDisplay {
         mDistanceDisplay.setParentDirection(mOffsetAngle);
     }
 
+
     @Override
     public boolean canDisplay() {
-        return mTurnpoint.isValid();
+        return (!mTurnpoint.isValid() && mDistanceFr.isValid() && (mDistanceFr.value() > MIN_DISTANCE));
     }
 
     @Override

@@ -49,14 +49,14 @@ public class FlightTimeDisplay extends FlightDisplay {
     @Override
     public void registerProvider(IChannelDataSource provider) {
         mGroundSpeed = ProcessorFactory.build(ProcessorID.GROUNDSPEED);
-        mGroundSpeed.registerProvider(provider);
+        mGroundSpeed.registerSource(provider);
         mGroundSpeed.start();
     }
 
     @Override
     public void deRegisterProvider(IChannelDataSource provider) {
         mGroundSpeed.stop();
-        mGroundSpeed.deRegisterProvider(provider);
+        mGroundSpeed.deRegisterSource(provider);
         mGroundSpeed = null;
     }
 
@@ -72,7 +72,7 @@ public class FlightTimeDisplay extends FlightDisplay {
             if (mStartTime == 0 && mGroundSpeed.value() > MIN_GROUNDSPEED)
                 mStartTime = currentTime;
 
-            if (mStartTime != 0) {
+            if (mStartTime == 0) {
                 mFlightTimeDisplay.setText("00h 00m");
             }
             else {

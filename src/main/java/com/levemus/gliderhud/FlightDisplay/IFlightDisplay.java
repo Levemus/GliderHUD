@@ -19,10 +19,8 @@ import com.levemus.gliderhud.FlightData.Managers.IChannelDataSource;
  * Created by mark@levemus on 15-11-29.
  */
 public interface IFlightDisplay {
-    void init(Activity activity);
-    void deInit(Activity activity);
     void display(Activity activity);
+    boolean canDisplay();
     void hide();
-    void registerProvider(IChannelDataSource provider);
-    void deRegisterProvider(IChannelDataSource provider);
+
 }

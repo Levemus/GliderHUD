@@ -16,6 +16,7 @@ import java.util.UUID;
 import java.util.ArrayList;
 import java.util.concurrent.locks.ReentrantLock;
 
+import android.annotation.SuppressLint;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothGatt;
@@ -47,6 +48,7 @@ import com.levemus.gliderhud.Messages.SerializablePayloadMessage;
 /**
  * Created by mark@levemus on 15-12-30.
  */
+@SuppressLint("NewApi")
 public class BluetoothServiceThread extends ServiceProviderThread implements IChannelized, IIdentifiable {
 
     private final String TAG = this.getClass().getSimpleName();
@@ -54,7 +56,6 @@ public class BluetoothServiceThread extends ServiceProviderThread implements ICh
     private BluetoothGatt mBluetoothGatt;
     private BluetoothManager mBluetoothManager;
     private BluetoothAdapter mBluetoothAdapter;
-    private IChannelized mChannels = this;
     public BluetoothServiceThread(String id) {
         super(id);
     }
@@ -79,6 +80,12 @@ public class BluetoothServiceThread extends ServiceProviderThread implements ICh
             if(mBluetoothGatt == null) {
                 SharedPreferences sharedPref = mParent.getSharedPreferences(mParent.getString(com.levemus.gliderhud.R.string.full_app_name), Context.MODE_PRIVATE);
                 mAddress = sharedPref.getString(mParent.getString(com.levemus.gliderhud.R.string.ble_address), mAddress);
+
+                if (mAddress != null && !mAddress.isEmpty())
+                    connect();
+                else {
+                    sendResponse(new StatusMessage(id(), channels(), ChannelStatus.Status.OFFLINE));
+                }
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -109,15 +116,18 @@ public class BluetoothServiceThread extends ServiceProviderThread implements ICh
         }
         else { Log.e(TAG, "Unable to retrieve BluetoothManager"); }
         BluetoothDevice device = mBluetoothAdapter.getRemoteDevice(mAddress);
-        mBluetoothGatt = device.connectGatt(mParent, false, new BLECallback(mParent));
+        mBluetoothGatt = device.connectGatt(mParent, true, new BLECallback(mParent));
     }
+
+    private final int MAX_RECONNECT_ATTEMPT = 3;
+    private int mCurrentConnectAttempt = 0;
 
     // Various callback methods defined by the BLE API.
     private class BLECallback extends BluetoothGattCallback {
         private Context mContext;
 
         public BLECallback( Context ctx) { mContext = ctx; }
-
+        
         @Override
         public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
             if (newState == BluetoothProfile.STATE_CONNECTED) {
@@ -126,6 +136,7 @@ public class BluetoothServiceThread extends ServiceProviderThread implements ICh
                 editor.putString(mParent.getString(com.levemus.gliderhud.R.string.ble_address), mAddress);
                 editor.commit();
 
+                mCurrentConnectAttempt = 0;
                 Log.i(TAG, "Connected to GATT server.");
                 if (mBluetoothGatt != null)
                     Log.i(TAG, "Attempting to start service discovery:" + mBluetoothGatt.discoverServices());
@@ -134,9 +145,14 @@ public class BluetoothServiceThread extends ServiceProviderThread implements ICh
 
                 sendResponse(new StatusMessage(id(), channels(),
                         ChannelStatus.Status.OFFLINE));
-
-                mBluetoothGatt.close();
-                mBluetoothGatt = null;
+                mCurrentConnectAttempt++;
+                if(mCurrentConnectAttempt > MAX_RECONNECT_ATTEMPT) {
+                    mBluetoothGatt.close();
+                    mBluetoothGatt = null;
+                }
+                else {
+                    connect();
+                }
             }
         }
 
@@ -150,12 +166,14 @@ public class BluetoothServiceThread extends ServiceProviderThread implements ICh
                 for (BluetoothGattService service : gatt.getServices()) {
                     for (final BluetoothGattCharacteristic characteristic : service.getCharacteristics()) {
                         int properties = characteristic.getProperties();
-                        if ((properties & BluetoothGattCharacteristic.PROPERTY_NOTIFY) != 0) {
+                        if ((properties & BluetoothGattCharacteristic.PROPERTY_NOTIFY) != 0 &&
+                                (properties & BluetoothGattCharacteristic.PROPERTY_READ) != 0 ) {
                             gatt.setCharacteristicNotification(characteristic, true);
                             BluetoothGattDescriptor descriptor = characteristic
                                     .getDescriptor(CHARACTERISTIC_UPDATE_NOTIFICATION_DESCRIPTOR_UUID);
                             descriptor.setValue(BluetoothGattDescriptor.ENABLE_INDICATION_VALUE);
                             gatt.writeDescriptor(descriptor);
+                            return;
                         }
                     }
                 }
@@ -169,17 +187,37 @@ public class BluetoothServiceThread extends ServiceProviderThread implements ICh
         ArrayList<byte[]> mMsgData = new ArrayList<>();
         ReentrantLock mLock = new ReentrantLock();
         Runnable rxAssembly;
+        private boolean mOkToRead = true;
 
-        public void onCharacteristicRead(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
-            if (mLock.tryLock()) {
-                try {
-                    if(mMsgData.size() > MAX_MSGDATA_COUNT)
-                        mMsgData.clear();
-                    mMsgData.add(characteristic.getValue());
-                } catch (Exception e) {}
-                finally { mLock.unlock(); }
-            }
+        public void onCharacteristicRead(final BluetoothGatt gatt, final BluetoothGattCharacteristic characteristic, int status) {
+            Runnable onCharReadRunnable = new Runnable() {
+                public void run() {
+                    if (mLock.tryLock()) {
+                        try {
+                            if (mMsgData.size() > MAX_MSGDATA_COUNT) {
+                                mMsgData.clear();
+                                mReadRequiredCount++;
+                            }
+                            mOkToRead = true;
+                            mMsgData.add(characteristic.getValue());
+                            if (mCurrentReadIndex < mReadRequiredCount) {
+                                gatt.readCharacteristic(characteristic);
+                                mOkToRead = false;
+                                mCurrentReadIndex++;
+                            }
+
+                        } catch (Exception e) {
+                        } finally {
+                            mLock.unlock();
+                        }
+                    }
+                }
+            };
+            mLocalHandler.post(onCharReadRunnable);
         }
+
+        private int mReadRequiredCount = 1;
+        private int mCurrentReadIndex = 0;
 
         @Override
         // Result of a characteristic read operation
@@ -193,6 +231,15 @@ public class BluetoothServiceThread extends ServiceProviderThread implements ICh
                                 for (byte[] data : mMsgData) {
                                     SerializablePayloadMessage result = processMsgData(new String(data, "UTF-8"));
                                     msgToSend = (result != null ? result : msgToSend);
+                                    if(msgToSend != null) {
+                                        if(mReadRequiredCount > 1)
+                                            mReadRequiredCount--;
+                                        mCurrentReadIndex = 0;
+                                        if(mOkToRead) {
+                                            gatt.readCharacteristic(characteristic);
+                                            mOkToRead = false;
+                                        }
+                                    }
                                 }
                             } catch (Exception e) {
                             } finally {
@@ -203,9 +250,6 @@ public class BluetoothServiceThread extends ServiceProviderThread implements ICh
                             sendResponse(msgToSend);
                             mMsgData.clear();
                         }
-                        else
-                            gatt.readCharacteristic(characteristic);
-
                         mLocalHandler.postDelayed(this, MSG_ASSEMBLY_PEDIOD);
                     }
                 };
@@ -235,7 +279,7 @@ public class BluetoothServiceThread extends ServiceProviderThread implements ICh
                     return btMsg;
                 }
                 if(!channels.isEmpty()) {
-                    sendResponse(new StatusMessage(id(), channels(), ChannelStatus.Status.OFFLINE));
+                    sendResponse(new StatusMessage(id(), channels, ChannelStatus.Status.OFFLINE));
                 }
             }catch(Exception e){}
             return null;
@@ -258,10 +302,5 @@ public class BluetoothServiceThread extends ServiceProviderThread implements ICh
     public void setResponseHandler(Handler handler)
     {
         mResponseHandler = handler;
-        if (mAddress != null && !mAddress.isEmpty())
-            connect();
-        else {
-            sendResponse(new StatusMessage(id(), channels(), ChannelStatus.Status.OFFLINE));
-        }
     }
 }

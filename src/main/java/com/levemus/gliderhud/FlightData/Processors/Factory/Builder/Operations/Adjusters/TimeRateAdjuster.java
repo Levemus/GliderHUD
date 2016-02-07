@@ -23,19 +23,33 @@ public class TimeRateAdjuster implements IAdjuster {
     private long mPreviousTime = -1;
     private final double INVALID = Double.MIN_VALUE;
     private double mPreviousValue = INVALID;
+    private double mMaxValue = -1 * Double.MAX_VALUE;
+
+    public TimeRateAdjuster() {}
+    public TimeRateAdjuster(Double maxValue) {
+        mMaxValue = maxValue;
+    }
 
     @Override
     public double adjust(double value) {
         if(mPreviousValue == INVALID)
             mPreviousValue = value;
-        double deltaValue = value - mPreviousValue;
+
+        double deltaValue = 0;
+
+        if(mMaxValue != -1 * Double.MAX_VALUE)
+            deltaValue = ((value + mMaxValue) - mPreviousValue ) % mMaxValue;
+        else
+            deltaValue = value - mPreviousValue;
 
         if(mPreviousTime == -1) {
             mPreviousTime = new Date().getTime();
             return 0;
         }
 
-        long deltaTime = new Date().getTime() - mPreviousTime;
-        return deltaValue / deltaTime;
+        long currentTime = new Date().getTime();
+        long deltaTime = currentTime - mPreviousTime;
+        mPreviousTime = currentTime;
+        return (deltaValue * 1000) / deltaTime;
     }
 }

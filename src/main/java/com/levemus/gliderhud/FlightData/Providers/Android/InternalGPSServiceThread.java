@@ -74,30 +74,24 @@ public class InternalGPSServiceThread extends ServiceProviderThread implements L
         Looper.loop();
     }
 
-    private static final long MIN_DISTANCE_CHANGE_FOR_UPDATES = 0; // meters
+    private static final long MIN_DISTANCE_CHANGE_FOR_UPDATES = 10; // meters
     private static final long MIN_TIME_BW_UPDATES = 200 * 1 * 1; // milliseconds
+    private final double MAX_ACCURACY = 20.0; // meters
 
     private LocationManager mLocationManager;
 
-    private long mTimeOfLastUpdate = 0;
-    private double mLastAltitude = 0;
     @Override
     public void onLocationChanged(android.location.Location location) {
+        if(location.hasAccuracy() && location.getAccuracy() > MAX_ACCURACY)
+            return;
         HashMap<UUID, Double> values = new HashMap<>();
         values.put(Channels.LATITUDE, location.getLatitude());
         values.put(Channels.LONGITUDE, location.getLongitude());
-        values.put(Channels.ALTITUDE, location.getAltitude());
-        values.put(Channels.GROUNDSPEED, location.getSpeed() * 3.6);
         values.put(Channels.BEARING, (double)location.getBearing());
-        if(mTimeOfLastUpdate != 0 && location.getTime() != mTimeOfLastUpdate) {
-            values.put(Channels.VARIO,
-                    (location.getAltitude() - mLastAltitude) / (location.getTime() - mTimeOfLastUpdate) * 1000);
-        }
-
-        mTimeOfLastUpdate = location.getTime();
-
-        sendResponse(new DataMessage(id(), channels(), mTimeOfLastUpdate, values));
-        mLastAltitude = location.getAltitude();
+        values.put(Channels.GROUNDSPEED, (double)location.getSpeed());
+        values.put(Channels.GPSALTITUDE, (double)location.getAltitude());
+        values.put(Channels.TIME, (double)location.getTime());
+        sendResponse(new DataMessage(id(), new HashSet(values.keySet()), location.getTime(), values));
     }
 
     public UUID id() {
@@ -109,9 +103,10 @@ public class InternalGPSServiceThread extends ServiceProviderThread implements L
         return new HashSet(Arrays.asList(
                 Channels.LATITUDE,
                 Channels.LONGITUDE,
-                Channels.ALTITUDE,
+                Channels.BEARING,
                 Channels.GROUNDSPEED,
-                Channels.BEARING));
+                Channels.GPSALTITUDE,
+                Channels.TIME));
     }
 
     @Override

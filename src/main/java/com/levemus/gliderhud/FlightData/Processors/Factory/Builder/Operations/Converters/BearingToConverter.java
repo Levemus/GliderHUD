@@ -30,7 +30,7 @@ public class BearingToConverter implements IConverter {
     private double mStartLatitude = INVALID;
 
     public BearingToConverter() {}
-    public BearingToConverter(double longitude, double latitude) {
+    public BearingToConverter(double latitude, double longitude) {
         mStartLongitude = longitude;
         mStartLatitude = latitude;
     }

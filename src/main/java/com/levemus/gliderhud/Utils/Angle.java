@@ -21,11 +21,27 @@ public class Angle {
     private static double DEGREES_PER_DEMI_CIRCLE = DEGREES_PER_CIRCLE / 2;
     public static double delta(double angleA, double angleB)
     {
-        double difference = Math.abs(angleA - angleB) % DEGREES_PER_CIRCLE;
-        difference = Math.min(DEGREES_PER_CIRCLE - difference, difference);
+        double difference = difference(angleA, angleB);
         int sign = (angleA - angleB >= 0 && angleA - angleB <= DEGREES_PER_DEMI_CIRCLE) || (angleA - angleB <=-DEGREES_PER_DEMI_CIRCLE && angleA- angleB>= -DEGREES_PER_CIRCLE) ? -1 : 1;
         difference *= sign;
 
         return difference;
+    }
+
+    public static double difference(double angleA, double angleB)
+    {
+        double difference = Math.abs(angleA - angleB) % DEGREES_PER_CIRCLE;
+        difference = Math.min(DEGREES_PER_CIRCLE - difference, difference);
+        return difference;
+    }
+
+    public static double AddDelta(double angle, double delta) {
+        angle += delta;
+        if(angle < 0) {
+            angle = DEGREES_PER_CIRCLE + angle;
+        }
+
+        angle %= DEGREES_PER_CIRCLE;
+        return angle;
     }
 }

@@ -54,7 +54,7 @@ public abstract class MessageService extends Service implements IMessageService 
             mService = ((MessageService.LocalBinder)iBinder).getInstance();
 
             if(mClient != null)
-                mClient.onMsg(new ServiceEventMessage(ServiceEvent.Events.BOUND));
+                mClient.onMsg(new ServiceEventMessage(ServiceEvent.Events.BOUND, mService.id()));
 
             workerThread().setResponseHandler(new Handler() {
                 @Override

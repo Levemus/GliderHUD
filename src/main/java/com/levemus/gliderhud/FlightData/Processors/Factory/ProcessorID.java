@@ -26,4 +26,11 @@ public class ProcessorID {
     public static final UUID DISTANCEFR = UUID.fromString("d6805829-2267-4bf8-a230-bb09c4ea9997");
     public static final UUID GLIDERATIO = UUID.fromString("ab21d131-10aa-4f3d-9b6c-51d8b0b198bf");
     public static final UUID HEIGHTABV = UUID.fromString("4510d202-b436-47ad-9e75-e43fec54bb2c");
+    public static final UUID BEARINGTO = UUID.fromString("1a6ad485-fe40-4952-8e6e-50ea35c3ab64");
+    public static final UUID BATTERY = UUID.fromString("dd6a702a-e3a5-4e7f-a045-3e75408eaaf3");
+    public static final UUID GPSALTITUDE = UUID.fromString("40f0667e-f156-400a-9688-6308e5f9cbf9");
+    public static final UUID PRESSUREALTITUDE = UUID.fromString("9005f4c8-a649-45ea-bc46-1b6c7b637887");
+    public static final UUID TIME = UUID.fromString("d5a19ef7-026a-48cf-9777-9b09eac85071");
+    public static final UUID LATITUDE = UUID.fromString("1bd4d613-0476-44b5-b08b-4f6e030ddd3a");
+    public static final UUID LONGITUDE = UUID.fromString("594dcbcc-648b-4764-92d2-c5ad8175e495");
 }

@@ -1,4 +1,4 @@
-package com.levemus.gliderhud.FlightData.Processors;
+package com.levemus.gliderhud.FlightData.Listeners;
 
 /*
  Both the author and publisher makes no representations or warranties
@@ -11,15 +11,16 @@ package com.levemus.gliderhud.FlightData.Processors;
  (c) 2015 Levemus Software, Inc.
  */
 
+import android.app.Activity;
+
 import com.levemus.gliderhud.FlightData.Managers.IChannelDataSource;
 
 /**
- * Created by mark@levemus on 15-12-26.
+ * Created by mark@levemus on 15-11-29.
  */
-public interface IProcessor {
-    void registerSource(IChannelDataSource source);
-    void deRegisterSource(IChannelDataSource source);
-    void start();
-    void stop();
-    long refreshPeriod();
+public interface IListener {
+    void init(Activity activity);
+    void deInit(Activity activity);
+    void registerProvider(IChannelDataSource provider);
+    void deRegisterProvider(IChannelDataSource provider);
 }

@@ -42,6 +42,8 @@ public class WifiDirectReceiveFile implements IWifiDirectOperation {
             long fileLength = dataInputStream.readLong();
             byte[] buffer = new byte[(int)fileLength];
 
+            Log.i(TAG, "Filelength: " + fileLength);
+
             // read the data
             dataInputStream.readFully(buffer, 0, (int)fileLength);
             dataInputStream.close();

@@ -35,7 +35,7 @@ public class BluetoothDataMessageFactory {
             if(buffer.startsWith(msg.frameStart())) {
                 Class<? extends BluetoothDataMessage> c = msg.getClass();
                 try {
-                    mCurrentMessage = c.newInstance();
+                    mCurrentMessage = c.getDeclaredConstructor(UUID.class).newInstance(config.id());
                     break;
                 }catch(Exception e){}
             }

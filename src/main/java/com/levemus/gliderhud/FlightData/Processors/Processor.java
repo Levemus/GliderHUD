@@ -27,14 +27,17 @@ public abstract class Processor<E>extends ChannelConfiguration implements IProce
     // IProcessor
     protected IChannelDataSource mProvider;
     @Override
-    public void registerProvider(IChannelDataSource provider) {mProvider = provider;}
+    public void registerSource(IChannelDataSource source) {mProvider = source;}
     @Override
-    public void deRegisterProvider(IChannelDataSource provider) {mProvider = null;}
+    public void deRegisterSource(IChannelDataSource source) {mProvider = null;}
 
     Handler mHandler = new Handler();
 
     @Override
     public void start() {
+        if(mProvider == null)
+            throw new java.lang.UnsupportedOperationException();
+
         mHandler.postDelayed(new Runnable() {
             @Override
             public void run() {

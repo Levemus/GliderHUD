@@ -2,23 +2,24 @@ package com.levemus.gliderhud;
 
 import android.app.Activity;
 import android.content.Context;
-import android.os.Bundle;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
 import android.os.Message;
-import android.os.Process;
-import android.util.Log;
 import android.view.Window;
 
+import com.levemus.gliderhud.FlightData.Listeners.IGCLogger;
+import com.levemus.gliderhud.FlightData.Listeners.IListener;
 import com.levemus.gliderhud.FlightData.Managers.DataManager;
+import com.levemus.gliderhud.FlightData.Providers.Android.BatteryProvider;
+import com.levemus.gliderhud.FlightData.Providers.Android.InternalGPSProvider;
 import com.levemus.gliderhud.FlightData.Providers.Bluetooth.BluetoothProvider;
 import com.levemus.gliderhud.FlightData.Providers.Provider;
+import com.levemus.gliderhud.FlightData.Providers.Recon.AltitudeProvider;
 import com.levemus.gliderhud.FlightData.Providers.Test.TestProvider;
+import com.levemus.gliderhud.FlightDisplay.FlightDisplay;
 import com.levemus.gliderhud.FlightDisplay.IFlightDisplay;
 import com.levemus.gliderhud.FlightDisplay.MainDisplay;
-
-import java.util.UUID;
 
 /**
  * Created by markcarter on 16-01-02.
@@ -30,13 +31,16 @@ public class HUD {
     DataManager mFlightManager = new DataManager();
 
     private Provider[] mProviderServices = {
-            new BluetoothProvider(),
-            //new InternalGPSFlightDataProvider(),
+            //new BluetoothProvider(),
+            //new AltitudeProvider(),
+            new BatteryProvider(),
+            //new InternalGPSProvider(),
             new TestProvider()
     };
 
-    private IFlightDisplay[] mDisplays = {
+    private IListener[] mListeners = {
             new MainDisplay(),
+            //new IGCLogger()
     };
 
     private Context mContext;
@@ -61,7 +65,6 @@ public class HUD {
     }
 
     void start() {
-
         Message message = mHandler.obtainMessage();
         message.arg1 = ThreadWorkerCommand.START;
         mHandler.sendMessage(message);
@@ -96,8 +99,8 @@ public class HUD {
             provider.registerClient(mFlightManager);
         }
 
-        for(IFlightDisplay display : mDisplays) {
-            display.init((Activity) mContext);
+        for(IListener listener : mListeners) {
+            listener.init((Activity) mContext);
         }
     }
 
@@ -109,8 +112,8 @@ public class HUD {
             provider.start((Activity) mContext);
         }
 
-        for(IFlightDisplay display : mDisplays) {
-            display.registerProvider(mFlightManager);
+        for(IListener listener: mListeners) {
+            listener.registerProvider(mFlightManager);
         }
     }
 
@@ -118,8 +121,8 @@ public class HUD {
         if(mContext == null)
             return;
 
-        for(IFlightDisplay display : mDisplays) {
-            display.deRegisterProvider(mFlightManager);
+        for(IListener listener : mListeners) {
+            listener.deRegisterProvider(mFlightManager);
         }
 
         for(Provider broadcaster : mProviderServices) {
@@ -131,8 +134,8 @@ public class HUD {
         if(mContext == null)
             return;
 
-        for(IFlightDisplay display : mDisplays) {
-            display.deInit((Activity) mContext);
+        for(IListener listener : mListeners) {
+            listener.deInit((Activity) mContext);
         }
 
         for(Provider provider : mProviderServices) {

@@ -31,7 +31,6 @@ public class ClimbRateDisplay extends MFDTextElement {
     private final Double MAX_CLIMB_RATE = 100.0;
     // Listeners
     private Processor<Double> mClimbRate;
-    private Processor<Double> mTurnRate;
 
     // Initialization/registration
     public ClimbRateDisplay(FlightDisplay parent) {
@@ -41,27 +40,18 @@ public class ClimbRateDisplay extends MFDTextElement {
     @Override
     public void registerProvider(IChannelDataSource provider) {
         mClimbRate = ProcessorFactory.build(ProcessorID.VARIO);
-        mTurnRate = ProcessorFactory.build(ProcessorID.TURNRATE);
-        mClimbRate.registerProvider(provider);
-        mTurnRate.registerProvider(provider);
+        mClimbRate.registerSource(provider);
         mClimbRate.start();
-        mTurnRate.start();
     }
 
     @Override
     public void deRegisterProvider(IChannelDataSource provider) {
         mClimbRate.stop();
-        mTurnRate.stop();
-        mClimbRate.deRegisterProvider(provider);
-        mTurnRate.deRegisterProvider(provider);
+        mClimbRate.deRegisterSource(provider);
         mClimbRate = null;
-        mTurnRate = null;
     }
 
     // Operation
-    @Override
-    protected String title() {return "Climb (m/s)";}
-
     @Override
     protected String value() {
         if (Math.abs(mClimbRate.value()) > MAX_CLIMB_RATE)
@@ -72,17 +62,16 @@ public class ClimbRateDisplay extends MFDTextElement {
             displayVario = Math.round(mClimbRate.value() * 100);
             displayVario /= 100;
         }
-        return Double.toString(displayVario);
+        return Double.toString(displayVario) + " m/s";
     }
 
     @Override
     public MFDElement.DisplayPriority displayPriority() {
         try {
             mClimbRate.process();
-            mTurnRate.process();
-            if(Math.abs(mClimbRate.value()) > MAX_CLIMB_RATE)
+            if(!mClimbRate.isValid() || Math.abs(mClimbRate.value()) > MAX_CLIMB_RATE)
                 return MFDElement.DisplayPriority.NONE;
-            else if (Math.abs(mTurnRate.value()) > HIGH_CLIMB_RATE)
+            else if (Math.abs(mClimbRate.value()) > HIGH_CLIMB_RATE)
                 return MFDElement.DisplayPriority.HIGH;
             else
                 return MFDElement.DisplayPriority.MEDIUM;

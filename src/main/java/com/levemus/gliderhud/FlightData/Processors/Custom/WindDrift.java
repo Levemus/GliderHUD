@@ -63,7 +63,7 @@ public class WindDrift extends Processor<Vector> implements IProcessor, IIdentif
             if (values.get(Channels.GROUNDSPEED) == 0)
                 return;
 
-            velocity.SetDirectionAndMagnitude(
+            velocity.setDirectionAndMagnitude(
                     values.get(Channels.BEARING),
                     values.get(Channels.GROUNDSPEED));
             mGrndSpdVelocities.put(velocity.Direction() / MIN_SEPERATING_ANGLE, velocity);

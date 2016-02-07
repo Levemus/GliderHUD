@@ -30,7 +30,7 @@ public class WifiDirectManager implements IClient {
     private final int WIFIDIRECT_COMPLETE_DELAY = 1000 * 10; // sec in ms
     private boolean mWifiEnabled = false;
     private boolean mIsServer = true;
-    private String mServerName = "Android_a0b9"; // TODO: make HUD activity to select this and pass through.
+    private String mServerName = "Android_4315"; // TODO: make HUD activity to select this and pass through.
     private String mClientName = "Android_6fd1";// TODO: make Client activity to select this and pass through.
     private IClient mClient;
     private Context mContext;

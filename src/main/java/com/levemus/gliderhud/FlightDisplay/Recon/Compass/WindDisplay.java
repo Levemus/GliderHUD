@@ -16,17 +16,22 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.levemus.gliderhud.FlightData.Managers.IChannelDataSource;
+import com.levemus.gliderhud.FlightData.Processors.Custom.Turnpoint;
 import com.levemus.gliderhud.FlightData.Processors.Custom.WindDrift;
+import com.levemus.gliderhud.FlightData.Processors.Factory.ProcessorFactory;
+import com.levemus.gliderhud.FlightData.Processors.Factory.ProcessorID;
+import com.levemus.gliderhud.FlightData.Processors.Processor;
 import com.levemus.gliderhud.FlightDisplay.FlightDisplay;
 import com.levemus.gliderhud.FlightDisplay.Recon.Components.DirectionDisplayImage;
 import com.levemus.gliderhud.FlightDisplay.Recon.Components.DirectionDisplayText;
+import com.levemus.gliderhud.Utils.Angle;
 
 /**
  * Created by mark@levemus on 15-12-29.
  */
 
 // this class is only applicable within the context of the compass display
-class WindDisplay extends FlightDisplay {
+class WindDisplay extends CompassSubDisplay {
 
     private WindDrift mWindDrift;
 
@@ -44,7 +49,7 @@ class WindDisplay extends FlightDisplay {
     public void registerProvider(IChannelDataSource provider)
     {
         mWindDrift = new WindDrift();
-        mWindDrift.registerProvider(provider);
+        mWindDrift.registerSource(provider);
         mWindDrift.start();
     }
 
@@ -52,18 +57,19 @@ class WindDisplay extends FlightDisplay {
     public void deRegisterProvider(IChannelDataSource provider)
     {
         mWindDrift.stop();
-        mWindDrift.deRegisterProvider(provider);
+        mWindDrift.deRegisterSource(provider);
         mWindDrift = null;
     }
 
     private double DEGREES_FULL_CIRCLE = 360;
     private double DEGREES_HALF_CIRCLE = DEGREES_FULL_CIRCLE / 2;
+
     @Override
     public void display(Activity activity) {
 
         try {
 
-            if (mWindDrift == null || !mWindDrift.isValid() || mWindDrift.value().Magnitude() <= 0)
+            if(!canDisplay())
                 return;
 
             double mWindDirection = (mWindDrift.value().Direction() + DEGREES_HALF_CIRCLE) % DEGREES_FULL_CIRCLE;
@@ -74,11 +80,14 @@ class WindDisplay extends FlightDisplay {
             mWindSpeedDisplay.setCurrentDirection(mWindDirection);
             mWindSpeedDisplay.setText(Double.toString(Math.round(windSpeed * 3.6)));
             mWindSpeedDisplay.display(activity);
+
         } catch(Exception e) {}
     }
 
     private double mOffsetAngle = 0;
-    public void setBaseAngle(double angle) {
+
+    @Override
+    public void setParentDirection(double angle) {
         mOffsetAngle = angle;
         mWindDirectionDisplay.setParentDirection(mOffsetAngle);
         mWindSpeedDisplay.setParentDirection(mOffsetAngle);
@@ -86,4 +95,21 @@ class WindDisplay extends FlightDisplay {
 
     @Override
     protected int refreshPeriod() { return Integer.MAX_VALUE; } // will refresh with compass refresh
+
+    @Override
+    public boolean canDisplay() {
+        return (mWindDrift == null || !mWindDrift.isValid() || mWindDrift.value().Magnitude() <= 0);
+    }
+
+    @Override
+    public void setAlpha(int alpha)
+    {
+        mWindSpeedDisplay.setAlpha(alpha);
+    }
+
+    @Override
+    public int getPosition() {return mWindSpeedDisplay.getPosition();}
+
+    @Override
+    public int getWidth() {return mWindSpeedDisplay.getWidth();}
 }

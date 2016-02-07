@@ -37,14 +37,29 @@ public class DirectionDisplayText extends DirectionDisplay{
         activity.runOnUiThread(new Runnable() {
             public void run() {
                 mTextView.setVisibility(View.VISIBLE);
-                double angle = (mImageOffset != null ? Angle.delta(mCurrentDirection, mImageOffset.getParentDirection()) : mCurrentDirection);
-                mTextView.setX((float) getScreenLocation(-angle).X());
+                int color = mTextView.getCurrentTextColor();
+                color &= 0x00FFFFFF;
+                color |= mAlpha << 24;
+                mTextView.setTextColor(color);
+                mTextView.setX((float) getPosition());
             }});
     }
 
     public void setText(String value)
     {
-
         mTextView.setText(value);
     }
+
+    @Override
+    public int getWidth(){
+        return mTextView.getWidth();
+    }
+
+    @Override
+    public int getPosition() {
+        double angle = (mImageOffset != null ? Angle.delta(mCurrentDirection, mImageOffset.getParentDirection()) : mCurrentDirection);
+        return((int)getScreenLocation(-angle).X());
+    }
+
+
 }

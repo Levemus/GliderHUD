@@ -26,7 +26,7 @@ import com.levemus.gliderhud.FlightDisplay.Recon.Components.DirectionDisplayImag
  */
 
 // this class is only applicable within the context of the compass display
-class BearingDisplay extends FlightDisplay {
+class BearingDisplay extends CompassSubDisplay {
 
     private Processor<Double> mBearing;
     private Processor<Double> mGroundSpeed;
@@ -44,7 +44,7 @@ class BearingDisplay extends FlightDisplay {
     @Override
     public void display(Activity activity) {
         try {
-            if (mGroundSpeed.value() > MIN_GROUND_SPEED) {
+            if (canDisplay()) {
                 mBearingDisplay.setCurrentDirection(mBearing.value());
                 mBearingDisplay.display(activity);
             }
@@ -56,25 +56,32 @@ class BearingDisplay extends FlightDisplay {
     {
         mBearing = ProcessorFactory.build(ProcessorID.BEARING);
         mGroundSpeed = ProcessorFactory.build(ProcessorID.GROUNDSPEED);
-        mBearing.registerProvider(provider);
-        mGroundSpeed.registerProvider(provider);
+        mBearing.registerSource(provider);
+        mGroundSpeed.registerSource(provider);
         mBearing.start();
         mGroundSpeed.start();
     }
 
     @Override
     public void deRegisterProvider(IChannelDataSource provider) {
-        mBearing.deRegisterProvider(provider);
-        mGroundSpeed.deRegisterProvider(provider);
+        mBearing.deRegisterSource(provider);
+        mGroundSpeed.deRegisterSource(provider);
         mBearing.stop();
         mGroundSpeed.stop();
         mBearing = null;
         mGroundSpeed = null;
     }
-    public void setBaseAngle(double angle) {
+
+    @Override
+    public void setParentDirection(double angle) {
         mBearingDisplay.setParentDirection(angle);
     }
 
     protected int refreshPeriod() { return Integer.MAX_VALUE; } // will refresh with compass refresh
+
+    @Override
+    public boolean canDisplay() {
+        return mGroundSpeed.value() > MIN_GROUND_SPEED;
+    }
 }
 

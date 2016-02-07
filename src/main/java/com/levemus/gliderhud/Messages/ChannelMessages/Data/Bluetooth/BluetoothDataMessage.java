@@ -40,6 +40,10 @@ public abstract class BluetoothDataMessage extends DataMessage {
         super(UUID.randomUUID(), new HashSet<UUID>(), new Date().getTime(), new HashMap<UUID, Double>());
     }
 
+    public BluetoothDataMessage(UUID id) {
+        super(id, new HashSet<UUID>(), new Date().getTime(), new HashMap<UUID, Double>());
+    }
+
     public BluetoothDataMessage build(String buffer)
     {
         if(mBuffers.size() == 0 && !buffer.startsWith(frameStart())) {

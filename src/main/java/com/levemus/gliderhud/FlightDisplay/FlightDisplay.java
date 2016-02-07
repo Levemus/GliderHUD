@@ -4,13 +4,14 @@ import android.app.Activity;
 import android.content.Context;
 import android.os.Handler;
 
+import com.levemus.gliderhud.FlightData.Listeners.IListener;
 import com.levemus.gliderhud.FlightData.Managers.IChannelDataSource;
 
 /**
  * Created by mark@levemus on 15-12-20.
  */
 
-public abstract class FlightDisplay implements IFlightDisplay {
+public abstract class FlightDisplay implements IFlightDisplay, IListener {
 
     protected Context mContext;
     private Handler handler = new Handler();
@@ -50,4 +51,7 @@ public abstract class FlightDisplay implements IFlightDisplay {
     public void deRegisterProvider(IChannelDataSource provider) {}
 
     protected int refreshPeriod() { return 500; } // ms
+
+    @Override
+    public boolean canDisplay() {return true;}
 }

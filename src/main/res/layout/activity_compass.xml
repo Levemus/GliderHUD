@@ -5,7 +5,8 @@
     android:layout_height="match_parent"
     android:background="#000000"
     android:keepScreenOn = "true"
-    tools:context=".HUDActivity" >
+    tools:context=".HUDActivity"
+    android:gravity="right">
 
     <ImageView
         android:id="@+id/compass_bar"
@@ -13,16 +14,8 @@
         android:layout_height="70dp"
         android:contentDescription="@string/bar_cd"
         android:src="@drawable/compass_bar"
-        android:layout_alignBottom="@+id/compass_underline"
-        android:layout_alignRight="@+id/speedTitle" />
-
-    <ImageView
-        android:id="@+id/compass_underline"
-        android:layout_width="match_parent"
-        android:layout_height="13dp"
-        android:layout_marginTop="104dp"
-        android:contentDescription="@string/underline_cd"
-        android:src="@drawable/orange_pointer" />
+        android:layout_below="@+id/windSpeed"
+        android:layout_alignParentLeft="true" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -50,8 +43,10 @@
         android:textAppearance="?android:attr/textAppearanceLarge"
         android:text="Altitude (m)"
         android:id="@+id/altitudeTitle"
-        android:layout_alignTop="@+id/compass_underline"
-        android:layout_alignParentLeft="true" />
+        android:textSize="16dp"
+        android:layout_below="@+id/compass_bar"
+        android:layout_alignParentLeft="true"
+        android:textIsSelectable="true" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -59,24 +54,45 @@
         android:textAppearance="?android:attr/textAppearanceLarge"
         android:text="Speed (kph)"
         android:id="@+id/speedTitle"
-        android:layout_alignTop="@+id/compass_underline"
-        android:layout_alignRight="@+id/speedDisplay" />
+        android:layout_above="@+id/speedDisplay"
+        android:layout_alignParentRight="true"
+        android:textSize="16dp" />
 
     <ImageView
         android:layout_width="wrap_content"
         android:layout_height="26dp"
-        android:id="@+id/bearing_pointer"
-        android:src="@drawable/green_pointer_sm"
-        android:layout_alignTop="@+id/compass_bar"
+        android:id="@+id/wind_pointer"
+        android:src="@drawable/blue_pointer_sm"
         android:layout_alignParentRight="true"
         android:layout_alignParentLeft="true"
-        android:visibility="invisible" />
+        android:visibility="invisible"
+        android:layout_below="@+id/windSpeed" />
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceMedium"
         android:id="@+id/windSpeed"
+        android:textSize="30dp"
+        android:layout_alignParentLeft="true"
+        android:layout_alignRight="@+id/altiDisplay" />
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="26dp"
+        android:id="@+id/launch_pointer"
+        android:src="@drawable/green_pointer_sm"
+        android:visibility="invisible"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignBottom="@+id/bearing_pointer"
+        android:layout_below="@+id/windSpeed" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:id="@+id/launchDistance"
         android:layout_centerHorizontal="true"
         android:textSize="30dp" />
 
@@ -85,20 +101,11 @@
         android:layout_height="26dp"
         android:id="@+id/waypoint_pointer"
         android:src="@drawable/red_pointer_sm"
-        android:layout_alignTop="@+id/compass_bar"
-        android:layout_alignParentRight="true"
+        android:visibility="invisible"
         android:layout_alignParentLeft="true"
-        android:visibility="invisible" />
-
-    <ImageView
-        android:layout_width="wrap_content"
-        android:layout_height="26dp"
-        android:id="@+id/wind_pointer"
-        android:src="@drawable/blue_pointer_sm"
-        android:layout_alignTop="@+id/compass_bar"
         android:layout_alignParentRight="true"
-        android:layout_alignParentLeft="true"
-        android:visibility="invisible" />
+        android:layout_alignBottom="@+id/wind_pointer"
+        android:layout_below="@+id/windSpeed" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -109,44 +116,15 @@
         android:textSize="30dp"
         android:visibility="invisible" />
 
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_alignBottom="@+id/altiDisplay"
-        android:layout_toLeftOf="@+id/speedTitle"
-        android:id="@+id/mfd"
-        android:layout_toRightOf="@+id/altitudeTitle"
-        android:layout_below="@+id/compass_bar">
-
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_alignParentTop="true"
-            android:layout_centerHorizontal="true"
-            android:id="@+id/mfdTextLayout">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textAppearance="?android:attr/textAppearanceLarge"
-                android:id="@+id/mfdDisplay"
-                android:textSize="32dp"
-                android:gravity="center_horizontal"
-                android:layout_alignParentRight="true"
-                android:layout_alignParentLeft="true"
-                android:layout_alignParentBottom="true" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textAppearance="?android:attr/textAppearanceLarge"
-                android:id="@+id/mfdTitle"
-                android:gravity="center_horizontal"
-                android:layout_alignTop="@+id/altiDisplay"
-                android:layout_alignParentRight="true"
-                android:layout_alignParentLeft="true" />
-        </RelativeLayout>
-    </RelativeLayout>
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="26dp"
+        android:id="@+id/bearing_pointer"
+        android:src="@drawable/yellow_pointer_sm"
+        android:visibility="invisible"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentRight="true"
+        android:layout_below="@+id/windSpeed" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -157,5 +135,48 @@
         android:layout_below="@+id/altiDisplay"
         android:layout_alignParentLeft="true"
         />
+
+    <TextView
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:text="--- %"
+        android:id="@+id/battery_level"
+        android:layout_below="@+id/speedDisplay"
+        android:gravity="right"
+        android:layout_alignParentRight="true"
+        android:layout_alignLeft="@+id/speedDisplay"
+        android:textSize="16dp" />
+
+    <TextView
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:id="@+id/varioGlideDisplay"
+        android:layout_alignTop="@+id/altitudeTitle"
+        android:layout_toLeftOf="@+id/speedTitle"
+        android:textSize="18dp"
+        android:layout_toRightOf="@+id/altitudeTitle"
+        android:gravity="center_horizontal|top"
+        android:layout_alignBottom="@+id/altitudeTitle" />
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/compassPtr"
+        android:layout_above="@+id/varioGlideDisplay"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentRight="true"
+        android:layout_below="@+id/wind_pointer"
+        android:background="@drawable/compass_marker" />
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/mapDisplay"
+        android:layout_below="@+id/varioGlideDisplay"
+        android:layout_alignRight="@+id/varioGlideDisplay"
+        android:layout_toRightOf="@+id/altitudeTitle"
+        android:layout_above="@+id/flight_time" />
 
 </RelativeLayout>

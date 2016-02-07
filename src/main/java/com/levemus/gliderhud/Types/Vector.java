@@ -27,7 +27,7 @@ public class Vector {
     public double X() { return _X; }
     public double Y() { return _Y; }
 
-    public void SetDirectionAndMagnitude(double direction, double magnitude)
+    public void setDirectionAndMagnitude(double direction, double magnitude)
     {
         _Y = magnitude * Math.cos(Math.toRadians(direction));
         _X = magnitude * Math.sin(Math.toRadians(direction));

@@ -1,4 +1,4 @@
-package com.levemus.gliderhud.FlightData.Providers.Test;
+package com.levemus.gliderhud.FlightData.Providers.Recon;
 
 /*
  Both the author and publisher makes no representations or warranties
@@ -11,45 +11,41 @@ package com.levemus.gliderhud.FlightData.Providers.Test;
  (c) 2015 Levemus Software, Inc.
  */
 
-import java.util.HashSet;
-import java.util.UUID;
-
 import android.app.Activity;
 
-import com.levemus.gliderhud.FlightData.Configuration.IChannelized;
-import com.levemus.gliderhud.FlightData.Configuration.IIdentifiable;
 import com.levemus.gliderhud.FlightData.Managers.IClient;
-import com.levemus.gliderhud.FlightData.Processors.Custom.Turnpoint;
 import com.levemus.gliderhud.FlightData.Providers.Provider;
+
+import java.util.HashSet;
+import java.util.UUID;
 
 /**
  * Created by mark@levemus on 15-11-23.
  */
+public class AltitudeProvider extends Provider {
 
-public class TestProvider extends Provider implements IIdentifiable, IChannelized {
-
-    // logcat class id
     private final String TAG = this.getClass().getSimpleName();
-    private TestService mService = new TestService();
 
     @Override
     public HashSet<UUID> channels() {
-        return mService.channels();
+        return(mService.channels());
     }
 
     @Override
     public UUID id() {
-        return mService.id();
+        return(mService.id());
     }
+
+    private AltitudeService mService = new AltitudeService();
 
     @Override
     public void start(final Activity activity) {
-        mService.start(activity, TestService.class, id());
+        mService.start(activity, AltitudeService.class, id());
     }
 
     @Override
     public void stop(Activity activity) {
-        mService.stop(activity, TestService.class);
+        mService.stop(activity, AltitudeService.class);
     }
 
     @Override
@@ -62,4 +58,3 @@ public class TestProvider extends Provider implements IIdentifiable, IChannelize
         mService.deRegisterClient(client);
     }
 }
-

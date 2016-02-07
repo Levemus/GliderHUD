@@ -8,67 +8,66 @@ package com.levemus.gliderhud.FlightDisplay.Generic;
  shall not be liable for any damages suffered as a result of using,
  modifying or distributing the software or its derivatives.
 
- (c) 2015 Levemus Software, Inc.
+ (c) 2016 Levemus Software, Inc.
  */
 
 import android.app.Activity;
 import android.widget.TextView;
 
 import com.levemus.gliderhud.FlightData.Managers.IChannelDataSource;
-import com.levemus.gliderhud.FlightDisplay.FlightDisplay;
-
 import com.levemus.gliderhud.FlightData.Processors.Factory.ProcessorFactory;
-import com.levemus.gliderhud.FlightData.Processors.Processor;
 import com.levemus.gliderhud.FlightData.Processors.Factory.ProcessorID;
+import com.levemus.gliderhud.FlightData.Processors.Processor;
+import com.levemus.gliderhud.FlightDisplay.FlightDisplay;
+import com.levemus.gliderhud.R;
+
+import java.util.Date;
+import java.util.concurrent.TimeUnit;
 
 /**
- * Created by mark@levemus on 15-12-01.
+ * Created by mark@levemus on 16-01-25.
  */
 
-public class AltitudeDisplay extends FlightDisplay {
+public class BatteryDisplay extends FlightDisplay {
 
     // Constants
     private final String TAG = this.getClass().getSimpleName();
-    private final double MIN_ALTITUDE = 0.0;
 
     // Listeners
-    private Processor<Double> mAltitude;
+    private Processor<Double> mBatteryLevel;
 
     // Displays
-    private TextView mAltiDisplay = null;
+    private TextView mBatteryLevelDisplay = null;
 
     // Initialization/registration
     @Override
-    public void init(Activity activity)
-    {
-        mAltiDisplay = (TextView) activity.findViewById(com.levemus.gliderhud.R.id.altiDisplay);
+    public void init(Activity activity) {
+        mBatteryLevelDisplay = (TextView) activity.findViewById(R.id.battery_level);
         super.init(activity);
     }
 
     @Override
     public void registerProvider(IChannelDataSource provider) {
-        mAltitude = ProcessorFactory.build(ProcessorID.ALTITUDE);
-        mAltitude.registerSource(provider);
-        mAltitude.start();
+        mBatteryLevel = ProcessorFactory.build(ProcessorID.BATTERY);
+        mBatteryLevel.registerSource(provider);
+        mBatteryLevel.start();
     }
 
     @Override
     public void deRegisterProvider(IChannelDataSource provider) {
-        mAltitude.stop();
-        mAltitude.deRegisterSource(provider);
-        mAltitude = null;
+        mBatteryLevel.stop();
+        mBatteryLevel.deRegisterSource(provider);
+        mBatteryLevel = null;
     }
 
-    // Operation
     @Override
     public void display(Activity activity) {
+
         try {
-            if(!mAltitude.isValid())
-                mAltiDisplay.setText("---");
+            if (!mBatteryLevel.isValid())
+                mBatteryLevelDisplay.setText("-- %");
             else
-                mAltiDisplay.setText(Integer.toString((int) Math.max(mAltitude.value(), MIN_ALTITUDE)));
-        }catch (Exception e){
-            mAltiDisplay.setText("---");
-        }
+                mBatteryLevelDisplay.setText(Long.toString(Math.round(mBatteryLevel.value())) + " %");
+        } catch (Exception e){}
     }
 }

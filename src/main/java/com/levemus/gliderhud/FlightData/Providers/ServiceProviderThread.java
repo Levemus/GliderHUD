@@ -77,7 +77,8 @@ public abstract class ServiceProviderThread extends Thread {
     public void init(Service parent) {
         mParent = parent;
         setPriority(Process.THREAD_PRIORITY_BACKGROUND);
-        start();
+        if(this.getState() == State.NEW)
+            start();
     }
 
     protected void onRequest(SerializablePayloadMessage message) {}

@@ -33,6 +33,7 @@ public class GlideRatioDisplay extends MFDTextElement {
     // Listeners
     private Processor<Double> mTurnRate;
     private Processor<Double> mGlide;
+    private Processor<Double> mClimbRate;
 
     // Initialization/registration
     public GlideRatioDisplay(FlightDisplay parent) {
@@ -42,27 +43,30 @@ public class GlideRatioDisplay extends MFDTextElement {
     @Override
     public void registerProvider(IChannelDataSource provider) {
         mTurnRate = ProcessorFactory.build(ProcessorID.TURNRATE);
-        mGlide = ProcessorFactory.build(ProcessorID.GLIDERATIO);
-        mTurnRate.registerProvider(provider);
-        mGlide.registerProvider(provider);
+        mTurnRate.registerSource(provider);
         mTurnRate.start();
+
+        mGlide = ProcessorFactory.build(ProcessorID.GLIDERATIO);
+        mGlide.registerSource(provider);
         mGlide.start();
+
+        mClimbRate = ProcessorFactory.build(ProcessorID.VARIO);
+        mClimbRate.registerSource(provider);
+        mClimbRate.start();
     }
 
     @Override
     public void deRegisterProvider(IChannelDataSource provider) {
         mTurnRate.stop();
-        mGlide.stop();
-        mTurnRate.deRegisterProvider(provider);
-        mGlide.deRegisterProvider(provider);
+        mTurnRate.deRegisterSource(provider);
         mTurnRate = null;
+
+        mGlide.stop();
+        mGlide.deRegisterSource(provider);
         mGlide = null;
     }
 
     // Operation
-    @Override
-    protected String title() {return "Glide";}
-
     @Override
     protected String value() {
         if(mGlide.value() >= MIN_GLIDE || mGlide.value() < MAX_GLIDE_VALUE)
@@ -70,7 +74,7 @@ public class GlideRatioDisplay extends MFDTextElement {
 
         double displayGlide = Math.round(mGlide.value() * 100);
         displayGlide /= 100;
-        return Double.toString(displayGlide);
+        return Double.toString(displayGlide) + " L/D";
     }
 
     @Override
@@ -78,7 +82,10 @@ public class GlideRatioDisplay extends MFDTextElement {
         try {
             mGlide.process();
             mTurnRate.process();
-            if(mGlide.value() >= MIN_GLIDE || mGlide.value() < MAX_GLIDE_VALUE || mTurnRate.value() > MAX_TURN_RATE)
+            if((!mClimbRate.isValid() || !mGlide.isValid() || !mTurnRate.isValid())
+                    || (mClimbRate.value() >= 0)
+                    || ((mGlide.value() >= MIN_GLIDE || mGlide.value() < MAX_GLIDE_VALUE))
+                    || (mTurnRate.value() > MAX_TURN_RATE))
                 return MFDElement.DisplayPriority.NONE;
             else if(mGlide.value() >= CRITICAL_GLIDE &&  mTurnRate.value() < MAX_TURN_RATE)
                 return MFDElement.DisplayPriority.CRITICAL;

@@ -13,11 +13,14 @@ package com.levemus.gliderhud.FlightDisplay;
 
 import android.app.Activity;
 
+import com.levemus.gliderhud.FlightData.Listeners.IListener;
 import com.levemus.gliderhud.FlightData.Managers.IChannelDataSource;
 import com.levemus.gliderhud.FlightDisplay.Generic.AltitudeDisplay;
+import com.levemus.gliderhud.FlightDisplay.Generic.BatteryDisplay;
 import com.levemus.gliderhud.FlightDisplay.Generic.FlightTimeDisplay;
 import com.levemus.gliderhud.FlightDisplay.Generic.GroundSpeedDisplay;
-import com.levemus.gliderhud.FlightDisplay.Generic.MFD.MultiFunctionManager;
+import com.levemus.gliderhud.FlightDisplay.Generic.MFD.MultiFunctionDisplay;
+import com.levemus.gliderhud.FlightDisplay.Generic.Map.MapDisplay;
 import com.levemus.gliderhud.FlightDisplay.Recon.Compass.CompassDisplay;
 
 /**
@@ -34,22 +37,24 @@ public class MainDisplay extends FlightDisplay {
             new AltitudeDisplay(),
             new GroundSpeedDisplay(),
             new FlightTimeDisplay(),
-            new MultiFunctionManager(),
+            new BatteryDisplay(),
+            new MultiFunctionDisplay(),
+            new MapDisplay()
     };
 
     @Override
     public void init(Activity activity)
     {
-        for(IFlightDisplay display : mDisplays ) {
-            display.init(activity);
+        for(IListener listener : mDisplays ) {
+            listener.init(activity);
         }
     }
 
     @Override
     public void deInit(Activity activity)
     {
-        for(IFlightDisplay display : mDisplays ) {
-            display.deInit(activity);
+        for(IListener listener : mDisplays ) {
+            listener.deInit(activity);
         }
     }
 

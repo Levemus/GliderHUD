@@ -29,6 +29,8 @@ public class XCTracerMessage extends BluetoothDataMessage {
 
     public XCTracerMessage() {}
 
+    public XCTracerMessage(UUID id) {mId = id;}
+
     @Override
     public String frameStart() {return "$XCTRC";}
 

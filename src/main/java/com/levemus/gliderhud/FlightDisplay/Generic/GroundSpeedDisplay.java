@@ -45,16 +45,19 @@ public class GroundSpeedDisplay extends FlightDisplay {
     @Override
     public void registerProvider(IChannelDataSource provider) {
         mGroundSpeed = ProcessorFactory.build(ProcessorID.GROUNDSPEED);
-        mGroundSpeed.registerProvider(provider);
+        mGroundSpeed.registerSource(provider);
         mGroundSpeed.start();
     }
 
     @Override
     public void deRegisterProvider(IChannelDataSource provider) {
         mGroundSpeed.stop();
-        mGroundSpeed.deRegisterProvider(provider);
+        mGroundSpeed.deRegisterSource(provider);
         mGroundSpeed = null;
     }
+
+    private boolean mIsFlying = false;
+    private final double MIN_GROUND_SPEED = 10.0; // kph
 
     // Operation
     @Override
@@ -62,6 +65,11 @@ public class GroundSpeedDisplay extends FlightDisplay {
         try {
             if(!mGroundSpeed.isValid())
                 mGroundSpeedDisplay.setText("---");
+            else if(!mIsFlying) {
+                mGroundSpeedDisplay.setText("0");
+                if(mGroundSpeed.value() * 3.6 > MIN_GROUND_SPEED)
+                    mIsFlying = true;
+            }
             else
                 mGroundSpeedDisplay.setText(Integer.toString((int)(mGroundSpeed.value() * 3.6)));
         }catch (Exception e){

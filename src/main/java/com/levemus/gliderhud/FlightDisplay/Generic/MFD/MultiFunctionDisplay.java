@@ -14,13 +14,12 @@ package com.levemus.gliderhud.FlightDisplay.Generic.MFD;
 import android.app.Activity;
 import android.widget.RelativeLayout;
 import android.view.View;
+import android.widget.TextView;
 
 import com.levemus.gliderhud.FlightData.Managers.IChannelDataSource;
 import com.levemus.gliderhud.FlightDisplay.FlightDisplay;
 import com.levemus.gliderhud.FlightDisplay.Generic.MFD.Elements.ClimbRateDisplay;
-import com.levemus.gliderhud.FlightDisplay.Generic.MFD.Elements.DistanceFrLaunchDisplay;
 import com.levemus.gliderhud.FlightDisplay.Generic.MFD.Elements.GlideRatioDisplay;
-import com.levemus.gliderhud.FlightDisplay.Generic.MFD.Elements.HeightAbvLaunchDisplay;
 import com.levemus.gliderhud.FlightDisplay.Generic.MFD.Elements.MFDElement;
 
 import java.util.Date;
@@ -30,20 +29,17 @@ import java.util.ArrayList;
  * Created by mark@levemus on 15-12-01.
  */
 
-public class MultiFunctionManager extends FlightDisplay {
+public class MultiFunctionDisplay extends FlightDisplay {
 
     MFDElement[] mDisplayElements = new MFDElement[] {
             new ClimbRateDisplay(this),
             new GlideRatioDisplay(this),
-            new HeightAbvLaunchDisplay(this),
-            new DistanceFrLaunchDisplay(this),
     };
 
-    private RelativeLayout mMFDDisplay;
+    private TextView mVarioGlideDisplay;
 
     @Override
     public void init(Activity activity) {
-        mMFDDisplay = (RelativeLayout) activity.findViewById(com.levemus.gliderhud.R.id.mfd);
         for(MFDElement element : mDisplayElements) {
             element.init(activity);
         }
@@ -90,11 +86,9 @@ public class MultiFunctionManager extends FlightDisplay {
         if(priority == MFDElement.DisplayPriority.NONE) {
             mDisplayQueue.clear();
             mCurrentDisplayStart = currentTime;
-            mMFDDisplay.setVisibility(View.GONE);
             return;
         }
 
-        mMFDDisplay.setVisibility(View.VISIBLE);
         ArrayList<MFDElement> displayQueue = new ArrayList<>();
 
         if(mDisplayQueue.size() > 0 && mDisplayQueue.get(0).displayPriority() != MFDElement.DisplayPriority.NONE)

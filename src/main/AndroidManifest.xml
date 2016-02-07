@@ -66,6 +66,10 @@
             android:name="com.levemus.gliderhud.FlightData.Providers.Test.TestService"
             android:label="TestService" >
         </service>
+        <service
+            android:name=".FlightData.Providers.Recon.AltitudeService"
+            android:label="AltitudeService" >
+        </service>
     </application>
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
 </manifest>

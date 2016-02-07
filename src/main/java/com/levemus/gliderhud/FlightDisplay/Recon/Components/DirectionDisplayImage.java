@@ -17,6 +17,7 @@ import android.view.View;
 import android.widget.ImageView;
 
 import com.levemus.gliderhud.Types.Point;
+import com.levemus.gliderhud.Utils.Angle;
 
 /**
  * Created by mark@levemus on 15-11-30.
@@ -47,9 +48,8 @@ public class DirectionDisplayImage extends DirectionDisplay {
         activity.runOnUiThread(new Runnable() {
             public void run() {
 
-                double angle = (mImageOffset != null ? mImageOffset.getDirectionOffset(mCurrentDirection) : mCurrentDirection);
                 double locationX = location.X();
-                double screenLocationX = -(getScreenLocation(angle).X());
+                double screenLocationX = getPosition();
                 if (locationX == screenLocationX)
                     return;
                 Matrix matrix = new Matrix();
@@ -62,8 +62,20 @@ public class DirectionDisplayImage extends DirectionDisplay {
                 location = new Point(screenLocationX, 0);
                 mImageView.getImageMatrix().reset();
                 mImageView.getImageMatrix().postTranslate((int) location.X(), 0);
+                mImageView.setImageAlpha(mAlpha);
                 mImageView.postInvalidate();
             }
         });
+    }
+
+    @Override
+    public int getWidth(){
+        return mImageView.getWidth();
+    }
+
+    @Override
+    public int getPosition() {
+        double angle = (mImageOffset != null ? mImageOffset.getDirectionOffset(mCurrentDirection) : mCurrentDirection);
+        return((int)-(getScreenLocation(angle).X()));
     }
 }

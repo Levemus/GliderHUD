@@ -30,34 +30,27 @@ public abstract class MFDTextElement extends MFDElement {
         super(parent);
     }
 
-    protected String title() {return "";}
     protected String value() {return "";}
 
     @Override
     public void display(Activity activity) {
-        mMFDTextLayout.setVisibility(View.VISIBLE);
+        mVarioGlideDisplay.setVisibility(View.VISIBLE);
         try {
-            mMFDDisplay.setText(value());
-            mMFDTitle.setText(title());
+            mVarioGlideDisplay.setText(value());
         } catch(Exception e) {
-            mMFDDisplay.setText("");
-            mMFDTitle.setText("");
+            mVarioGlideDisplay.setText("");
         }
     }
 
     @Override
     public void hide() {
-        mMFDTextLayout.setVisibility(View.GONE);
+        mVarioGlideDisplay.setVisibility(View.GONE);
     }
 
-    private TextView mMFDDisplay = null;
-    private TextView mMFDTitle = null;
-    private RelativeLayout mMFDTextLayout = null;
+    private TextView mVarioGlideDisplay = null;
 
     @Override
     public void init(Activity activity) {
-        mMFDTextLayout = (RelativeLayout)activity.findViewById(com.levemus.gliderhud.R.id.mfdTextLayout);
-        mMFDTitle = (TextView) activity.findViewById(com.levemus.gliderhud.R.id.mfdTitle);
-        mMFDDisplay = (TextView) activity.findViewById(com.levemus.gliderhud.R.id.mfdDisplay);
+        mVarioGlideDisplay = (TextView) activity.findViewById(com.levemus.gliderhud.R.id.varioGlideDisplay);
     }
 }

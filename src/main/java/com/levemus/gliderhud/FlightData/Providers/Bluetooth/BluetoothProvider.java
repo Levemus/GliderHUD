@@ -39,8 +39,14 @@ public class BluetoothProvider extends Provider {
     @Override
     public void start(Activity activity) {
 
+        SharedPreferences.Editor editor = activity.getSharedPreferences(activity.getString(com.levemus.gliderhud.R.string.full_app_name), Context.MODE_PRIVATE).edit();
+        editor.putString(activity.getString(com.levemus.gliderhud.R.string.ble_address), "20:C3:8F:EB:04:9E");
+        editor.apply();
+        editor.commit();
+
         SharedPreferences sharedPref = activity.getSharedPreferences(activity.getString(com.levemus.gliderhud.R.string.full_app_name), Context.MODE_PRIVATE);
         mAddress = sharedPref.getString(activity.getString(com.levemus.gliderhud.R.string.ble_address), mAddress);
+
         if (mAddress == null) {
             activity.startActivity(new Intent(activity, BluetoothScanner.class));
         }  else {

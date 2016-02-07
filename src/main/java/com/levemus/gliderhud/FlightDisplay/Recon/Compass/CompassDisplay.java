@@ -16,6 +16,8 @@ import android.widget.ImageView;
 
 import com.levemus.gliderhud.FlightData.Managers.IChannelDataSource;
 import com.levemus.gliderhud.FlightData.Managers.IClient;
+import com.levemus.gliderhud.FlightDisplay.IFlightDisplay;
+import com.levemus.gliderhud.FlightDisplay.Recon.Components.IDirectionDisplay;
 import com.levemus.gliderhud.Messages.ChannelMessages.Channels;
 import com.levemus.gliderhud.FlightData.Providers.Recon.HeadLocationProvider;
 import com.levemus.gliderhud.FlightDisplay.Recon.Components.DirectionDisplay;
@@ -23,6 +25,10 @@ import com.levemus.gliderhud.FlightDisplay.Recon.Components.DirectionDisplayImag
 import com.levemus.gliderhud.FlightDisplay.FlightDisplay;
 import com.levemus.gliderhud.Messages.ChannelMessages.Data.DataMessage;
 import com.levemus.gliderhud.Messages.IMessage;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 
 /**
@@ -35,9 +41,13 @@ public class CompassDisplay extends FlightDisplay implements IClient {
     private HeadLocationProvider mOrientation;
 
     private DirectionDisplayImage mHeadingDisplay = null;
-    private WindDisplay mWindDisplay = null;
-    private WaypointDisplay mWaypointDisplay = null;
-    private BearingDisplay mBearingDisplay = null;
+
+    private List<CompassSubDisplay> mDirectionDisplays = Arrays.asList(
+            new BearingDisplay(),
+            new WaypointDisplay(),
+            new LaunchDisplay(),
+            new WindDisplay()
+            );
 
     @Override
     public void init(final Activity activity)
@@ -49,27 +59,22 @@ public class CompassDisplay extends FlightDisplay implements IClient {
                 mHeadingDisplay = new DirectionDisplayImage((ImageView)
                         activity.findViewById(com.levemus.gliderhud.R.id.compass_bar));
             }});
+
         mOrientation = new HeadLocationProvider();
         mOrientation.registerClient(this);
         mOrientation.start(activity);
 
-        mWindDisplay = new WindDisplay();
-        mWindDisplay.init(activity);
-
-        mWaypointDisplay = new WaypointDisplay();
-        mWaypointDisplay.init(activity);
-
-        mBearingDisplay = new BearingDisplay();
-        mBearingDisplay.init(activity);
-
+        for(FlightDisplay display : mDirectionDisplays) {
+            display.init(activity);
+        }
     }
 
     @Override
     public void deInit(Activity activity) {
 
-        mBearingDisplay.deInit(activity);
-        mWindDisplay.deInit(activity);
-        mWaypointDisplay.deInit(activity);
+        for(FlightDisplay display : mDirectionDisplays) {
+            display.deInit(activity);
+        }
 
         mOrientation.stop(activity);
         mOrientation = null;
@@ -82,19 +87,17 @@ public class CompassDisplay extends FlightDisplay implements IClient {
     @Override
     public void registerProvider(IChannelDataSource provider)
     {
-        mWaypointDisplay.registerProvider(provider);
-        mWindDisplay.registerProvider(provider);
-        mBearingDisplay.registerProvider(provider);
-
+        for(FlightDisplay display : mDirectionDisplays) {
+            display.registerProvider(provider);
+        }
     }
 
     @Override
     public void deRegisterProvider(IChannelDataSource provider) {
 
-        mWaypointDisplay.deRegisterProvider(provider);
-        mWindDisplay.deRegisterProvider(provider);
-        mBearingDisplay.deRegisterProvider(provider);
-
+        for(FlightDisplay display : mDirectionDisplays) {
+            display.deRegisterProvider(provider);
+        }
     }
 
     private Double mYaw;
@@ -106,20 +109,43 @@ public class CompassDisplay extends FlightDisplay implements IClient {
         }catch(Exception e){}
     }
 
+    private final int OVERLAP_ALPHA = 0x40;
+    private final int NORMAL_ALPHA = 0xFF;
+
     @Override
     public void display(Activity activity)
     {
         try {
             Double current = mHeadingDisplay.getCurrentDirection();
             mHeadingDisplay.setCurrentDirection(DirectionDisplay.smoothDirection(mYaw, current));
-            mBearingDisplay.setBaseAngle(mHeadingDisplay.getCurrentDirection());
-            mWindDisplay.setBaseAngle(mHeadingDisplay.getCurrentDirection());
-            mWaypointDisplay.setBaseAngle(mHeadingDisplay.getCurrentDirection());
+
+            for(IDirectionDisplay display : mDirectionDisplays) {
+                display.setParentDirection(mHeadingDisplay.getCurrentDirection());
+            }
 
             mHeadingDisplay.display(activity);
-            mWindDisplay.display(activity);
-            mWaypointDisplay.display(activity);
-            mBearingDisplay.display(activity);
+            for(CompassSubDisplay currentDisplay : mDirectionDisplays) {
+                if(currentDisplay.canDisplay()) {
+                    currentDisplay.setAlpha(NORMAL_ALPHA);
+                    int currentLower = currentDisplay.getPosition() - (int)(0.5 * currentDisplay.getWidth());
+                    int currentUpper = currentDisplay.getPosition() + (int)(0.5 * currentDisplay.getWidth());
+                    for(CompassSubDisplay previousDisplay : mDirectionDisplays) {
+                        if(previousDisplay == currentDisplay)
+                            break;
+                        if(previousDisplay.canDisplay()) {
+                            int previousLower = previousDisplay.getPosition() - (int)(0.5 * previousDisplay.getWidth());
+                            int previousUpper = previousDisplay.getPosition() + (int)(0.5 * previousDisplay.getWidth());
+
+                            if((previousLower < currentLower && previousUpper > currentLower) ||
+                                    (previousUpper > currentUpper && previousLower < currentUpper))
+                            {
+                                currentDisplay.setAlpha(OVERLAP_ALPHA);
+                            }
+                        }
+                    }
+                    currentDisplay.display(activity);
+                }
+            }
 
         }catch(Exception e){}
     }
