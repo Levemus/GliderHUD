@@ -1,57 +1,84 @@
 package com.levemus.gliderhud.FlightDisplay;
 
-import android.app.Activity;
+import android.app.Fragment;
+import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.os.Handler;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.os.AsyncTask;
+import android.os.Bundle;
+import android.util.Log;
 
-import com.levemus.gliderhud.FlightData.Listeners.IListener;
-import com.levemus.gliderhud.FlightData.Managers.IChannelDataSource;
+import com.levemus.gliderhud.FlightData.Processors.Processor;
+import com.levemus.gliderhud.FlightData.Services.FlightDataService;
+import com.levemus.gliderhud.Messages.ChannelMessages.Data.DataMessage;
+
+import java.util.Date;
+import java.util.HashMap;
+import java.util.UUID;
 
 /**
  * Created by mark@levemus on 15-12-20.
  */
 
-public abstract class FlightDisplay implements IFlightDisplay, IListener {
+public abstract class FlightDisplay extends Fragment  {
 
-    protected Context mContext;
-    private Handler handler = new Handler();
-    @Override
-    public void init(final Activity activity) {
-        mContext = activity;
-        if(refreshPeriod() != Integer.MAX_VALUE) {
-            handler.postDelayed(new Runnable() {
+    private final String TAG = this.getClass().getSimpleName();
+
+    protected HashMap<UUID, Processor> mProcessors = new HashMap<>();
+    protected HashMap<UUID, Object> mResults = new HashMap();
+
+    protected long mTimeOfLastUpdate = 0;
+
+    private boolean mActive = false;
+    private BroadcastReceiver mMessageReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if(mActive)
+                return;
+            mActive = true;
+            Bundle bundle = intent.getBundleExtra("MSG");
+            DataMessage message = (DataMessage)bundle.getSerializable("MSG");
+            new AsyncTask<DataMessage,Void,Void>(){
                 @Override
-                public void run() {
-                    activity.runOnUiThread(new Runnable() {
-                        public void run() {
-                            display(activity);
-                        }});
-                    handler.postDelayed(this, refreshPeriod());
+                protected Void doInBackground(DataMessage... params) {
+                    for(Processor processor : mProcessors.values()) {
+                        Object result = processor.onMsg(params[0]);
+                        if(processor.isValid(result)) {
+                            mResults.put(processor.id(), result);
+                        }
+                    }
+                    return null;
                 }
-            }, refreshPeriod());
+
+                @Override
+                protected void onPostExecute(Void res) {
+                    long currentTime = new Date().getTime();
+                    if(currentTime - mTimeOfLastUpdate > refreshPeriod()) {
+                        update();
+                        mTimeOfLastUpdate = currentTime;
+                    }
+                    mActive = false;
+                }
+            }.execute(message);
         }
+    };
+
+    @Override
+    public void onResume() {
+        Log.i(TAG, "onResume");
+        super.onResume();
+        getActivity().registerReceiver(mMessageReceiver, new IntentFilter(FlightDataService.intentFilter()));
     }
 
     @Override
-    public void deInit(Activity activity) {
-        handler.removeCallbacksAndMessages(null);
-        mContext = null;
+    public void onPause() {
+        Log.i(TAG, "onPause");
+        super.onPause();
+        getActivity().unregisterReceiver(mMessageReceiver);
     }
 
-    @Override
-    public void display(Activity activity) {}
+    protected int refreshPeriod() { return 500; }
 
-    @Override
-    public void hide() {}
-
-    @Override
-    public void registerProvider(IChannelDataSource provider) {}
-
-    @Override
-    public void deRegisterProvider(IChannelDataSource provider) {}
-
-    protected int refreshPeriod() { return 500; } // ms
-
-    @Override
-    public boolean canDisplay() {return true;}
+    protected void update() {}
 }

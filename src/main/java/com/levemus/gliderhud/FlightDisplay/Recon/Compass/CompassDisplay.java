@@ -12,146 +12,152 @@ package com.levemus.gliderhud.FlightDisplay.Recon.Compass;
  */
 
 import android.app.Activity;
+import android.os.Bundle;
+import android.os.Handler;
+import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ImageView;
 
-import com.levemus.gliderhud.FlightData.Managers.IChannelDataSource;
-import com.levemus.gliderhud.FlightData.Managers.IClient;
-import com.levemus.gliderhud.FlightDisplay.IFlightDisplay;
-import com.levemus.gliderhud.FlightDisplay.Recon.Components.IDirectionDisplay;
+import com.levemus.gliderhud.FlightData.Pipeline.MessageListener;
+import com.levemus.gliderhud.FlightData.Processors.Factory.ProcessorFactory;
+import com.levemus.gliderhud.FlightData.Processors.Processor;
+import com.levemus.gliderhud.Messages.ChannelMessages.ChannelMessage;
 import com.levemus.gliderhud.Messages.ChannelMessages.Channels;
 import com.levemus.gliderhud.FlightData.Providers.Recon.HeadLocationProvider;
-import com.levemus.gliderhud.FlightDisplay.Recon.Components.DirectionDisplay;
-import com.levemus.gliderhud.FlightDisplay.Recon.Components.DirectionDisplayImage;
 import com.levemus.gliderhud.FlightDisplay.FlightDisplay;
 import com.levemus.gliderhud.Messages.ChannelMessages.Data.DataMessage;
-import com.levemus.gliderhud.Messages.IMessage;
+import com.levemus.gliderhud.R;
+import com.levemus.gliderhud.Utils.Angle;
+import com.reconinstruments.os.HUDOS;
+import com.reconinstruments.os.hardware.sensors.HUDHeadingManager;
+import com.reconinstruments.os.hardware.sensors.HeadLocationListener;
 
-import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.UUID;
 
 
 /**
  * Created by mark@levemus on 15-12-01.
  */
-public class CompassDisplay extends FlightDisplay implements IClient {
+public class CompassDisplay extends FlightDisplay implements HeadLocationListener {
 
     private final String TAG = this.getClass().getSimpleName();
+    private HeadingDisplay mHeadingDisplay = new HeadingDisplay();
+    private BearingDisplay mBearingDisplay = new BearingDisplay();
 
-    private HeadLocationProvider mOrientation;
-
-    private DirectionDisplayImage mHeadingDisplay = null;
-
-    private List<CompassSubDisplay> mDirectionDisplays = Arrays.asList(
-            new BearingDisplay(),
+    private List<CompassSubDisplay> mSubDisplays = Arrays.asList(
             new WaypointDisplay(),
             new LaunchDisplay(),
             new WindDisplay()
-            );
+    );
 
-    @Override
-    public void init(final Activity activity)
-    {
-        super.init(activity);
+    private HUDHeadingManager mHUDHeadingManager = null;
 
-        ((Activity)mContext).runOnUiThread(new Runnable() {
-            public void run() {
-                mHeadingDisplay = new DirectionDisplayImage((ImageView)
-                        activity.findViewById(com.levemus.gliderhud.R.id.compass_bar));
-            }});
+    public CompassDisplay() {
+        if(mHUDHeadingManager == null)
+            mHUDHeadingManager = (HUDHeadingManager) HUDOS.getHUDService(HUDOS.HUD_HEADING_SERVICE);
+        mHUDHeadingManager.register(this);
+    }
 
-        mOrientation = new HeadLocationProvider();
-        mOrientation.registerClient(this);
-        mOrientation.start(activity);
+    private double mYaw = -5.0;
 
-        for(FlightDisplay display : mDirectionDisplays) {
-            display.init(activity);
+    private double smoothDirection(double newHeading, double oldHeading) {
+
+        double heading = oldHeading;
+
+        if (heading > 270.0f && newHeading < 90.0f) {
+            heading = heading - 360.0f;// avoid aliasing in average when crossing North (angle = 0.0)
+        } else if (heading < 90.0f && newHeading > 270.0f) {
+            newHeading = newHeading - 360.0f; // avoid aliasing in average when crossing North (angle = 0.0)
         }
+
+        heading = (float) ((4.0 * heading + newHeading) / 5.0); // smooth heading
+        if (heading < 0.0f) heading += 360.0f;
+        if (heading > 360.0f) heading -= 360.0f;
+
+        return heading;
     }
 
     @Override
-    public void deInit(Activity activity) {
-
-        for(FlightDisplay display : mDirectionDisplays) {
-            display.deInit(activity);
+    public void onHeadLocation(float yaw, float pitch, float roll) {
+        if (Float.isNaN(yaw)) {
+            return;
         }
 
-        mOrientation.stop(activity);
-        mOrientation = null;
-
-        mHeadingDisplay = null;
-
-        super.deInit(activity);
-    }
-
-    @Override
-    public void registerProvider(IChannelDataSource provider)
-    {
-        for(FlightDisplay display : mDirectionDisplays) {
-            display.registerProvider(provider);
+        long currentTime = new Date().getTime();
+        if (currentTime - mTimeOfLastUpdate > refreshPeriod()) {
+            mYaw = smoothDirection(yaw, mYaw);
+            display();
+            mTimeOfLastUpdate = currentTime;
         }
-    }
-
-    @Override
-    public void deRegisterProvider(IChannelDataSource provider) {
-
-        for(FlightDisplay display : mDirectionDisplays) {
-            display.deRegisterProvider(provider);
-        }
-    }
-
-    private Double mYaw;
-
-    @Override
-    public void onMsg(IMessage msg) {
-        try {
-            mYaw = ((DataMessage)msg).get(Channels.YAW);
-        }catch(Exception e){}
     }
 
     private final int OVERLAP_ALPHA = 0x40;
     private final int NORMAL_ALPHA = 0xFF;
 
     @Override
-    public void display(Activity activity)
-    {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        // Inflate the layout for this fragment
+        return inflater.inflate(R.layout.compass_display, container, false);
+    }
+
+    protected void display() {
+
         try {
-            Double current = mHeadingDisplay.getCurrentDirection();
-            mHeadingDisplay.setCurrentDirection(DirectionDisplay.smoothDirection(mYaw, current));
+            if(mProcessors.isEmpty()) {
+                HashSet<UUID> processorIds = new HashSet<>();
+                for(CompassSubDisplay subDisplay : mSubDisplays) {
+                    processorIds.addAll(subDisplay.processorIDs());
+                }
+                processorIds.addAll(mBearingDisplay.processorIDs());
 
-            for(IDirectionDisplay display : mDirectionDisplays) {
-                display.setParentDirection(mHeadingDisplay.getCurrentDirection());
-            }
-
-            mHeadingDisplay.display(activity);
-            for(CompassSubDisplay currentDisplay : mDirectionDisplays) {
-                if(currentDisplay.canDisplay()) {
-                    currentDisplay.setAlpha(NORMAL_ALPHA);
-                    int currentLower = currentDisplay.getPosition() - (int)(0.5 * currentDisplay.getWidth());
-                    int currentUpper = currentDisplay.getPosition() + (int)(0.5 * currentDisplay.getWidth());
-                    for(CompassSubDisplay previousDisplay : mDirectionDisplays) {
-                        if(previousDisplay == currentDisplay)
-                            break;
-                        if(previousDisplay.canDisplay()) {
-                            int previousLower = previousDisplay.getPosition() - (int)(0.5 * previousDisplay.getWidth());
-                            int previousUpper = previousDisplay.getPosition() + (int)(0.5 * previousDisplay.getWidth());
-
-                            if((previousLower < currentLower && previousUpper > currentLower) ||
-                                    (previousUpper > currentUpper && previousLower < currentUpper))
-                            {
-                                currentDisplay.setAlpha(OVERLAP_ALPHA);
-                            }
-                        }
-                    }
-                    currentDisplay.display(activity);
+                for(UUID id : processorIds) {
+                    mProcessors.put(id, ProcessorFactory.build(id));
                 }
             }
 
-        }catch(Exception e){}
+            mHeadingDisplay.setHeading(mYaw);
+            mHeadingDisplay.display(this, mResults);
+            for(CompassSubDisplay subDisplay : mSubDisplays) {
+                subDisplay.setHeading(mYaw);
+                try {
+                    if (subDisplay.canDisplay(mResults)) {
+                        subDisplay.setAlpha(NORMAL_ALPHA);
+
+                        int currentLower = subDisplay.getPosition() - (int) (0.5 * subDisplay.getWidth());
+                        int currentUpper = subDisplay.getPosition() + (int) (0.5 * subDisplay.getWidth());
+
+                        for (CompassSubDisplay previousDisplay : mSubDisplays) {
+                            if (previousDisplay == subDisplay)
+                                break;
+                            if (previousDisplay.canDisplay(mResults)) {
+                                int previousLower = previousDisplay.getPosition() - (int) (0.5 * previousDisplay.getWidth());
+                                int previousUpper = previousDisplay.getPosition() + (int) (0.5 * previousDisplay.getWidth());
+
+                                if ((previousLower < currentLower && previousUpper > currentLower) ||
+                                        (previousUpper > currentUpper && previousLower < currentUpper)) {
+                                    subDisplay.setAlpha(OVERLAP_ALPHA);
+                                }
+                            }
+                        }
+
+                        subDisplay.display(this, mResults);
+                    }
+                }catch(Exception e){
+                    Log.d(TAG, "Exception: " + e);
+                }
+            }
+            mBearingDisplay.setHeading(mYaw);
+            mBearingDisplay.display(this, mResults);
+        } catch (Exception e) {}
     }
 
-    @Override
-    public void hide() {}
-
-    protected int refreshPeriod() { return 30; } // ms
+    protected int refreshPeriod() { return 30; }
 }

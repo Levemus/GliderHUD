@@ -13,18 +13,42 @@ package com.levemus.gliderhud.Messages;
 
 import java.io.Serializable;
 import java.util.HashMap;
+import java.util.HashSet;
 
 /**
  * Created by mark@levemus on 16-01-06.
  */
 
-public abstract class SerializablePayloadMessage<E, F, G> extends PayloadMessage<E, F, G> implements Serializable {
+public abstract class SerializablePayloadMessage<E, F, G> implements IMessage<E>, IPayload<F, G>, Serializable {
+    private final String TAG = this.getClass().getSimpleName();
+
+    protected HashMap<F, G> mValues;
+    protected E mOpCode;
+    public E opCode() { return mOpCode; }
+
 
     public SerializablePayloadMessage(E opCode, HashMap<F, G> values) {
-        super(opCode, values);
+        mOpCode = opCode;
+        mValues = values;
     }
 
     public SerializablePayloadMessage(E opCode) {
-        super(opCode, new HashMap<F, G>());
+        mOpCode = opCode;
+        mValues = new HashMap<F, G>();
+    }
+
+    @Override
+    public G get(F key) throws UnsupportedOperationException {
+        try {
+            if (mValues.containsKey(key))
+                return mValues.get(key);
+        } catch (Exception e) {
+        }
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public HashSet<F> keys() {
+        return (new HashSet<F>(mValues.keySet()));
     }
 }

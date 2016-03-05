@@ -11,18 +11,18 @@ package com.levemus.gliderhud.FlightDisplay.Recon.Compass;
  (c) 2015 Levemus Software, Inc.
  */
 
-import android.app.Activity;
+import android.app.Fragment;
+import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.levemus.gliderhud.FlightData.Managers.IChannelDataSource;
-import com.levemus.gliderhud.FlightData.Processors.Custom.Turnpoint;
-import com.levemus.gliderhud.FlightData.Processors.Factory.ProcessorFactory;
 import com.levemus.gliderhud.FlightData.Processors.Factory.ProcessorID;
 import com.levemus.gliderhud.FlightData.Processors.Processor;
-import com.levemus.gliderhud.FlightDisplay.FlightDisplay;
-import com.levemus.gliderhud.FlightDisplay.Recon.Components.DirectionDisplayImage;
-import com.levemus.gliderhud.FlightDisplay.Recon.Components.DirectionDisplayText;
+
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.UUID;
 
 /**
  * Created by mark@levemus on 16-01-18.
@@ -30,99 +30,49 @@ import com.levemus.gliderhud.FlightDisplay.Recon.Components.DirectionDisplayText
 // this class is only applicable within the context of the compass display
 class LaunchDisplay extends CompassSubDisplay {
 
-    private DirectionDisplayImage mDirectionDisplay = null;
-    private DirectionDisplayText mDistanceDisplay = null;
-
-    private Processor<Double> mBearingTo;
-    private Processor<Double> mDistanceFr;
-
-    private Turnpoint mTurnpoint;
-
     @Override
-    public void init(Activity activity) {
-        super.init(activity);
-        mDirectionDisplay = new DirectionDisplayImage((ImageView) activity.findViewById(com.levemus.gliderhud.R.id.launch_pointer));
-        mDistanceDisplay = new DirectionDisplayText((TextView) activity.findViewById(com.levemus.gliderhud.R.id.launchDistance));
+    public HashSet<UUID> processorIDs() {
+        return new HashSet<>(Arrays.asList(
+                ProcessorID.BEARINGTO,
+                ProcessorID.DISTANCEFR,
+                ProcessorID.TURNPOINT));
     }
 
     @Override
-    public void deInit(Activity activity) {
-        super.deInit(activity);
-    }
+    public void display(Fragment parent, HashMap<UUID, Object> results) {
 
-    @Override
-    public void registerProvider(IChannelDataSource provider)
-    {
-        mBearingTo = ProcessorFactory.build(ProcessorID.BEARINGTO);
-        mDistanceFr = ProcessorFactory.build(ProcessorID.DISTANCEFR);
-        mTurnpoint = new Turnpoint();
-        mBearingTo.registerSource(provider);
-        mDistanceFr.registerSource(provider);
-        mTurnpoint.registerSource(provider);
-        mBearingTo.start();
-        mDistanceFr.start();
-        mTurnpoint.start();
-    }
+        if(mImageView == null) {
+            mImageView = (ImageView) parent.getActivity().findViewById(com.levemus.gliderhud.R.id.launch_pointer);
+            mImageView.setVisibility(View.VISIBLE);
+            mTextView = (TextView) parent.getActivity().findViewById(com.levemus.gliderhud.R.id.launch_distance);
+        }
 
-    @Override
-    public void deRegisterProvider(IChannelDataSource provider)
-    {
-        mBearingTo.deRegisterSource(provider);
-        mDistanceFr.deRegisterSource(provider);
-        mTurnpoint.deRegisterSource(provider);
-        mBearingTo.stop();
-        mDistanceFr.stop();
-        mTurnpoint.stop();
-        mBearingTo = null;
-        mDistanceFr = null;
-        mTurnpoint = null;
-    }
+        double distance = (Double)results.get(ProcessorID.DISTANCEFR);
+        double direction = (Double)results.get(ProcessorID.BEARINGTO);
 
-    private Double MIN_DISTANCE = 20.0;
+        if(mImageView != null)
+            displayImage(parent,direction);
 
-    @Override
-    public void display(Activity activity) {
-        try {
-            if (!canDisplay())
-                return;
-
-            double distance = mDistanceFr.value();
-            double direction = mBearingTo.value();
-
-            mDirectionDisplay.setCurrentDirection(direction);
-            mDirectionDisplay.display(activity);
-
-            mDistanceDisplay.setCurrentDirection(direction);
+        if(mTextView != null) {
             distance = Math.round(distance / 100);
             distance /= 10;
-            mDistanceDisplay.setText(Double.toString(distance));
-            mDistanceDisplay.display(activity);
-        } catch(Exception e) {}
+            displayText(parent, direction, Double.toString(distance));
+        }
     }
 
-    private double mOffsetAngle = 0;
+    private Double MIN_DISTANCE = 200.0;
+
     @Override
-    public void setParentDirection(double angle) {
-        mOffsetAngle = angle;
-        mDirectionDisplay.setParentDirection(mOffsetAngle);
-        mDistanceDisplay.setParentDirection(mOffsetAngle);
+    public boolean canDisplay(HashMap<UUID, Object> results) {
+
+        if(!results.containsKey(ProcessorID.DISTANCEFR)
+                || !results.containsKey(ProcessorID.BEARINGTO)
+                || !results.containsKey(ProcessorID.TURNPOINT) )
+            return false;
+
+        if((Double)results.get(ProcessorID.DISTANCEFR) < MIN_DISTANCE)
+            return false;
+
+        return true;
     }
-
-
-    @Override
-    public boolean canDisplay() {
-        return (!mTurnpoint.isValid() && mDistanceFr.isValid() && (mDistanceFr.value() > MIN_DISTANCE));
-    }
-
-    @Override
-    public void setAlpha(int alpha)
-    {
-        mDistanceDisplay.setAlpha(alpha);
-    }
-
-    @Override
-    public int getPosition() {return mDistanceDisplay.getPosition();}
-
-    @Override
-    public int getWidth() {return mDistanceDisplay.getWidth();}
 }

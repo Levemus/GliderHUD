@@ -16,6 +16,9 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.UUID;
 
+import com.levemus.gliderhud.FlightData.Processors.Custom.Thermal;
+import com.levemus.gliderhud.FlightData.Processors.Custom.Turnpoint;
+import com.levemus.gliderhud.FlightData.Processors.Custom.WindDrift;
 import com.levemus.gliderhud.FlightData.Processors.Factory.Builder.Operations.Converters.BearingToConverter;
 import com.levemus.gliderhud.FlightData.Processors.Processor;
 import com.levemus.gliderhud.Messages.ChannelMessages.Channels;
@@ -34,108 +37,104 @@ import com.levemus.gliderhud.FlightData.Processors.Factory.Builder.Operations.IA
 public class ProcessorFactory {
     public static Processor build(UUID id) {
         if(id == ProcessorID.ALTITUDE)
-            return new ProcessorBuilder()
+            return new ProcessorBuilder(id)
                     .channels(new HashSet<>(Arrays.asList(Channels.ALTITUDE)))
-                    .id(id)
                     .build();
 
         if(id == ProcessorID.BEARING)
-            return new ProcessorBuilder()
+            return new ProcessorBuilder(id)
                     .channels(new HashSet<>(Arrays.asList(Channels.BEARING)))
-                    .id(id)
                     .period(1000L)
                     .build();
 
         if(id == ProcessorID.GROUNDSPEED)
-            return new ProcessorBuilder()
+            return new ProcessorBuilder(id)
                     .channels(new HashSet<>(Arrays.asList(Channels.GROUNDSPEED)))
                     .adjusters(new ArrayList<IAdjuster>(Arrays.asList(new SmoothAdjuster(10))))
-                    .id(id)
                     .build();
 
         if(id == ProcessorID.VARIO)
-            return new ProcessorBuilder()
+            return new ProcessorBuilder(id)
                     .channels(new HashSet<>(Arrays.asList(Channels.VARIO)))
-                    .id(id)
                     .adjusters(new ArrayList<IAdjuster>(Arrays.asList(new SmoothAdjuster(10))))
                     .build();
 
         if(id == ProcessorID.YAW)
-            return new ProcessorBuilder()
+            return new ProcessorBuilder(id)
                     .channels(new HashSet<>(Arrays.asList(Channels.YAW)))
-                    .id(id)
                     .build();
 
         if(id == ProcessorID.TURNRATE)
-            return new ProcessorBuilder()
+            return new ProcessorBuilder(id)
                     .channels(new HashSet<>(Arrays.asList(Channels.BEARING)))
-                    .id(id)
                     .adjusters(new ArrayList<>(Arrays.asList(
                             new TimeRateAdjuster(360.0),
                             new SmoothAdjuster(16))))
                     .build();
 
         if(id == ProcessorID.DISTANCEFR)
-            return new ProcessorBuilder()
+            return new ProcessorBuilder(id)
                     .channels(new HashSet<>(Arrays.asList(Channels.LONGITUDE, Channels.LATITUDE)))
                     .converter(new DistanceFromConverter())
                     .build();
 
         if(id == ProcessorID.BEARINGTO)
-            return new ProcessorBuilder()
+            return new ProcessorBuilder(id)
                     .channels(new HashSet<>(Arrays.asList(Channels.LONGITUDE, Channels.LATITUDE)))
                     .converter(new BearingToConverter())
                     .build();
 
         if(id == ProcessorID.GLIDERATIO)
-            return new ProcessorBuilder()
+            return new ProcessorBuilder(id)
                     .channels(new HashSet<>(Arrays.asList(Channels.VARIO, Channels.GROUNDSPEED)))
-                    .id(id)
                     .converter(new DivideConverter(Channels.GROUNDSPEED, Channels.VARIO))
                     .adjusters(new ArrayList<IAdjuster>(Arrays.asList(new SmoothAdjuster(5))))
                     .build();
 
         if(id == ProcessorID.HEIGHTABV)
-            return new ProcessorBuilder()
+            return new ProcessorBuilder(id)
                     .channels(new HashSet<>(Arrays.asList(Channels.ALTITUDE)))
                     .converter(new DifferenceConverter(Channels.ALTITUDE))
                     .build();
 
         if(id == ProcessorID.BATTERY)
-            return new ProcessorBuilder()
+            return new ProcessorBuilder(id)
                     .channels(new HashSet<>(Arrays.asList(Channels.BATTERY)))
-                    .id(id)
                     .build();
 
         if(id == ProcessorID.GPSALTITUDE)
-            return new ProcessorBuilder()
+            return new ProcessorBuilder(id)
                     .channels(new HashSet<>(Arrays.asList(Channels.GPSALTITUDE)))
-                    .id(id)
                     .build();
 
         if(id == ProcessorID.PRESSUREALTITUDE)
-            return new ProcessorBuilder()
+            return new ProcessorBuilder(id)
                     .channels(new HashSet<>(Arrays.asList(Channels.PRESSUREALTITUDE)))
-                    .id(id)
                     .build();
 
         if(id == ProcessorID.TIME)
-            return new ProcessorBuilder()
+            return new ProcessorBuilder(id)
                     .channels(new HashSet<>(Arrays.asList(Channels.TIME)))
-                    .id(id)
                     .build();
 
         if(id == ProcessorID.LATITUDE)
-            return new ProcessorBuilder()
+            return new ProcessorBuilder(id)
                     .channels(new HashSet<>(Arrays.asList(Channels.LATITUDE)))
-                    .id(id)
                     .build();
 
         if(id == ProcessorID.LONGITUDE)
-            return new ProcessorBuilder()
+            return new ProcessorBuilder(id)
                     .channels(new HashSet<>(Arrays.asList(Channels.LONGITUDE)))
-                    .id(id)
                     .build();
+
+        if(id == ProcessorID.THERMAL)
+            return new Thermal();
+
+        if(id == ProcessorID.WINDDRIFT)
+            return new WindDrift();
+
+        if(id == ProcessorID.TURNPOINT)
+            return new Turnpoint();
 
         throw new java.lang.UnsupportedOperationException();
     }

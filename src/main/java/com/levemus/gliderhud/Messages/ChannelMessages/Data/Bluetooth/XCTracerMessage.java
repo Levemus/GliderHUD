@@ -10,8 +10,6 @@ package com.levemus.gliderhud.Messages.ChannelMessages.Data.Bluetooth;
 
  (c) 2015 Levemus Software, Inc.
 
- Based upon demo source provided by Recon Instruments:
- https://github.com/ReconInstruments/sdk/tree/master/Samples/BluetoothLEDemo
  */
 
 import java.util.Arrays;

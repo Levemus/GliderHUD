@@ -12,17 +12,18 @@ package com.levemus.gliderhud.FlightDisplay.Generic;
  */
 
 import android.app.Activity;
+import android.os.Bundle;
+import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.levemus.gliderhud.FlightData.Managers.IChannelDataSource;
 import com.levemus.gliderhud.FlightData.Processors.Factory.ProcessorFactory;
 import com.levemus.gliderhud.FlightData.Processors.Factory.ProcessorID;
 import com.levemus.gliderhud.FlightData.Processors.Processor;
 import com.levemus.gliderhud.FlightDisplay.FlightDisplay;
 import com.levemus.gliderhud.R;
-
-import java.util.Date;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Created by mark@levemus on 16-01-25.
@@ -33,41 +34,31 @@ public class BatteryDisplay extends FlightDisplay {
     // Constants
     private final String TAG = this.getClass().getSimpleName();
 
-    // Listeners
-    private Processor<Double> mBatteryLevel;
-
     // Displays
     private TextView mBatteryLevelDisplay = null;
 
-    // Initialization/registration
-    @Override
-    public void init(Activity activity) {
-        mBatteryLevelDisplay = (TextView) activity.findViewById(R.id.battery_level);
-        super.init(activity);
+    public BatteryDisplay() {
+        mProcessors.put(ProcessorID.BATTERY, ProcessorFactory.build(ProcessorID.BATTERY));
     }
 
     @Override
-    public void registerProvider(IChannelDataSource provider) {
-        mBatteryLevel = ProcessorFactory.build(ProcessorID.BATTERY);
-        mBatteryLevel.registerSource(provider);
-        mBatteryLevel.start();
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        Log.i(TAG, "onCreateView");
+        // Inflate the layout for this fragment
+        return inflater.inflate(R.layout.battery_level_display, container, false);
     }
 
     @Override
-    public void deRegisterProvider(IChannelDataSource provider) {
-        mBatteryLevel.stop();
-        mBatteryLevel.deRegisterSource(provider);
-        mBatteryLevel = null;
-    }
-
-    @Override
-    public void display(Activity activity) {
-
+    protected void update() {
         try {
-            if (!mBatteryLevel.isValid())
+
+            if(mBatteryLevelDisplay == null)
+                mBatteryLevelDisplay = (TextView) getActivity().findViewById(R.id.batteryLevelDisplay);
+            if (!mResults.containsKey(ProcessorID.BATTERY))
                 mBatteryLevelDisplay.setText("-- %");
             else
-                mBatteryLevelDisplay.setText(Long.toString(Math.round(mBatteryLevel.value())) + " %");
+                mBatteryLevelDisplay.setText(Long.toString(Math.round((Double)mResults.get(ProcessorID.BATTERY))) + " %");
         } catch (Exception e){}
     }
 }

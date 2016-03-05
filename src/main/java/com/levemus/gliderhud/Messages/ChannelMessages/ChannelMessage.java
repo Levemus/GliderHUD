@@ -1,7 +1,6 @@
 package com.levemus.gliderhud.Messages.ChannelMessages;
 
-import com.levemus.gliderhud.FlightData.Configuration.IChannelized;
-import com.levemus.gliderhud.FlightData.Configuration.IIdentifiable;
+import com.levemus.gliderhud.FlightData.Configuration.ChannelEntity;
 import com.levemus.gliderhud.Messages.SerializablePayloadMessage;
 
 import java.util.Date;
@@ -12,7 +11,7 @@ import java.util.UUID;
 /**
  * Created by markcarter on 16-01-05.
  */
-public abstract class ChannelMessage<E, F> extends SerializablePayloadMessage<E, UUID, F> implements IIdentifiable, IChannelized {
+public abstract class ChannelMessage<E, F> extends SerializablePayloadMessage<E, UUID, F> implements ChannelEntity {
 
     protected HashSet<UUID> mChannels;
     @Override

@@ -10,8 +10,6 @@ package com.levemus.gliderhud.Messages.ChannelMessages.Data.Bluetooth;
 
  (c) 2015 Levemus Software, Inc.
 
- Based upon demo source provided by Recon Instruments:
- https://github.com/ReconInstruments/sdk/tree/master/Samples/BluetoothLEDemo
  */
 
 import java.util.ArrayList;
@@ -20,7 +18,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.UUID;
 
-import com.levemus.gliderhud.FlightData.Configuration.ChannelConfiguration;
 import com.levemus.gliderhud.Messages.ChannelMessages.Data.DataMessage;
 
 /**
@@ -55,7 +52,6 @@ public abstract class BluetoothDataMessage extends DataMessage {
         String newBuffer = new String(buffer);
         mBuffers.add(newBuffer);
         if(buffer.endsWith(frameEnd())) {
-            int test = 0;
             return this; // TODO: Checksum the result
         }
         return null;

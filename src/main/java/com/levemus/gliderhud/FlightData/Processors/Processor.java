@@ -11,53 +11,48 @@ package com.levemus.gliderhud.FlightData.Processors;
  (c) 2015 Levemus Software, Inc.
  */
 
+import java.util.Date;
 import java.util.HashSet;
 import java.util.UUID;
 
-import android.os.Handler;
-
-import com.levemus.gliderhud.FlightData.Managers.IChannelDataSource;
-import com.levemus.gliderhud.FlightData.Configuration.ChannelConfiguration;
+import com.levemus.gliderhud.FlightData.Configuration.ChannelEntity;
+import com.levemus.gliderhud.FlightData.Pipeline.MessageCache;
+import com.levemus.gliderhud.Messages.ChannelMessages.Data.DataMessage;
 
 /**
  * Created by mark@levemus on 15-12-26.
  */
-public abstract class Processor<E>extends ChannelConfiguration implements IProcessor {
+public abstract class Processor<E> implements IProcessor<E>, ChannelEntity {
+
+    protected MessageCache mCache = new MessageCache(false);
 
     // IProcessor
-    protected IChannelDataSource mProvider;
     @Override
-    public void registerSource(IChannelDataSource source) {mProvider = source;}
-    @Override
-    public void deRegisterSource(IChannelDataSource source) {mProvider = null;}
-
-    Handler mHandler = new Handler();
-
-    @Override
-    public void start() {
-        if(mProvider == null)
-            throw new java.lang.UnsupportedOperationException();
-
-        mHandler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                process();
-                mHandler.postDelayed(this, refreshPeriod());
-            }
-        }, refreshPeriod());
-    }
-
-    @Override
-    public void stop() {
-        mHandler.removeCallbacksAndMessages(null);
-    }
-
     public void process() {}
 
     @Override
-    public long refreshPeriod() { return 500; }
+    public E onMsg(DataMessage msg) {
+        HashSet<UUID> intersection = new HashSet(msg.channels());
+        intersection.retainAll(channels());
 
-    // IConfiguration
+        if(!intersection.isEmpty()) {
+            mCache.onMsg(msg);
+            long currentTime = new Date().getTime();
+            if(currentTime - mTimeOfLastProcess > refreshPeriod()) {
+                process();
+                mTimeOfLastProcess = currentTime;
+            }
+        }
+
+        return value();
+    }
+
+    @Override
+    public boolean isValid(E value) {
+        return (!value.equals(invalid()));
+    }
+
+    // ChannelEntity
     protected HashSet<UUID> mChannels = new HashSet();
     @Override
     public HashSet<UUID> channels() {
@@ -69,12 +64,13 @@ public abstract class Processor<E>extends ChannelConfiguration implements IProce
     public UUID id() { return mId; }
 
     // Value
-    public boolean isValid() {
-        return (!mValue.equals(invalid()));
-    }
     protected abstract E invalid();
     protected E mLastValue = invalid();
-    protected abstract boolean hasChanged();
     protected E mValue = invalid();
-    public E value() {return mValue;}
+    protected E value() {
+        return mValue;
+    }
+
+    protected long mTimeOfLastProcess = 0;
+    public long refreshPeriod() { return 500; }
 }

@@ -11,26 +11,44 @@ package com.levemus.gliderhud.FlightData.Providers;
  (c) 2015 Levemus Software, Inc.
  */
 
-import android.app.Activity;
+import android.content.Context;
+import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 
-import com.levemus.gliderhud.FlightData.Configuration.IChannelized;
-import com.levemus.gliderhud.FlightData.Configuration.IIdentifiable;
-import com.levemus.gliderhud.FlightData.Managers.IClient;
+import com.levemus.gliderhud.FlightData.Configuration.ChannelEntity;
+import com.levemus.gliderhud.FlightData.Pipeline.MessageBroadcaster;
+import com.levemus.gliderhud.FlightData.Pipeline.MessageListener;
+import com.levemus.gliderhud.Messages.ChannelMessages.ChannelMessage;
+
+import java.util.HashSet;
+import java.util.UUID;
 
 /**
  * Created by mark@levemus on 15-11-29.
  */
 
-public abstract class Provider implements IProvider, IIdentifiable, IChannelized {
+public abstract class Provider implements ChannelEntity, MessageBroadcaster {
 
-    // IProvider
-    @Override
-    public void start(Activity activity) {}
-    @Override
-    public void stop(Activity activity) {}
+    public void start(Context ctx) {}
+
+    public void stop(Context ctx) {}
+
+    protected MessageListener mClient;
 
     @Override
-    public void registerClient(IClient client) {}
+    public void add(MessageListener client) {mClient = client;}
+
     @Override
-    public void deRegisterClient(IClient client) {}
+    public void remove(MessageListener client) {mClient = null;}
+
+    @Override
+    public HashSet<UUID> channels() {
+        return new HashSet<UUID>();
+    }
+
+    @Override
+    public UUID id() {
+        return UUID.randomUUID();
+    }
 }

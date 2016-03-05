@@ -11,14 +11,18 @@ package com.levemus.gliderhud.FlightDisplay.Generic;
  (c) 2015 Levemus Software, Inc.
  */
 
-import android.app.Activity;
+import android.os.Bundle;
+import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.levemus.gliderhud.FlightData.Managers.IChannelDataSource;
 import com.levemus.gliderhud.FlightData.Processors.Processor;
 import com.levemus.gliderhud.FlightData.Processors.Factory.ProcessorID;
 import com.levemus.gliderhud.FlightData.Processors.Factory.ProcessorFactory;
 import com.levemus.gliderhud.FlightDisplay.FlightDisplay;
+import com.levemus.gliderhud.R;
 
 /**
  * Created by mark@levemus on 15-12-01.
@@ -28,50 +32,43 @@ public class GroundSpeedDisplay extends FlightDisplay {
 
     // Constants
     private final String TAG = this.getClass().getSimpleName();
-
-    // Listeners
-    private Processor<Double> mGroundSpeed;
+    private final double MIN_GROUND_SPEED = 10.0 / 3.6; // m/s
 
     // Displays
     private TextView mGroundSpeedDisplay = null;
 
-    // Initialization/registration
-    @Override
-    public void init(Activity activity) {
-        mGroundSpeedDisplay = (TextView) activity.findViewById(com.levemus.gliderhud.R.id.speedDisplay);
-        super.init(activity);
-    }
-
-    @Override
-    public void registerProvider(IChannelDataSource provider) {
-        mGroundSpeed = ProcessorFactory.build(ProcessorID.GROUNDSPEED);
-        mGroundSpeed.registerSource(provider);
-        mGroundSpeed.start();
-    }
-
-    @Override
-    public void deRegisterProvider(IChannelDataSource provider) {
-        mGroundSpeed.stop();
-        mGroundSpeed.deRegisterSource(provider);
-        mGroundSpeed = null;
-    }
-
+    // Variables
     private boolean mIsFlying = false;
-    private final double MIN_GROUND_SPEED = 10.0; // kph
 
-    // Operation
+    public GroundSpeedDisplay() {
+        mProcessors.put(ProcessorID.GROUNDSPEED, ProcessorFactory.build(ProcessorID.GROUNDSPEED));
+    }
+
     @Override
-    public void display(Activity activity) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        Log.i(TAG, "onCreateView");
+        // Inflate the layout for this fragment
+        return inflater.inflate(R.layout.ground_speed_display, container, false);
+    }
+
+    @Override
+    protected void update() {
         try {
-            if(!mGroundSpeed.isValid())
+            if(mGroundSpeedDisplay == null)
+                mGroundSpeedDisplay = (TextView) getActivity().findViewById(R.id.groundSpeedDisplay);
+
+            if(!mResults.containsKey(ProcessorID.GROUNDSPEED))
                 mGroundSpeedDisplay.setText("---");
-            else if(!mIsFlying) {
-                mGroundSpeedDisplay.setText("0");
-                if(mGroundSpeed.value() * 3.6 > MIN_GROUND_SPEED)
-                    mIsFlying = true;
+            else {
+                double value = (Double)mResults.get(ProcessorID.GROUNDSPEED);
+                if (!mIsFlying) {
+                    mGroundSpeedDisplay.setText("0");
+                    if (value > MIN_GROUND_SPEED)
+                        mIsFlying = true;
+                } else
+                    mGroundSpeedDisplay.setText(Integer.toString((int)(value * 3.6)));
             }
-            else
-                mGroundSpeedDisplay.setText(Integer.toString((int)(mGroundSpeed.value() * 3.6)));
         }catch (Exception e){
             mGroundSpeedDisplay.setText("---");
         }

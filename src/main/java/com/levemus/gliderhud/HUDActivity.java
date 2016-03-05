@@ -13,10 +13,11 @@ package com.levemus.gliderhud;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 
-import com.levemus.gliderhud.Utils.WifiDirect.WifiDirectManager;
+import com.levemus.gliderhud.FlightData.Services.FlightDataService;
 
 /**
  * Created by mark@levemus on 15-11-23.
@@ -26,35 +27,30 @@ import com.levemus.gliderhud.Utils.WifiDirect.WifiDirectManager;
 public class HUDActivity extends Activity {
 	private final String TAG = this.getClass().getSimpleName();
 
-	HUD mHUD = new HUD();
-
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
-		Log.i(TAG, "onCreate");
-		mHUD.init(this);
+		Log.d(TAG, "onCreate");
 		super.onCreate(savedInstanceState);
+		setContentView(com.levemus.gliderhud.R.layout.hud);
 	}
 
 	@Override
 	public void onResume() {
-		Log.i(TAG, "onResume");
+		Log.d(TAG, "onResume");
+		startService(new Intent(this, FlightDataService.class));
 		super.onResume();
-		mHUD.start();
-		mHUD.resume();
 	}
 
 	@Override
 	public void onPause()  {
 		Log.d(TAG, "onPause");
-		mHUD.pause();
-		mHUD.stop();
+		stopService(new Intent(this, FlightDataService.class));
 		super.onPause();
 	}
 
 	@Override
 	public void onDestroy(){
 		Log.d(TAG, "onDestroy");
-		mHUD.deInit();
 		super.onDestroy();
 	}
 }

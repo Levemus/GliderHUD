@@ -11,20 +11,18 @@ package com.levemus.gliderhud.FlightDisplay.Recon.Compass;
  (c) 2015 Levemus Software, Inc.
  */
 
-import android.app.Activity;
+import android.app.Fragment;
+import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.levemus.gliderhud.FlightData.Managers.IChannelDataSource;
-import com.levemus.gliderhud.FlightData.Processors.Custom.Turnpoint;
-import com.levemus.gliderhud.FlightData.Processors.Custom.WindDrift;
-import com.levemus.gliderhud.FlightData.Processors.Factory.ProcessorFactory;
 import com.levemus.gliderhud.FlightData.Processors.Factory.ProcessorID;
-import com.levemus.gliderhud.FlightData.Processors.Processor;
-import com.levemus.gliderhud.FlightDisplay.FlightDisplay;
-import com.levemus.gliderhud.FlightDisplay.Recon.Components.DirectionDisplayImage;
-import com.levemus.gliderhud.FlightDisplay.Recon.Components.DirectionDisplayText;
-import com.levemus.gliderhud.Utils.Angle;
+import com.levemus.gliderhud.Types.Vector;
+
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.UUID;
 
 /**
  * Created by mark@levemus on 15-12-29.
@@ -33,83 +31,35 @@ import com.levemus.gliderhud.Utils.Angle;
 // this class is only applicable within the context of the compass display
 class WindDisplay extends CompassSubDisplay {
 
-    private WindDrift mWindDrift;
-
-    private DirectionDisplayImage mWindDirectionDisplay = null;
-    private DirectionDisplayText mWindSpeedDisplay = null;
-
     @Override
-    public void init(Activity activity) {
-        super.init(activity);
-        mWindDirectionDisplay = new DirectionDisplayImage((ImageView) activity.findViewById(com.levemus.gliderhud.R.id.wind_pointer));
-        mWindSpeedDisplay = new DirectionDisplayText((TextView) activity.findViewById(com.levemus.gliderhud.R.id.windSpeed));
-    }
-
-    @Override
-    public void registerProvider(IChannelDataSource provider)
-    {
-        mWindDrift = new WindDrift();
-        mWindDrift.registerSource(provider);
-        mWindDrift.start();
-    }
-
-    @Override
-    public void deRegisterProvider(IChannelDataSource provider)
-    {
-        mWindDrift.stop();
-        mWindDrift.deRegisterSource(provider);
-        mWindDrift = null;
+    public HashSet<UUID> processorIDs() {
+        return new HashSet<>(Arrays.asList(
+                ProcessorID.WINDDRIFT));
     }
 
     private double DEGREES_FULL_CIRCLE = 360;
     private double DEGREES_HALF_CIRCLE = DEGREES_FULL_CIRCLE / 2;
 
     @Override
-    public void display(Activity activity) {
+    public void display(Fragment parent, HashMap<UUID, Object> results) {
 
-        try {
+        if (mImageView == null) {
+            mImageView = (ImageView) parent.getActivity().findViewById(com.levemus.gliderhud.R.id.wind_pointer);
+            mImageView.setVisibility(View.VISIBLE);
+            mTextView = (TextView) parent.getActivity().findViewById(com.levemus.gliderhud.R.id.wind_strength);
+        }
+        double direction = (((Vector)results.get(ProcessorID.WINDDRIFT)).Direction() + DEGREES_HALF_CIRCLE) % DEGREES_FULL_CIRCLE;
 
-            if(!canDisplay())
-                return;
-
-            double mWindDirection = (mWindDrift.value().Direction() + DEGREES_HALF_CIRCLE) % DEGREES_FULL_CIRCLE;
-            mWindDirectionDisplay.setCurrentDirection(mWindDirection);
-            mWindDirectionDisplay.display(activity);
-
-            double windSpeed = mWindDrift.value().Magnitude();
-            mWindSpeedDisplay.setCurrentDirection(mWindDirection);
-            mWindSpeedDisplay.setText(Double.toString(Math.round(windSpeed * 3.6)));
-            mWindSpeedDisplay.display(activity);
-
-        } catch(Exception e) {}
-    }
-
-    private double mOffsetAngle = 0;
-
-    @Override
-    public void setParentDirection(double angle) {
-        mOffsetAngle = angle;
-        mWindDirectionDisplay.setParentDirection(mOffsetAngle);
-        mWindSpeedDisplay.setParentDirection(mOffsetAngle);
+        displayImage(parent, direction);
+        displayText(parent, direction, Double.toString(Math.round(((Vector)results.get(ProcessorID.WINDDRIFT)).Magnitude() * 3.6)));
     }
 
     @Override
-    protected int refreshPeriod() { return Integer.MAX_VALUE; } // will refresh with compass refresh
+    public boolean canDisplay(HashMap<UUID, Object> results) {
 
-    @Override
-    public boolean canDisplay() {
-        return (mWindDrift == null || !mWindDrift.isValid() || mWindDrift.value().Magnitude() <= 0);
+        if (!results.containsKey(ProcessorID.WINDDRIFT))
+            return false;
+
+        return(((Vector)results.get(ProcessorID.WINDDRIFT)).Magnitude() > 0);
     }
-
-    @Override
-    public void setAlpha(int alpha)
-    {
-        mWindSpeedDisplay.setAlpha(alpha);
-    }
-
-    @Override
-    public int getPosition() {return mWindSpeedDisplay.getPosition();}
-
-    @Override
-    public int getWidth() {return mWindSpeedDisplay.getWidth();}
 }

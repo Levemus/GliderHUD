@@ -17,8 +17,8 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.UUID;
 
-import com.levemus.gliderhud.FlightData.Configuration.IChannelized;
-import com.levemus.gliderhud.FlightData.Configuration.IIdentifiable;
+import com.levemus.gliderhud.FlightData.Configuration.ChannelEntity;
+import com.levemus.gliderhud.FlightData.Processors.Factory.ProcessorID;
 import com.levemus.gliderhud.FlightData.Processors.Processor;
 import com.levemus.gliderhud.Messages.ChannelMessages.Channels;
 import com.levemus.gliderhud.FlightData.Processors.IProcessor;
@@ -31,7 +31,7 @@ import com.levemus.gliderhud.Utils.TaubinNewtonFitCircle;
 /**
  * Created by mark@levemus on 15-12-20.
  */
-public class WindDrift extends Processor<Vector> implements IProcessor, IIdentifiable, IChannelized {
+public class WindDrift extends Processor<Vector> implements IProcessor<Vector>, ChannelEntity {
 
     private final String TAG = this.getClass().getSimpleName();
 
@@ -45,7 +45,7 @@ public class WindDrift extends Processor<Vector> implements IProcessor, IIdentif
     }
 
     @Override
-    public UUID id() { return UUID.fromString("fe351c72-7eea-4b53-94e4-1bb91f78725f"); }
+    public UUID id() { return ProcessorID.WINDDRIFT; }
 
     // IMessageNotify
     private HashMap<Double, Vector> mGrndSpdVelocities = new HashMap<>();
@@ -54,12 +54,12 @@ public class WindDrift extends Processor<Vector> implements IProcessor, IIdentif
     private final double MIN_NUM_ANGLES = (0.75 * (360 / MIN_SEPERATING_ANGLE));
     private ArrayList<OffsetCircle> mResults = new ArrayList<>();
     private final int MAX_RESULTS = 5;
-    private double MAX_DELTA_AIRSPEED = 3.0;
+    private double MAX_DELTA_AIRSPEED = 5.0;
 
     public void process() {
         Vector velocity = new Vector();
         try {
-            HashMap<UUID, Double> values = mProvider.get(this);
+            HashMap<UUID, Double> values = mCache.data(this);
             if (values.get(Channels.GROUNDSPEED) == 0)
                 return;
 
@@ -97,7 +97,7 @@ public class WindDrift extends Processor<Vector> implements IProcessor, IIdentif
     public Vector invalid() { return null; }
 
     @Override
-    public boolean isValid() { return mValue != null; }
+    public boolean isValid(Vector value) { return value != invalid(); }
 
     protected boolean hasChanged() {
         return (mLastValue == null || ((mLastValue.Direction() == mValue.Direction())
@@ -105,5 +105,5 @@ public class WindDrift extends Processor<Vector> implements IProcessor, IIdentif
     }
 
     @Override
-    public long refreshPeriod() { return 20000; }
+    public long refreshPeriod() { return 5000; }
 }

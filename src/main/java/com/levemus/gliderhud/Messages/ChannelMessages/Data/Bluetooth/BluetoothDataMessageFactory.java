@@ -15,7 +15,7 @@ package com.levemus.gliderhud.Messages.ChannelMessages.Data.Bluetooth;
 import java.util.HashSet;
 import java.util.UUID;
 
-import com.levemus.gliderhud.FlightData.Configuration.ChannelConfiguration;
+import com.levemus.gliderhud.FlightData.Configuration.ChannelEntity;
 import com.levemus.gliderhud.Messages.SerializablePayloadMessage;
 
 /**
@@ -30,7 +30,7 @@ public class BluetoothDataMessageFactory {
 
     private BluetoothDataMessage mCurrentMessage;
 
-    public SerializablePayloadMessage build(ChannelConfiguration config, String buffer)  {
+    public SerializablePayloadMessage build(ChannelEntity config, String buffer)  {
         for(BluetoothDataMessage msg: mSupportedMessages) {
             if(buffer.startsWith(msg.frameStart())) {
                 Class<? extends BluetoothDataMessage> c = msg.getClass();

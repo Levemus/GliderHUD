@@ -52,6 +52,6 @@ public class BearingToConverter implements IConverter {
         Location currentLocation = new Location("current");
         currentLocation.setLatitude(latitude);
         currentLocation.setLongitude(longtitude);
-        return(currentLocation.bearingTo(launchLocation));
+        return((currentLocation.bearingTo(launchLocation) + 720.0 ) % 360.0);
     }
 }

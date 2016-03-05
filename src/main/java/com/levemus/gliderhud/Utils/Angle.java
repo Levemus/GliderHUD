@@ -35,7 +35,7 @@ public class Angle {
         return difference;
     }
 
-    public static double AddDelta(double angle, double delta) {
+    public static double add(double angle, double delta) {
         angle += delta;
         if(angle < 0) {
             angle = DEGREES_PER_CIRCLE + angle;

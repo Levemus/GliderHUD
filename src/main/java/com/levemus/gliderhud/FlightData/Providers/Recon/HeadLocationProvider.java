@@ -17,9 +17,9 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.UUID;
 
-import android.app.Activity;
+import android.content.Context;
 
-import com.levemus.gliderhud.FlightData.Managers.IClient;
+import com.levemus.gliderhud.FlightData.Pipeline.MessageListener;
 import com.levemus.gliderhud.FlightData.Providers.Provider;
 import com.levemus.gliderhud.Messages.ChannelMessages.Channels;
 import com.levemus.gliderhud.Messages.ChannelMessages.Data.DataMessage;
@@ -36,24 +36,23 @@ public class HeadLocationProvider extends Provider implements HeadLocationListen
     private final String TAG = this.getClass().getSimpleName();
     private HUDHeadingManager mHUDHeadingManager = null;
 
-    @Override
-    public void stop(Activity activity) {
+    public void stop(Context ctx) {
         mHUDHeadingManager.unregister(this);
     }
 
-    @Override
-    public void start(Activity activity) {
+    public void start(Context ctx) {
         if(mHUDHeadingManager == null)
             mHUDHeadingManager = (HUDHeadingManager) HUDOS.getHUDService(HUDOS.HUD_HEADING_SERVICE);
         mHUDHeadingManager.register(this);
     }
 
-    protected IClient mClient;
-    @Override
-    public void registerClient(IClient client) {mClient = client;}
+    protected MessageListener mClient;
 
     @Override
-    public void deRegisterClient(IClient client) {
+    public void add(MessageListener client) {mClient = client;}
+
+    @Override
+    public void remove(MessageListener client) {
         mClient = null;
     }
 

@@ -11,15 +11,18 @@ package com.levemus.gliderhud.FlightDisplay.Recon.Compass;
  (c) 2015 Levemus Software, Inc.
  */
 
-import android.app.Activity;
+import android.app.Fragment;
+import android.graphics.Matrix;
+import android.view.View;
 import android.widget.ImageView;
 
-import com.levemus.gliderhud.FlightData.Managers.IChannelDataSource;
-import com.levemus.gliderhud.FlightData.Processors.Factory.ProcessorFactory;
 import com.levemus.gliderhud.FlightData.Processors.Factory.ProcessorID;
 import com.levemus.gliderhud.FlightData.Processors.Processor;
-import com.levemus.gliderhud.FlightDisplay.FlightDisplay;
-import com.levemus.gliderhud.FlightDisplay.Recon.Components.DirectionDisplayImage;
+
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.UUID;
 
 /**
  * Created by mark@levemus on 15-12-29.
@@ -28,60 +31,27 @@ import com.levemus.gliderhud.FlightDisplay.Recon.Components.DirectionDisplayImag
 // this class is only applicable within the context of the compass display
 class BearingDisplay extends CompassSubDisplay {
 
-    private Processor<Double> mBearing;
-    private Processor<Double> mGroundSpeed;
-
-    private DirectionDisplayImage mBearingDisplay = null;
     @Override
-    public void init(Activity activity) {
-        super.init(activity);
-        mBearingDisplay = new DirectionDisplayImage((ImageView)
-                activity.findViewById(com.levemus.gliderhud.R.id.bearing_pointer));
+    public HashSet<UUID> processorIDs() {
+        return new HashSet<>(Arrays.asList(
+                ProcessorID.BEARING,
+                ProcessorID.GROUNDSPEED));
+    }
+
+    public void display(Fragment parent, HashMap<UUID, Object> results) {
+        if(mImageView == null) {
+            mImageView = (ImageView) parent.getActivity().findViewById(com.levemus.gliderhud.R.id.bearing_pointer);
+            mImageView.setVisibility(View.VISIBLE);
+        }
+        
+        displayImage(parent, (double)results.get(ProcessorID.BEARING));
     }
 
     private double MIN_GROUND_SPEED = 0.3;
 
     @Override
-    public void display(Activity activity) {
-        try {
-            if (canDisplay()) {
-                mBearingDisplay.setCurrentDirection(mBearing.value());
-                mBearingDisplay.display(activity);
-            }
-        }catch(Exception e){}
-    }
-
-    @Override
-    public void registerProvider(IChannelDataSource provider)
-    {
-        mBearing = ProcessorFactory.build(ProcessorID.BEARING);
-        mGroundSpeed = ProcessorFactory.build(ProcessorID.GROUNDSPEED);
-        mBearing.registerSource(provider);
-        mGroundSpeed.registerSource(provider);
-        mBearing.start();
-        mGroundSpeed.start();
-    }
-
-    @Override
-    public void deRegisterProvider(IChannelDataSource provider) {
-        mBearing.deRegisterSource(provider);
-        mGroundSpeed.deRegisterSource(provider);
-        mBearing.stop();
-        mGroundSpeed.stop();
-        mBearing = null;
-        mGroundSpeed = null;
-    }
-
-    @Override
-    public void setParentDirection(double angle) {
-        mBearingDisplay.setParentDirection(angle);
-    }
-
-    protected int refreshPeriod() { return Integer.MAX_VALUE; } // will refresh with compass refresh
-
-    @Override
-    public boolean canDisplay() {
-        return mGroundSpeed.value() > MIN_GROUND_SPEED;
+    public boolean canDisplay(HashMap<UUID, Object> results) {
+        return results.containsKey(ProcessorID.BEARING) && results.containsKey(ProcessorID.GROUNDSPEED) && (Double)results.get(ProcessorID.GROUNDSPEED) > MIN_GROUND_SPEED;
     }
 }
 

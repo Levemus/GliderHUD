@@ -11,15 +11,19 @@ package com.levemus.gliderhud.FlightDisplay.Generic;
  (c) 2015 Levemus Software, Inc.
  */
 
-import android.app.Activity;
+import android.os.Bundle;
+import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.levemus.gliderhud.FlightData.Managers.IChannelDataSource;
 import com.levemus.gliderhud.FlightDisplay.FlightDisplay;
 
 import com.levemus.gliderhud.FlightData.Processors.Factory.ProcessorFactory;
 import com.levemus.gliderhud.FlightData.Processors.Processor;
 import com.levemus.gliderhud.FlightData.Processors.Factory.ProcessorID;
+import com.levemus.gliderhud.R;
 
 /**
  * Created by mark@levemus on 15-12-01.
@@ -31,42 +35,29 @@ public class AltitudeDisplay extends FlightDisplay {
     private final String TAG = this.getClass().getSimpleName();
     private final double MIN_ALTITUDE = 0.0;
 
-    // Listeners
-    private Processor<Double> mAltitude;
-
     // Displays
     private TextView mAltiDisplay = null;
 
-    // Initialization/registration
-    @Override
-    public void init(Activity activity)
-    {
-        mAltiDisplay = (TextView) activity.findViewById(com.levemus.gliderhud.R.id.altiDisplay);
-        super.init(activity);
+    public AltitudeDisplay() {
+        mProcessors.put(ProcessorID.ALTITUDE, ProcessorFactory.build(ProcessorID.ALTITUDE));
     }
 
     @Override
-    public void registerProvider(IChannelDataSource provider) {
-        mAltitude = ProcessorFactory.build(ProcessorID.ALTITUDE);
-        mAltitude.registerSource(provider);
-        mAltitude.start();
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        // Inflate the layout for this fragment
+        return inflater.inflate(R.layout.altitude_display, container, false);
     }
 
     @Override
-    public void deRegisterProvider(IChannelDataSource provider) {
-        mAltitude.stop();
-        mAltitude.deRegisterSource(provider);
-        mAltitude = null;
-    }
-
-    // Operation
-    @Override
-    public void display(Activity activity) {
+    protected void update() {
         try {
-            if(!mAltitude.isValid())
+            if(mAltiDisplay == null)
+                mAltiDisplay = (TextView) getActivity().findViewById(R.id.altitudeDisplay);
+            if(!mResults.containsKey(ProcessorID.ALTITUDE))
                 mAltiDisplay.setText("---");
             else
-                mAltiDisplay.setText(Integer.toString((int) Math.max(mAltitude.value(), MIN_ALTITUDE)));
+                mAltiDisplay.setText(Integer.toString((int) Math.max((Double)mResults.get(ProcessorID.ALTITUDE), MIN_ALTITUDE)));
         }catch (Exception e){
             mAltiDisplay.setText("---");
         }

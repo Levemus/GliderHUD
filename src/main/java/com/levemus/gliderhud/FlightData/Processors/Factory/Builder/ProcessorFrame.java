@@ -36,7 +36,7 @@ public class ProcessorFrame extends Processor<Double> {
     @Override
     public void process() {
         try {
-            mValues = mProvider.get(this);
+            mValues = mCache.data(this);
             if(mConverter == null) {
                 mConverter = new SelectConverter(mValues.keySet().iterator().next());
             }
@@ -50,15 +50,7 @@ public class ProcessorFrame extends Processor<Double> {
             }
 
             mValue = value;
-            if(hasChanged()) {
-                mLastValue = value;
-            }
         } catch (Exception e){mValue = invalid();}
-    }
-
-    @Override
-    protected boolean hasChanged() {
-        return (mLastValue != mValue );
     }
 
     @Override
@@ -66,9 +58,9 @@ public class ProcessorFrame extends Processor<Double> {
 
     public void populate(ProcessorFrameConfig config) {
         mChannels = config.mChannels;
-        mId = config.mId;
         mConverter = config.mConverter;
         mAdjusters = config.mAdjusters;
         mPeriod = config.mPeriod;
+        mId = config.mId;
     }
 }

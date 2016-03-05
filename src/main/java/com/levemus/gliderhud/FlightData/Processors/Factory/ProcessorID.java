@@ -33,4 +33,7 @@ public class ProcessorID {
     public static final UUID TIME = UUID.fromString("d5a19ef7-026a-48cf-9777-9b09eac85071");
     public static final UUID LATITUDE = UUID.fromString("1bd4d613-0476-44b5-b08b-4f6e030ddd3a");
     public static final UUID LONGITUDE = UUID.fromString("594dcbcc-648b-4764-92d2-c5ad8175e495");
+    public static final UUID THERMAL = UUID.fromString("01292183-7785-4558-9663-eb7edcb451c1");
+    public static final UUID TURNPOINT = UUID.fromString("aaca3a08-c55c-4331-8a7f-8ba0ff8c351e");
+    public static final UUID WINDDRIFT = UUID.fromString("fe351c72-7eea-4b53-94e4-1bb91f78725f");
 }

@@ -11,15 +11,14 @@ package com.levemus.gliderhud.FlightData.Processors;
  (c) 2015 Levemus Software, Inc.
  */
 
-import com.levemus.gliderhud.FlightData.Managers.IChannelDataSource;
+import com.levemus.gliderhud.FlightData.Pipeline.ChannelDataSource;
+import com.levemus.gliderhud.Messages.ChannelMessages.Data.DataMessage;
 
 /**
  * Created by mark@levemus on 15-12-26.
  */
-public interface IProcessor {
-    void registerSource(IChannelDataSource source);
-    void deRegisterSource(IChannelDataSource source);
-    void start();
-    void stop();
-    long refreshPeriod();
+public interface IProcessor<E> {
+    E onMsg(DataMessage msg);
+    void process();
+    boolean isValid(E value);
 }

@@ -26,9 +26,8 @@ import com.levemus.gliderhud.FlightData.Processors.Factory.Builder.Operations.IA
 public class ProcessorBuilder {
     private ProcessorFrameConfig mConfig = new ProcessorFrameConfig();
 
-    public ProcessorBuilder id(UUID id) {
+    public ProcessorBuilder(UUID id){
         mConfig.mId = id;
-        return this;
     }
 
     public ProcessorBuilder channels(HashSet channels) {

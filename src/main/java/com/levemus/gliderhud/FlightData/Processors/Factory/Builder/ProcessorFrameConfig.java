@@ -22,9 +22,9 @@ import com.levemus.gliderhud.FlightData.Processors.Factory.Builder.Operations.IC
  * Created by mark@levemus on 15-12-28.
  */
 public class ProcessorFrameConfig {
-    public UUID mId = UUID.randomUUID();
     public HashSet<UUID> mChannels = new HashSet<>();
     public IConverter mConverter = null;
     public List<IAdjuster> mAdjusters = null;
     public Long mPeriod = 500L;
+    public UUID mId = UUID.randomUUID();
 }

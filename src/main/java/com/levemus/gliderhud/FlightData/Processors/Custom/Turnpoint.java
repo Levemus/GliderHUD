@@ -15,10 +15,10 @@ import android.location.Location;
 import android.os.Environment;
 import android.os.Handler;
 
-import com.levemus.gliderhud.FlightData.Configuration.IChannelized;
-import com.levemus.gliderhud.FlightData.Configuration.IIdentifiable;
+import com.levemus.gliderhud.FlightData.Configuration.ChannelEntity;
 import com.levemus.gliderhud.FlightData.Processors.Factory.Builder.Operations.Converters.BearingToConverter;
 import com.levemus.gliderhud.FlightData.Processors.Factory.Builder.Operations.Converters.DistanceFromConverter;
+import com.levemus.gliderhud.FlightData.Processors.Factory.ProcessorID;
 import com.levemus.gliderhud.FlightData.Processors.IProcessor;
 import com.levemus.gliderhud.FlightData.Processors.Processor;
 import com.levemus.gliderhud.Messages.ChannelMessages.Channels;
@@ -40,7 +40,7 @@ import java.util.UUID;
 /**
  * Created by mark@levemus on 15-12-20.
  */
-public class Turnpoint extends Processor<Vector> implements IProcessor, IIdentifiable, IChannelized {
+public class Turnpoint extends Processor<Vector> implements IProcessor<Vector>, ChannelEntity {
 
     private final String TAG = this.getClass().getSimpleName();
 
@@ -55,7 +55,7 @@ public class Turnpoint extends Processor<Vector> implements IProcessor, IIdentif
     }
 
     @Override
-    public UUID id() { return UUID.fromString("aaca3a08-c55c-4331-8a7f-8ba0ff8c351e"); }
+    public UUID id() { return ProcessorID.TURNPOINT; }
 
     private List<Waypoint> mWaypoints = new ArrayList<>();
     private String mWaypointPath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).toString() + "/waypoints.txt";
@@ -93,7 +93,7 @@ public class Turnpoint extends Processor<Vector> implements IProcessor, IIdentif
                         wayPoint.mLatitude, wayPoint.mLongitude
                 );
 
-                Double distanceFr = distanceFrom.convert(mProvider.get(this));
+                Double distanceFr = distanceFrom.convert(mCache.data(this));
                 if(distanceFr < wayPoint.mRadius) {
                     iterator.remove();
                     optimize();
@@ -121,10 +121,11 @@ public class Turnpoint extends Processor<Vector> implements IProcessor, IIdentif
                     wayPoint.mLatitude, wayPoint.mLongitude
             );
 
-            Double distance = distanceFrom.convert(mProvider.get(this));
-            Double bearing = bearingTo.convert(mProvider.get(this));
+            Double distance = distanceFrom.convert(mCache.data(this));
+            Double bearing = bearingTo.convert(mCache.data(this));
             mValue = new Vector();
             mValue.setDirectionAndMagnitude(bearing, distance);
+
             if(mValue != null && hasChanged()) {
                 mLastValue = mValue;
             }
@@ -135,7 +136,7 @@ public class Turnpoint extends Processor<Vector> implements IProcessor, IIdentif
     public Vector invalid() { return null; }
 
     @Override
-    public boolean isValid() { return mValue != null; }
+    public boolean isValid(Vector value) { return value != null; }
 
     protected boolean hasChanged() {
         return (mLastValue == null || ((mLastValue.Direction() == mValue.Direction())
