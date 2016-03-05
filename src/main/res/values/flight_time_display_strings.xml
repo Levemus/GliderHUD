@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="flight_time_display_default">00h 00m</string>
+    <string name="flight_time_display_hour">h</string>
+    <string name="flight_time_display_minute">m</string>
+</resources>

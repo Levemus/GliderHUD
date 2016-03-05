@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+android:layout_width="wrap_content"
+android:layout_height="wrap_content"
+    android:gravity="right"
+    android:textAlignment="viewEnd">
+<TextView
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:textAppearance="?android:attr/textAppearanceLarge"
+    android:text="@string/ground_speed_display_title"
+    android:id="@+id/groundSpeedTitle"
+    android:textSize="16dp"
+    android:layout_alignParentRight="false"
+    android:textIsSelectable="true"
+    android:layout_gravity="right|top"
+    android:gravity="right" />
+<TextView
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:textAppearance="?android:attr/textAppearanceLarge"
+    android:id="@+id/groundSpeedDisplay"
+    android:text="@string/ground_speed_display_default"
+    android:textSize="48dp"
+    android:layout_alignParentRight="false"
+    android:layout_gravity="right|top"
+    android:gravity="right"
+    android:textAlignment="gravity"
+    android:layout_alignRight="@+id/groundSpeedTitle"
+    android:layout_below="@+id/groundSpeedTitle" />
+</RelativeLayout>

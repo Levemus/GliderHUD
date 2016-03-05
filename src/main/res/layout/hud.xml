@@ -1,0 +1,66 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/compass_activity_container"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#000000"
+    android:keepScreenOn = "true"
+    tools:context=".HUDActivity"
+    android:gravity="left">
+
+    <fragment
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:name="com.levemus.gliderhud.FlightDisplay.Recon.Compass.CompassDisplay"
+        android:id="@+id/compass_display"
+        tools:layout="@layout/compass_display"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentLeft="true" />
+
+    <fragment
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:name="com.levemus.gliderhud.FlightDisplay.Generic.AltitudeDisplay"
+        android:id="@+id/fragment"
+        android:layout_below="@+id/compass_display"
+        android:layout_alignParentLeft="true"
+        tools:layout="@layout/altitude_display" />
+
+    <fragment
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:name="com.levemus.gliderhud.FlightDisplay.Generic.GroundSpeedDisplay"
+        android:id="@+id/fragment2"
+        android:layout_below="@+id/compass_display"
+        android:layout_alignParentRight="true"
+        tools:layout="@layout/ground_speed_display" />
+
+    <fragment
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:name="com.levemus.gliderhud.FlightDisplay.Generic.VarioGlideRatioDisplay"
+        android:id="@+id/fragment3"
+        android:layout_below="@+id/compass_display"
+        android:layout_toRightOf="@+id/fragment"
+        android:layout_toLeftOf="@+id/fragment2"
+        tools:layout="@layout/vario_glideratio_display" />
+
+    <fragment
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:name="com.levemus.gliderhud.FlightDisplay.Generic.FlightTimeDisplay"
+        android:id="@+id/fragment4"
+        android:layout_below="@+id/fragment"
+        android:layout_alignParentLeft="true"
+        tools:layout="@layout/flight_time_display" />
+
+    <fragment
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:name="com.levemus.gliderhud.FlightDisplay.Generic.BatteryDisplay"
+        android:id="@+id/fragment5"
+        android:layout_below="@+id/fragment2"
+        android:layout_alignParentRight="true"
+        tools:layout="@layout/battery_level_display" />
+
+</RelativeLayout>

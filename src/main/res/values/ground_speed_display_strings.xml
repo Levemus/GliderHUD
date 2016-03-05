@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="ground_speed_display_title">Speed (kph)</string>
+    <string name="ground_speed_display_default">---</string>
+</resources>

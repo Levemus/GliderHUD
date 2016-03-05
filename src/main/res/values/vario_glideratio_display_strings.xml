@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="vario_glideratio_display_default">---</string>
+    <string name="glideratio_units">L/D</string>
+    <string name="vario_units">m/s</string>
+</resources>

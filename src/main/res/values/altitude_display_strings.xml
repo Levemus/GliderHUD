@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="altitude_display_title">Altitude (m)</string>
+    <string name="altitude_display_default">---</string>
+</resources>

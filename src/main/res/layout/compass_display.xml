@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content" android:layout_height="wrap_content">
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:id="@+id/compassBar"
+        android:src="@drawable/compass_bar"
+        android:layout_height="70dp"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@+id/wind_strength" />
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/compass_pointer"
+        android:src="@drawable/compass_marker"
+        android:layout_alignParentLeft="true"
+        android:layout_alignBottom="@+id/compassBar"
+        android:layout_below="@+id/bearing_pointer" />
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/bearing_pointer"
+        android:src="@drawable/yellow_pointer_sm"
+        android:visibility="invisible"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignTop="@+id/compassBar" />
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/wind_pointer"
+        android:src="@drawable/blue_pointer_sm"
+        android:visibility="invisible"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@+id/wind_strength" />
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/waypoint_pointer"
+        android:src="@drawable/red_pointer_sm"
+        android:visibility="invisible"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@+id/waypoint_distance" />
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/launch_pointer"
+        android:src="@drawable/green_pointer_sm"
+        android:visibility="invisible"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@+id/launch_distance" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:id="@+id/waypoint_distance"
+        android:layout_alignParentBottom="false"
+        android:layout_centerHorizontal="true"
+        android:layout_alignParentTop="true" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:id="@+id/launch_distance"
+        android:layout_alignParentBottom="false"
+        android:layout_centerHorizontal="true"
+        android:layout_alignParentTop="true" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:id="@+id/wind_strength"
+        android:layout_alignParentBottom="false"
+        android:layout_centerHorizontal="true"
+        android:layout_alignParentTop="true" />
+
+</RelativeLayout>
